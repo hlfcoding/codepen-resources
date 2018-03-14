@@ -62,6 +62,23 @@
     throw 'unsupported input';
   }
 
+  function setupDisplayClasses(context) {
+    let target = context.querySelector('[data-display-target]');
+    console.assert(target);
+    let radios = context.querySelectorAll('[name=display]');
+    console.assert(radios.length);
+    let classNames = Array.from(radios).map(r => r.getAttribute('value'));
+    console.assert(classNames.length);
+    radios.forEach(radio => {
+      radio.addEventListener('change', event => {
+        target.classList.remove(...classNames);
+        let className = event.target.value;
+        console.assert(classNames.indexOf(className) !== -1);
+        target.classList.add(className);
+      });
+    });
+  }
+
   function showOnReady(completion) {
     if (window.$ && $.fn.ready) {
       $(function() {
@@ -116,7 +133,7 @@
 
   window.commonHelpers = {
     createStateMachine, debugMixin, delay, delayed, fixActiveStateForTouch,
-    resolveCompletion, showOnReady, test,
+    resolveCompletion, setupDisplayClasses, showOnReady, test,
   };
 
   if (window.$ && $.Deferred) {
