@@ -44,6 +44,8 @@
 
 }
 
+/* Layout */
+
 .bar-layout>button {
   display: block;
   line-height: 1;
@@ -65,6 +67,27 @@ html.flexbox .bar-layout>button {
   flex: 1 1 auto;
 }
 
+.centered {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+html.no-flexbox .bar-layout::before,
+html.no-flexbox .bar-layout::after,
+.clearfix::before,
+.clearfix::after {
+  content: ' ';
+  display: table;
+}
+html.no-flexbox .bar-layout::after,
+.clearfix::after {
+  clear: both;
+}
+
+/* Animation */
+
 @keyframes blink {
   50% {
     opacity: 0;
@@ -80,6 +103,8 @@ html.flexbox .bar-layout>button {
   animation-play-state: paused;
 }
 
+/* Skin */
+
 .card-skin {
   background: var(--light-9);
   border: 1px solid var(--shade-5);
@@ -90,24 +115,7 @@ html.flexbox .bar-layout>button {
   padding: 1rem;
 }
 
-.centered {
-  left: 50%;
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
-
-html.no-flexbox .bar-layout:before,
-html.no-flexbox .bar-layout:after,
-.clearfix:before,
-.clearfix:after {
-  content: ' ';
-  display: table;
-}
-html.no-flexbox .bar-layout:after,
-.clearfix:after {
-  clear: both;
-}
+/* Appearance */
 
 .disabled-mobile-interactions {
   -webkit-tap-highlight-color: transparent;
@@ -136,6 +144,8 @@ html.no-flexbox .bar-layout:after,
   position: absolute;
   z-index: -9999;
 }
+
+/* UI */
 
 .helper-button {
   background: var(--md-fill-color);
@@ -170,6 +180,8 @@ hr.helper {
 .ch-graphic {
   user-select: none;
 }
+
+/* Prose */
 
 .markdown {
   font-family: 'Helvetica', sans-serif;
@@ -238,6 +250,8 @@ hr.helper {
 .swatches > [data-color]:hover {
   border-color: var(--shade-3);
 }
+
+/* Swatch */
 
 [data-palette=prussian-blues] [data-color=dark] {
   background-color: var(--prussian-blue-dark);
