@@ -86,6 +86,25 @@ html.no-flexbox .bar-layout::after,
   clear: both;
 }
 
+.text-block {
+  line-height: 1.5;
+  padding: 1rem;
+}
+
+.wrapper-block {
+  margin: 2rem;
+}
+
+/* Type */
+
+/* fix spaces (css-tricks.com/fighting-the-space-between-inline-block-elements) */
+.inline-block-context {
+  font-size: 0;
+}
+.inline-block-context > * {
+  font-size: 1rem;
+}
+
 /* Animation */
 
 @keyframes blink {
@@ -105,6 +124,12 @@ html.no-flexbox .bar-layout::after,
 
 /* Skin */
 
+.block-skin {
+  background: #f2f2f2;
+  border-bottom: 1px dashed lightgray;
+  border-top: 1px dashed lightgray;
+}
+
 .card-skin {
   background: var(--light-9);
   border: 1px solid var(--shade-5);
@@ -113,6 +138,27 @@ html.no-flexbox .bar-layout::after,
               0 1px 2px var(--shade-2),
               inset 0 0 0 1px var(--light);
   padding: 1rem;
+}
+
+.code-skin {
+  background: #ffc;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px #ff3;
+  display: inline-block;
+  line-height: 1.5;
+  margin: 0 0.3em;
+  padding: 0 0.7em;
+}
+
+.pane-skin {
+  background: lightgray;
+  border: 1px solid gray;
+  box-shadow: inset 0 0 0 1px var(--light-5);
+  padding: 1rem;
+  transition: all 0.3s;
+}
+.pane-skin:hover {
+  background: yellow;
 }
 
 /* Appearance */
@@ -126,10 +172,12 @@ html.no-flexbox .bar-layout::after,
   display: none;
 }
 
+.show-on-hover,
 .show-on-ready {
   opacity: 0;
   transition: opacity .3s ease-in-out;
 }
+.show-on-hover:hover,
 .show-on-ready[data-ready],
 .show-on-ready.ready {
   opacity: 1;
