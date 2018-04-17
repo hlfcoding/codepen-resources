@@ -21,7 +21,7 @@ circle {
 ```
 
 ```js
-const count = 5;
+const count = 5; // Per side.
 const minR = 25;
 
 let svg = document.querySelector('svg');
@@ -36,15 +36,15 @@ main.setAttribute('cy', height / 2);
 main.setAttribute('r', width / 2);
 
 let fragment = document.createDocumentFragment();
-let step = (width / 2 - minR) / count;
-function createSub(n, dir) {
+let offset = (width / 2 - minR) / count;
+function createSub(step, dir) {
   let sub = main.cloneNode(true);
-  sub.setAttribute('cx', main.getAttribute('cx') - step * n * dir);
-  sub.setAttribute('r', main.getAttribute('r') - step * n);
+  sub.setAttribute('cx', main.getAttribute('cx') - offset * step * dir);
+  sub.setAttribute('r', main.getAttribute('r') - offset * step);
   return sub;
 }
 let steps = Array.from(Array(count)).map((_, i) => i + 1);
-let pairs = steps.map(n => [createSub(n, -1), createSub(n, 1)]);
+let pairs = steps.map(s => [createSub(s, -1), createSub(s, 1)]);
 pairs.forEach(p => p.forEach(sub => fragment.appendChild(sub)));
 svg.appendChild(fragment);
 ```
