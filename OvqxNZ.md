@@ -21,8 +21,8 @@ circle {
 ```
 
 ```js
-const count = 5; // Per side.
-const minR = 25;
+const count = 6; // Per side.
+const minR = 6;
 
 let svg = document.querySelector('svg');
 let main = svg.querySelector('circle');
@@ -35,12 +35,23 @@ main.setAttribute('cx', width / 2);
 main.setAttribute('cy', height / 2);
 main.setAttribute('r', width / 2);
 
+let animations = [];
 let fragment = document.createDocumentFragment();
 let offset = (width / 2 - minR) / count;
 function createSub(step, dir) {
   let sub = main.cloneNode(true);
-  sub.setAttribute('cx', main.getAttribute('cx') - offset * step * dir);
-  sub.setAttribute('r', main.getAttribute('r') - offset * step);
+  function cx(shift = 0) { return Math.round(main.getAttribute('cx') - offset * (step + shift) * dir); }
+  function r(shift = 0) { return Math.round(main.getAttribute('r') - offset * (step + shift)); }
+  sub.setAttribute('cx', cx());
+  sub.setAttribute('r', r());
+  let keys = [{ cx: cx(), r: r() }, { cx: cx(-1), r: r(-1) }];
+  if (step === 1) {
+    keys[0].fillOpacity = parseFloat(getComputedStyle(main).fillOpacity);
+    keys[1].fillOpacity = 0;
+  }
+  let a = sub.animate(keys, { duration: 3000, id: `${step}:${dir}`, iterations: Infinity });
+  sub.setAttribute('data-animation-id', a.id);
+  animations.push(a);
   return sub;
 }
 let steps = Array.from(Array(count)).map((_, i) => i + 1);
