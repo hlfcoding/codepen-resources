@@ -44,14 +44,16 @@ function createSub(step, dir) {
   function r(shift = 0) { return Math.round(main.getAttribute('r') - offset * (step + shift)); }
   sub.setAttribute('cx', cx());
   sub.setAttribute('r', r());
-  let keys = [{ cx: cx(), r: r() }, { cx: cx(-1), r: r(-1) }];
-  if (step === 1) {
-    keys[0].fillOpacity = parseFloat(getComputedStyle(main).fillOpacity);
-    keys[1].fillOpacity = 0;
+  if (typeof sub.animate === 'function') {
+    let keys = [{ cx: cx(), r: r() }, { cx: cx(-1), r: r(-1) }];
+    if (step === 1) {
+      keys[0].fillOpacity = parseFloat(getComputedStyle(main).fillOpacity);
+      keys[1].fillOpacity = 0;
+    }
+    let a = sub.animate(keys, { duration: 3000, id: `${step}:${dir}`, iterations: Infinity });
+    sub.setAttribute('data-animation-id', a.id);
+    animations.push(a);
   }
-  let a = sub.animate(keys, { duration: 3000, id: `${step}:${dir}`, iterations: Infinity });
-  sub.setAttribute('data-animation-id', a.id);
-  animations.push(a);
   return sub;
 }
 let steps = Array.from(Array(count)).map((_, i) => i + 1);
