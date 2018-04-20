@@ -59,5 +59,11 @@ function createSub(step, dir) {
 let steps = Array.from(Array(count)).map((_, i) => i + 1);
 let pairs = steps.map(s => [createSub(s, -1), createSub(s, 1)]);
 pairs.forEach(p => p.forEach(sub => fragment.appendChild(sub)));
-svg.appendChild(fragment);
+svg.insertBefore(fragment, main);
+main.addEventListener('click', _ => {
+  animations.forEach(a => {
+    if (a.playState === 'paused') { a.play(); }
+    else { a.pause(); }
+  });
+});
 ```
