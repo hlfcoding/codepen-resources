@@ -17,6 +17,13 @@ circle {
   fill: var(--prussian-blue-medium);
   fill-opacity: 0.3;
   mix-blend-mode: multiply;
+  transition-duration: 1s;
+  transition-property: fill-opacity, mix-blend-mode;
+  transition-timing-function: linear;
+}
+circle:hover {
+  fill-opacity: 0.5;
+  mix-blend-mode: hard-light;
 }
 ```
 
