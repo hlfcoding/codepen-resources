@@ -3,7 +3,7 @@
 > [Brand New: New Logo and Identity for Ministry for Foreign Affairs of Finland by 358](https://underconsideration.com/brandnew/archives/new_logo_and_identity_for_ministry_for_foreign_affairs_of_finland_by_358.php)
 
 ```html
-<svg xmlns="http://www.w3.org/2000/svg" class="card-skin centered"
+<svg xmlns="http://www.w3.org/2000/svg" class="-card-skin -centered"
      width="200" height="200">
   <circle />
 </svg>
