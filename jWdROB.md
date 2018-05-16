@@ -16,11 +16,10 @@
 .heart {
   --heart-angle: 45deg;
   --heart-fill: #c03;
-  --heart-offset: (-50%, -50%);
   --heart-size: 100px; /* scale() causes blurry artifacts */
-  --beat-contracted: translate(calc(var(--heart-offset))) rotate(calc(var(--heart-angle)));
-  --beat-less-expanded: translate(calc(var(--heart-offset))) scale(1.1) rotate(calc(var(--heart-angle)));
-  --beat-more-expanded: translate(calc(var(--heart-offset))) scale(1.15) rotate(calc(var(--heart-angle)));
+  --beat-contracted: translate(-50%,-50%) rotate(calc(var(--heart-angle)));
+  --beat-less-expanded: translate(-50%,-50%) scale(1.1) rotate(calc(var(--heart-angle)));
+  --beat-more-expanded: translate(-50%,-50%) scale(1.15) rotate(calc(var(--heart-angle)));
   --beat-resting-duration: 1s; /* 60bpm */
   --beat-excited-duration: .66s; /* 90bpm */
   --beat-omfg-duration: .27s; /* 220bpm */
