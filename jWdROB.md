@@ -80,7 +80,7 @@
 }
 .heart .glow.--excited {
   --glow-fill: rgba(204,0,51, .7);
-  --glow-size: calc(var(--heart-size) * .1.6);
+  --glow-size: calc(var(--heart-size) * 1.6);
   opacity: 0;
 }
 
