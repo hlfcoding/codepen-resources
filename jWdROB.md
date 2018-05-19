@@ -5,6 +5,7 @@
 ```html
 <div class="background --light"></div>
 <div class="background --dark"></div>
+<div class="proximity"></div>
 <div class="heart -graphic">
   <div class="glow -layer"></div>
   <div class="glow -layer --excited"></div>
@@ -13,7 +14,7 @@
 ```
 
 ```css
-.heart {
+:root {
   --heart-angle: 45deg;
   --heart-fill: #c03;
   --heart-size: 100px; /* scale() causes blurry artifacts */
@@ -33,6 +34,7 @@
   90% { transform: var(--beat-contracted); }
 }
 
+.proximity,
 .heart .-layer::before,
 .heart .-layer::after,
 .heart .-layer,
@@ -42,10 +44,14 @@
   width: var(--heart-size);
 }
 
+.proximity,
 .heart {
-  animation: heart-beat var(--beat-resting-duration) ease-in-out infinite both;
   left: 50%;
   top: 50%;
+}
+
+.heart {
+  animation: heart-beat var(--beat-resting-duration) ease-in-out infinite both;
   transform: var(--beat-contracted);
   /* will-change: transform; */
 }
@@ -84,11 +90,18 @@
   opacity: 0;
 }
 
+.proximity {
+  padding: calc(var(--heart-size) * .7);
+  transform: translate(-50%,-50%);
+}
+
 .heart:hover {
   animation-duration: var(--beat-excited-duration);
   cursor: pointer;
 }
+.proximity:hover + .heart .glow,
 .heart:hover .glow { opacity: 0; }
+.proximity:hover + .heart .glow.--excited,
 .heart:hover .glow.--excited { opacity: 1; }
 
 .heart:active {
