@@ -5,4 +5,7 @@ command -v aws >/dev/null 2>&1 || { echo 'aws not installed'; exit 1; }
 s3_bucket=s3://pengxwang/codepen-resources
 
 aws s3 sync . "$s3_bucket" --acl public-read --delete \
-  --exclude "bin/*" --exclude ".*" --exclude "*.md"
+  --exclude "bin/*" --exclude ".*" --exclude "*.md" --exclude "*.mjs"
+
+aws s3 sync . "$s3_bucket" --acl public-read --content-type "application/javascript" --delete \
+  --exclude "*" --include "*.mjs"

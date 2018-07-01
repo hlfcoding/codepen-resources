@@ -3,6 +3,13 @@
 > Happy Valentine's Day
 
 ```html
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" href="//assets.pengxwang.com/codepen-resources/app-icons/heart.png">
+<link rel="modulepreload" href="//assets.pengxwang.com/codepen-resources/common-helpers/main.mjs">
+<link rel="stylesheet" href="//assets.pengxwang.com/codepen-resources/common-helpers/main-v2.css">
+```
+
+```html
 <div class="background --light"></div>
 <div class="background --dark"></div>
 <div class="proximity"></div>
@@ -138,6 +145,6 @@ body:active .background.--dark { opacity: 1; }
 ```
 
 ```js
-const { fixActiveStateForTouch } = window.commonHelpers;
+import { fixActiveStateForTouch } from '//assets.pengxwang.com/codepen-resources/common-helpers/main.mjs';
 fixActiveStateForTouch(document.querySelector('.heart'));
 ```
