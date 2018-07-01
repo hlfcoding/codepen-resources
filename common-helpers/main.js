@@ -5,7 +5,7 @@
 
   // ---
 
-  function createStateMachine () {
+  function createStateMachine() {
     let states = [];
     function getActiveState() { return states._activeState; }
     function setActiveState(next) {

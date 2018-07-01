@@ -63,7 +63,7 @@ function createSub(step, dir) {
   }
   return sub;
 }
-let steps = Array.from(Array(count)).map((_, i) => i + 1);
+let steps = [...Array(count)].map((_, i) => i + 1);
 let pairs = steps.map(s => [createSub(s, -1), createSub(s, 1)]);
 pairs.forEach(p => p.forEach(sub => fragment.appendChild(sub)));
 svg.insertBefore(fragment, main);
