@@ -26,6 +26,9 @@
   --heart-angle: 45deg;
   --heart-fill: #c03;
   --heart-size: 100px; /* scale() causes blurry artifacts */
+  --glow-fill: rgba(204,0,51, .5);
+  --glow-size: calc(var(--heart-size) * .8);
+  --glow-size-fix: calc(var(--heart-size) / 5);
   --beat-contracted: translate(-50%,-50%) rotate(calc(var(--heart-angle)));
   --beat-less-expanded: translate(-50%,-50%) scale(1.1) rotate(calc(var(--heart-angle)));
   --beat-more-expanded: translate(-50%,-50%) scale(1.15) rotate(calc(var(--heart-angle)));
@@ -77,15 +80,13 @@
 .heart .shape.-layer::after,
 .heart .shape.-layer {
   background: var(--heart-fill);
+  transition: background .3s ease-out;
 }
 
 .heart .glow {
-  --glow-fill: rgba(204,0,51, .4);
-  --glow-size: calc(var(--heart-size) * .8);
-  --glow-size-fix: calc(var(--heart-size) / 5);
   box-shadow: 0 0 var(--glow-size) var(--glow-fill);
   opacity: 1;
-  transition: opacity .3s ease-in-out;
+  transition: opacity .3s ease-out;
   /* will-change: opacity; */
 }
 .heart .glow::before,
@@ -104,6 +105,7 @@
 }
 
 .heart:hover {
+  --heart-fill: #f36;
   animation-duration: var(--beat-excited-duration);
   cursor: pointer;
 }
