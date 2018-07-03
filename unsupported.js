@@ -6,6 +6,9 @@
 
   try {
     eval('()=>{}');
+    if (!('noModule' in document.createElement('script'))) {
+      throw 'no module support';
+    }
   } catch (e) {
     supported = false;
   }

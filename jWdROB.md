@@ -7,6 +7,7 @@
 <link rel="apple-touch-icon" href="//assets.pengxwang.com/codepen-resources/app-icons/heart.png">
 <link rel="modulepreload" href="//assets.pengxwang.com/codepen-resources/common-helpers/main.mjs">
 <link rel="stylesheet" href="//assets.pengxwang.com/codepen-resources/common-helpers/main-v2.css">
+<script src="//assets.pengxwang.com/codepen-resources/unsupported.js"></script>
 ```
 
 ```html
