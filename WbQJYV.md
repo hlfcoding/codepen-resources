@@ -133,15 +133,13 @@ text {
 
 ```js
 const {
-  keys, max, values, zip,
-  scaleBand, scaleLinear,
-  select, axisBottom, axisLeft, axisTop,
+  axisBottom, axisLeft, axisTop,
   format, schemeCategory10,
 } = d3;
 
 // helpers
 // -------
-const axis = (name, type='axis') => (
+const axis = (chart, name, type='axis') => (
   a[name + type.charAt(0).toUpperCase() + type.slice(1)] ?
   chart.select(`.${name}.${type}`) :
   chart.append('g').attr('class', `${name} ${type}`)
@@ -159,22 +157,62 @@ const barColors = schemeCategory10;
 const font = 10, height = 330, ticks = 5, width = 400;
 const margin = {top: 20, right: 120, bottom: 20, left: 30, inner: 50};
 
-let wrap = select('.bar-chart').attrs({
-  width: width + margin.left + margin.right,
-  height: height + margin.top + margin.bottom
-});
-let chart = wrap.append('g').attr('class', 'chart-body');
 let en = {}, m = {}, a = {};
 
-const withData = (donations) => {
-  const donationMax = max(values(donations), d => max(values(d.totals)));
-  const donationPeriods = keys(donations.foo.totals);
-  const donationTotals = zip(...values(donations).map(d => values(d.totals)));
-  const donorNames = values(donations).map(d => d.name);
+function createDonations(data) {
+  const { keys, max, values, zip } = d3;
+  return {
+    donors: values(data).map(datum => datum.name),
+    max: max(values(data), datum => max(values(datum.totals))),
+    periods: keys(data.foo.totals),
+    totals: zip(...values(data).map(datum => values(datum.totals))),
+  };
+}
 
-  const x = scaleLinear().domain([0, Math.round(1.1 * donationMax)]).range([0, width]);
-  const y = scaleBand().domain(donationPeriods).rangeRound([0, height]).paddingInner(0.2).paddingOuter(0.2);
-  const ySub = scaleBand().domain(donorNames).rangeRound([0, y.bandwidth()]).paddingInner(0.25);
+function createScales(donations) {
+  const { scaleBand, scaleLinear } = d3;
+  return {
+    x: scaleLinear().domain([0, Math.round(1.1 * donations.max)]),
+    y: scaleBand().domain(donations.periods),
+    ySub: scaleBand().domain(donations.donors),
+  };
+}
+
+function createSelections(donations) {
+  const { scaleBand, scaleLinear, select } = d3;
+  const wrap = select('.bar-chart');
+  let chart = wrap.select('.chart-body');
+  if (chart.empty()) {
+    chart = wrap.append('g').attr('class', 'chart-body');
+  }
+  return {
+    barGroup: chart.selectAll('.bar-group').data(donations.totals),
+    chart,
+    legend: chart.selectAll('.legend').data(donations.donors),
+    wrap,
+  };
+}
+
+function configureLayout(scales, selections) {
+  scales.x.range([0, width]);
+  scales.y.rangeRound([0, height]).paddingInner(0.2).paddingOuter(0.2);
+  scales.ySub.rangeRound([0, scales.y.bandwidth()]).paddingInner(0.25);
+  selections.wrap.attrs({
+    width: width + margin.left + margin.right,
+    height: height + margin.top + margin.bottom,
+  });
+  selections.chart.attr('transform', translate(margin.left, margin.top));
+}
+
+const withData = (data) => {
+  const donations = createDonations(data);
+  const scales = createScales(donations);
+  const selections = createSelections(donations);
+
+  const { x, y, ySub } = scales;
+  const { barGroup, chart, legend, wrap } = selections;
+
+  configureLayout(scales, selections);
 
   const legendLine = ySub.bandwidth(), legendMargin = scalePadding.inner(ySub);
   const legendOffset = {x: width + margin.inner, y: scalePadding.outer(y)};
@@ -182,17 +220,15 @@ const withData = (donations) => {
   const barTextOffset = {x: 0.4 * ySub.bandwidth(), y: -0.6 * (ySub.bandwidth() - font)};
 
   const t = d3.transition().ease(d3.easeQuadInOut).duration(!en.barGroup ? 0 : 400);
-  a.xAxis = axis('x').transition(t).call(axisBottom().scale(x).ticks(ticks, '$s'));
-  a.xGrid = axis('x', 'grid').transition(t).call(axisTop().scale(x).ticks(ticks).tickSize(-height).tickFormat(''));
-  a.yAxis = axis('y').transition(t).call(axisLeft().scale(y).tickSize(0));
+  a.xAxis = axis(chart, 'x').transition(t).call(axisBottom().scale(x).ticks(ticks, '$s'));
+  a.xGrid = axis(chart, 'x', 'grid').transition(t).call(axisTop().scale(x).ticks(ticks).tickSize(-height).tickFormat(''));
+  a.yAxis = axis(chart, 'y').transition(t).call(axisLeft().scale(y).tickSize(0));
 
-  let barGroup = chart.selectAll('.bar-group').data(donationTotals);
   en.barGroup = barGroup.enter().append('g').attr('class', 'bar-group');
   en.barGroup.style('opacity', 0).transition(t).style('opacity', 1);
-  m.barGroup = en.barGroup.merge(barGroup);
+  m.barGroup = barGroup.merge(en.barGroup);
   barGroup.exit().transition(t).style('opacity', 0).remove();
 
-  let legend = chart.selectAll('.legend').data(ySub.domain());
   en.legend = legend.enter().append('g').attr('class', 'legend')
     .call((s) => s.append('rect') && s.append('text'));
   m.legend = en.legend.merge(legend);
@@ -207,7 +243,6 @@ const withData = (donations) => {
   bar.exit().remove();
 
   // position
-  chart.attr('transform', translate(margin.left, margin.top));
   a.xAxis.attr('transform', translate(0, height));
   m.barGroup.transition(t).attr('transform', (d, i) => translate(0, scaleBarOffset(y, i)));
   m.bar.transition(t).attr('transform', (d, i) => translate(1, scaleBarOffset(ySub, i)));
