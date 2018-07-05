@@ -1,6 +1,6 @@
 # [D3 Sketch #2](https://codepen.io/hlfcoding/details/WbQJYV)
 
-> Grouped bar chart with grid, legend, and transitions in < 100 lines.
+> Grouped bar chart with grid, legend, and transitions in < 150 lines.
 
 ```html
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -143,10 +143,6 @@ chart.append('g').attr('class', 'x axis');
 chart.append('g').attr('class', 'x grid');
 chart.append('g').attr('class', 'y axis');
 
-let state = {
-  didFirstRender: false,
-};
-
 const createModel = data => ({
   max: d3.max(d3.values(data), datum => d3.max(d3.values(datum.totals))),
   names: d3.values(data).map(datum => datum.name),
@@ -240,9 +236,8 @@ function configureLayout(scales, selections, enters, merges) {
   selections.legendText.attrs({dy: barTextOffset.y, x: legendTextX, y: groupHeight});
 }
 
-function mutateWithTransition(selections, enters, merges, exits) {
-  const { easeQuadInOut, transition } = d3;
-  const base = transition().ease(easeQuadInOut).duration(!state.didFirstRender ? 0 : 400);
+function mutateWithTransition({ selections, enters, merges, exits, initial }) {
+  const base = d3.transition().ease(d3.easeQuadInOut).duration(initial ? 0 : 400);
   selections.xAxis = selections.xAxis.transition(base);
   selections.xGrid = selections.xGrid.transition(base);
   selections.yAxis = selections.yAxis.transition(base);
@@ -257,7 +252,7 @@ function mutateWithTransition(selections, enters, merges, exits) {
   exits.barGroup.transition(base).style('opacity', 0);
 }
 
-function render(data) {
+function render(data, initial = false) {
   const model = createModel(data);
   const scales = createScales(model);
   const selections = createSelections(model);
@@ -265,21 +260,14 @@ function render(data) {
   const merges = createMergesAndExtend(selections, enters);
   const exits = createExits(selections);
 
-  mutateWithTransition(selections, enters, merges, exits);
+  mutateWithTransition({ selections, enters, merges, exits, initial });
   configureLayout(scales, selections, enters, merges);
   createAxes(scales, selections);
-
-  if (!state.didFirstRender) {
-    state.didFirstRender = true;
-  }
 }
-
-// run
-// ---
 
 let select = document.querySelector('[name=dataset]');
 const data = option => JSON.parse(option.getAttribute('data-json'));
 select.addEventListener('change', () => render(data(select.querySelector('option:checked'))));
-render(data(select.firstElementChild));
+render(data(select.firstElementChild), true);
 setTimeout(() => document.querySelector('figure').classList.add('ready'), 500);
 ```
