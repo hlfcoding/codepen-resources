@@ -13,78 +13,36 @@
 
 ```html
 <figure class="card-skin centered">
-  <figcaption>
-    Total Donated Per Quarter for
-    <select name="dataset">
-      <option value="2015" data-json='
-        {
-          "foo": {
-            "name": "Foo Org",
-            "totals": {
-              "YTD": 1000000,
-              "Q1": 200000,
-              "Q2": 300000,
-              "Q3": 400000,
-              "Q4": 100000
-            }
-          },
-          "bar": {
-            "name": "Bar Org",
-            "totals": {
-              "YTD": 2000000,
-              "Q1": 400000,
-              "Q2": 600000,
-              "Q3": 800000,
-              "Q4": 200000
-            }
-          },
-          "baz": {
-            "name": "Baz Org",
-            "totals": {
-              "YTD": 500000,
-              "Q1": 100000,
-              "Q2": 150000,
-              "Q3": 200000,
-              "Q4": 50000
-            }
-          }
-        }
-      '>
-        2015
-      </option>
-      <option value="2016" data-json='
-        {
-          "foo": {
-            "name": "Foo Org",
-            "totals": {
-              "YTD": 800000,
-              "Q1": 300000,
-              "Q2": 400000,
-              "Q3": 100000
-            }
-          },
-          "bar": {
-            "name": "Bar Org",
-            "totals": {
-              "YTD": 1800000,
-              "Q1": 800000,
-              "Q2": 400000,
-              "Q3": 600000
-            }
-          },
-          "buzz": {
-            "name": "Buzz Org",
-            "totals": {
-              "YTD": 300000,
-              "Q1": 150000,
-              "Q2": 50000,
-              "Q3": 100000
-            }
-          }
-        }
-      '>2016</option>
-    </select>
-  </figcaption>
+  <figcaption>Total Donated Per Quarter for <select name="dataset">
+    <option value="2015" data-json='{
+      "foo": {
+        "name": "Foo Org",
+        "totals": {"YTD": 1000000, "Q1": 200000, "Q2": 300000, "Q3": 400000, "Q4": 100000}
+      },
+      "bar": {
+        "name": "Bar Org",
+        "totals": {"YTD": 2000000, "Q1": 400000, "Q2": 600000, "Q3": 800000, "Q4": 200000}
+      },
+      "baz": {
+        "name": "Baz Org",
+        "totals": {"YTD": 500000, "Q1": 100000, "Q2": 150000, "Q3": 200000, "Q4": 50000}
+      }
+    }'>2015</option>
+    <option value="2016" data-json='{
+      "foo": {
+        "name": "Foo Org",
+        "totals": {"YTD": 800000, "Q1": 300000, "Q2": 400000, "Q3": 100000}
+      },
+      "bar": {
+        "name": "Bar Org",
+        "totals": {"YTD": 1800000, "Q1": 800000, "Q2": 400000, "Q3": 600000}
+      },
+      "buzz": {
+        "name": "Buzz Org",
+        "totals": {"YTD": 300000, "Q1": 150000, "Q2": 50000, "Q3": 100000}
+      }
+    }'>2016</option>
+  </select></figcaption>
   <svg class="bar-chart"></svg>
 </figure>
 ```
@@ -253,13 +211,14 @@ function mutateWithTransition({ selections, enters, merges, exits, initial }) {
 }
 
 function render(data, initial = false) {
+  // Ordered:
   const model = createModel(data);
   const scales = createScales(model);
   const selections = createSelections(model);
   const enters = createEnters(selections);
   const merges = createMergesAndExtend(selections, enters);
   const exits = createExits(selections);
-
+  // Ordered:
   mutateWithTransition({ selections, enters, merges, exits, initial });
   configureLayout(scales, selections, enters, merges);
   createAxes(scales, selections);
