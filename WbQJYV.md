@@ -8,12 +8,11 @@
 <script src="//assets.pengxwang.com/codepen-resources/unsupported.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js"></script>
 <script src="//d3js.org/d3-selection-multi.v1.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <script src="//assets.pengxwang.com/codepen-resources/common-helpers/main.js"></script>
 ```
 
 ```html
-<figure class="card-skin centered" style="display: none">
+<figure class="card-skin centered">
   <figcaption>
     Total Donated Per Quarter for
     <select name="dataset">
@@ -103,8 +102,13 @@ body {
 
 figure {
   margin: 0;
+  opacity: 0;
   padding: 2rem;
   position: absolute;
+  transition: opacity .2s;
+}
+figure.ready {
+  opacity: 1;
 }
 
 figcaption {
@@ -272,9 +276,10 @@ function render(data) {
 
 // run
 // ---
-let $select = $('[name=dataset]');
-const data = ($option) => (JSON.parse($option.data('json')));
-$select.on('change', () => render(data($select.find('option:selected'))));
-render(data($select.find('option:first')));
-$select.closest('figure').delay(500).fadeIn('fast');
+
+let select = document.querySelector('[name=dataset]');
+const data = option => JSON.parse(option.getAttribute('data-json'));
+select.addEventListener('change', () => render(data(select.querySelector('option:checked'))));
+render(data(select.firstElementChild));
+setTimeout(() => document.querySelector('figure').classList.add('ready'), 500);
 ```
