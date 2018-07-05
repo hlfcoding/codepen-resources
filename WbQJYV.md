@@ -132,115 +132,94 @@ text {
 ```
 
 ```js
-// helpers
-// -------
-const scaleBarOffset = (scale, i) => scalePadding.outer(scale) + scale.step() * i;
-const scalePadding = {
-  inner: scale => Math.round(scale.paddingInner() * scale.step()),
-  outer: scale => Math.round(scale.paddingOuter() * scale.step())
-};
-const translate = (x, y) => (`translate(${x}, ${y})`);
+const height = 330;
 
-// chart
-// -----
-const { schemeCategory10 } = d3;
-const barColors = schemeCategory10;
-const font = 10, height = 330, ticks = 5, width = 400;
-const margin = {top: 20, right: 120, bottom: 20, left: 30, inner: 50};
+let chart = d3.select('.bar-chart').append('g').attr('class', 'chart-body');
+chart.append('g').attr('class', 'x axis');
+chart.append('g').attr('class', 'x grid');
+chart.append('g').attr('class', 'y axis');
 
 let state = {
   didFirstRender: false,
 };
 
-function createDonations(data) {
-  const { keys, max, values, zip } = d3;
-  return {
-    donors: values(data).map(datum => datum.name),
-    max: max(values(data), datum => max(values(datum.totals))),
-    periods: keys(data.foo.totals),
-    totals: zip(...values(data).map(datum => values(datum.totals))),
-  };
-}
+const createModel = data => ({
+  max: d3.max(d3.values(data), datum => d3.max(d3.values(datum.totals))),
+  names: d3.values(data).map(datum => datum.name),
+  periods: d3.keys(data.foo.totals),
+  totals: d3.zip(...d3.values(data).map(datum => d3.values(datum.totals))),
+});
 
-function createScales(donations) {
-  const { scaleBand, scaleLinear } = d3;
-  return {
-    x: scaleLinear().domain([0, Math.round(1.1 * donations.max)]),
-    y: scaleBand().domain(donations.periods),
-    ySub: scaleBand().domain(donations.donors),
-  };
-}
+const createScales = model => ({
+  x: d3.scaleLinear().domain([0, Math.round(1.1 * model.max)]),
+  y: d3.scaleBand().domain(model.periods),
+  ySub: d3.scaleBand().domain(model.names),
+});
 
-function createSelections(donations) {
-  const { scaleBand, scaleLinear, select } = d3;
-  const wrap = select('.bar-chart');
-  let chart = wrap.select('.chart-body');
-  if (chart.empty()) {
-    chart = wrap.append('g').attr('class', 'chart-body');
-    chart.append('g').attr('class', 'x axis');
-    chart.append('g').attr('class', 'x grid');
-    chart.append('g').attr('class', 'y axis');
-  }
-  return {
-    barGroup: chart.selectAll('.bar-group').data(donations.totals),
-    chart,
-    legend: chart.selectAll('.legend').data(donations.donors),
-    wrap,
-    xAxis: chart.select('.x.axis'),
-    xGrid: chart.select('.x.grid'),
-    yAxis: chart.select('.y.axis'),
-  };
-}
+const createSelections = model => ({
+  barGroup: chart.selectAll('.bar-group').data(model.totals),
+  chart,
+  legend: chart.selectAll('.legend').data(model.names),
+  wrap: d3.select('.bar-chart'),
+  xAxis: chart.select('.x.axis'),
+  xGrid: chart.select('.x.grid'),
+  yAxis: chart.select('.y.axis'),
+});
 
-function createEnters(selections) {
-  return {
-    barGroup: selections.barGroup.enter().append('g').attr('class', 'bar-group'),
-    legend: selections.legend.enter().append('g').attr('class', 'legend')
-      .call((s) => s.append('rect') && s.append('text')),
-  };
-}
+const createEnters = selections => ({
+  barGroup: selections.barGroup.enter().append('g').attr('class', 'bar-group'),
+  legend: selections.legend.enter().append('g').attr('class', 'legend')
+    .call(selection => selection.append('rect') && selection.append('text')),
+});
 
-function createMerges(selections, enters) {
-  const { format } = d3;
+function createMergesAndExtend(selections, enters) {
+  const barColors = d3.schemeCategory10;
   const barGroup = selections.barGroup.merge(enters.barGroup);
-  selections.bar = barGroup.selectAll('.bar').data(d => d);
+  selections.bar = barGroup.selectAll('.bar').data(datum => datum);
   enters.bar = selections.bar.enter().append('g').attr('class', 'bar')
-      .call((s) => s.append('rect') && s.append('text'));
+    .call(selection => selection.append('rect') && selection.append('text'));
   const bar = selections.bar.merge(enters.bar);
   const legend = selections.legend.merge(enters.legend);
-  legend.select('text').text(d => d);
+  legend.select('text').text(datum => datum);
   Object.assign(selections, {
-    barRect: bar.select('rect').style('fill', (d, i) => barColors[i]),
-    barText: bar.select('text').text(format('$.2s')),
-    legendSwatch: legend.select('rect').style('fill', (d, i) => barColors[i]),
+    barRect: bar.select('rect').style('fill', (_, index) => barColors[index]),
+    barText: bar.select('text').text(d3.format('$.2s')),
+    legendSwatch: legend.select('rect').style('fill', (_, index) => barColors[index]),
     legendText: legend.select('text'),
   });
   return { bar, barGroup, legend };
 }
 
-function createExits(selections) {
-  return {
-    bar: selections.bar.exit().remove(),
-    barGroup: selections.barGroup.exit().remove(),
-    legend: selections.legend.exit().remove(),
-  };
-}
+const createExits = selections => ({
+  bar: selections.bar.exit().remove(),
+  barGroup: selections.barGroup.exit().remove(),
+  legend: selections.legend.exit().remove(),
+});
 
-function configureAxes(scales, selections) {
-  const { axisBottom, axisLeft, axisTop } = d3;
-  selections.xAxis.call(axisBottom().scale(scales.x).ticks(ticks, '$s'));
-  selections.xGrid.call(axisTop().scale(scales.x).ticks(ticks).tickSize(-height).tickFormat(''));
-  selections.yAxis.call(axisLeft().scale(scales.y).tickSize(0));
+function createAxes(scales, selections) {
+  const ticks = 5;
+  selections.xAxis.call(d3.axisBottom().scale(scales.x).ticks(ticks, '$s'));
+  selections.xGrid.call(d3.axisTop().scale(scales.x).ticks(ticks).tickSize(-height).tickFormat(''));
+  selections.yAxis.call(d3.axisLeft().scale(scales.y).tickSize(0));
 }
 
 function configureLayout(scales, selections, enters, merges) {
+  const font = 10, width = 400;
+  const margin = {top: 20, right: 120, bottom: 20, left: 30, inner: 50};
   scales.x.range([0, width]);
   scales.y.rangeRound([0, height]).paddingInner(0.2).paddingOuter(0.2);
   scales.ySub.rangeRound([0, scales.y.bandwidth()]).paddingInner(0.25);
-  const legendLine = scales.ySub.bandwidth(), legendMargin = scalePadding.inner(scales.ySub);
-  const legendOffset = {x: width + margin.inner, y: scalePadding.outer(scales.y)};
+  const barOffset = (scale, i) => barMargin.outer(scale) + scale.step() * i;
+  const barMargin = {
+    inner: scale => Math.round(scale.paddingInner() * scale.step()),
+    outer: scale => Math.round(scale.paddingOuter() * scale.step()),
+  };
+  const translate = (x, y) => (`translate(${x}, ${y})`);
+  const groupHeight = scales.ySub.bandwidth;
+  const legendLine = groupHeight(), legendMargin = barMargin.inner(scales.ySub);
+  const legendOffset = {x: width + margin.inner, y: barMargin.outer(scales.y)};
   const legendTextX = legendOffset.x + legendLine + legendMargin;
-  const barTextOffset = {x: 0.4 * scales.ySub.bandwidth(), y: -0.6 * (scales.ySub.bandwidth() - font)};
+  const barTextOffset = {x: 0.4 * groupHeight(), y: -0.6 * (groupHeight() - font)};
   selections.wrap.attrs({
     width: width + margin.left + margin.right,
     height: height + margin.top + margin.bottom,
@@ -248,54 +227,54 @@ function configureLayout(scales, selections, enters, merges) {
   selections.chart.attr('transform', translate(margin.left, margin.top));
   selections.xAxis.attr('transform', translate(0, height));
   enters.barGroup.attr('height', scales.y.bandwidth);
-  merges.bar.attr('transform', (d, i) => translate(1, scaleBarOffset(scales.ySub, i)));
-  merges.barGroup.attr('transform', (d, i) => translate(0, scaleBarOffset(scales.y, i)));
-  merges.legend.attr('transform', (d, i) => translate(0, legendOffset.y + scaleBarOffset(scales.ySub, i)));
-  selections.barText.attrs({dx: barTextOffset.x, dy: barTextOffset.y, x: scales.x, y: scales.ySub.bandwidth});
-  selections.barRect.attrs({width: scales.x, height: scales.ySub.bandwidth});
+  merges.bar.attr('transform', (_, index) => translate(1, barOffset(scales.ySub, index)));
+  merges.barGroup.attr('transform', (_, index) => translate(0, barOffset(scales.y, index)));
+  merges.legend.attr('transform', (_, index) => translate(0, legendOffset.y + barOffset(scales.ySub, index)));
+  selections.barText.attrs({dx: barTextOffset.x, dy: barTextOffset.y, x: scales.x, y: groupHeight});
+  selections.barRect.attrs({width: scales.x, height: groupHeight});
   selections.legendSwatch.attrs({x: legendOffset.x, width: legendLine, height: legendLine});
-  selections.legendText.attrs({dy: barTextOffset.y, x: legendTextX, y: scales.ySub.bandwidth});
+  selections.legendText.attrs({dy: barTextOffset.y, x: legendTextX, y: groupHeight});
 }
 
-function configureTransition(selections, enters, merges, exits) {
+function mutateWithTransition(selections, enters, merges, exits) {
   const { easeQuadInOut, transition } = d3;
-  const t = transition().ease(easeQuadInOut).duration(!state.didFirstRender ? 0 : 400);
-  selections.xAxis = selections.xAxis.transition(t);
-  selections.xGrid = selections.xGrid.transition(t);
-  selections.yAxis = selections.yAxis.transition(t);
-  enters.barGroup.style('opacity', 0).transition(t).style('opacity', 1);
-  merges.bar = merges.bar.transition(t);
-  merges.barGroup = merges.barGroup.transition(t);
-  merges.legend = merges.legend.transition(t);
-  selections.barText = selections.barText.transition(t);
-  selections.barRect = selections.barRect.transition(t);
-  selections.legendSwatch = selections.legendSwatch.transition(t);
-  selections.legendText = selections.legendText.transition(t);
-  exits.barGroup.transition(t).style('opacity', 0);
+  const base = transition().ease(easeQuadInOut).duration(!state.didFirstRender ? 0 : 400);
+  selections.xAxis = selections.xAxis.transition(base);
+  selections.xGrid = selections.xGrid.transition(base);
+  selections.yAxis = selections.yAxis.transition(base);
+  enters.barGroup.style('opacity', 0).transition(base).style('opacity', 1);
+  merges.bar = merges.bar.transition(base);
+  merges.barGroup = merges.barGroup.transition(base);
+  merges.legend = merges.legend.transition(base);
+  selections.barText = selections.barText.transition(base);
+  selections.barRect = selections.barRect.transition(base);
+  selections.legendSwatch = selections.legendSwatch.transition(base);
+  selections.legendText = selections.legendText.transition(base);
+  exits.barGroup.transition(base).style('opacity', 0);
 }
 
-const withData = (data) => {
-  const donations = createDonations(data);
-  const scales = createScales(donations);
-  const selections = createSelections(donations);
+function render(data) {
+  const model = createModel(data);
+  const scales = createScales(model);
+  const selections = createSelections(model);
   const enters = createEnters(selections);
-  const merges = createMerges(selections, enters);
+  const merges = createMergesAndExtend(selections, enters);
   const exits = createExits(selections);
 
-  configureTransition(selections, enters, merges, exits);
+  mutateWithTransition(selections, enters, merges, exits);
   configureLayout(scales, selections, enters, merges);
-  configureAxes(scales, selections);
+  createAxes(scales, selections);
 
   if (!state.didFirstRender) {
     state.didFirstRender = true;
   }
-};
+}
 
 // run
 // ---
 let $select = $('[name=dataset]');
 const data = ($option) => (JSON.parse($option.data('json')));
-$select.on('change', () => withData(data($select.find('option:selected'))));
-withData(data($select.find('option:first')));
+$select.on('change', () => render(data($select.find('option:selected'))));
+render(data($select.find('option:first')));
 $select.closest('figure').delay(500).fadeIn('fast');
 ```
