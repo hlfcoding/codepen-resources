@@ -163,35 +163,34 @@ function createAxes(scales, selections) {
 
 function configureLayout(scales, selections, enters, merges) {
   const font = 10, width = 400;
-  const margin = {top: 20, right: 120, bottom: 20, left: 30, inner: 50};
   scales.x.range([0, width]);
   scales.y.rangeRound([0, height]).paddingInner(0.2).paddingOuter(0.2);
   scales.ySub.rangeRound([0, scales.y.bandwidth()]).paddingInner(0.25);
-  const barOffset = (scale, i) => barMargin.outer(scale) + scale.step() * i;
-  const barMargin = {
-    inner: scale => Math.round(scale.paddingInner() * scale.step()),
-    outer: scale => Math.round(scale.paddingOuter() * scale.step()),
-  };
-  const translate = (x, y) => (`translate(${x}, ${y})`);
-  const groupHeight = scales.ySub.bandwidth;
-  const legendLine = groupHeight(), legendMargin = barMargin.inner(scales.ySub);
-  const legendOffset = {x: width + margin.inner, y: barMargin.outer(scales.y)};
-  const legendTextX = legendOffset.x + legendLine + legendMargin;
-  const barTextOffset = {x: 0.4 * groupHeight(), y: -0.6 * (groupHeight() - font)};
+  const margin = {top: 20, right: 120, bottom: 20, left: 30, inner: 50};
   selections.wrap.attrs({
     width: width + margin.left + margin.right,
     height: height + margin.top + margin.bottom,
   });
+  const translate = (x, y) => (`translate(${x}, ${y})`);
   selections.chart.attr('transform', translate(margin.left, margin.top));
   selections.xAxis.attr('transform', translate(0, height));
   enters.barGroup.attr('height', scales.y.bandwidth);
+  const barMargin = {
+    inner: scale => Math.round(scale.paddingInner() * scale.step()),
+    outer: scale => Math.round(scale.paddingOuter() * scale.step()),
+  };
+  const barOffset = (scale, i) => barMargin.outer(scale) + scale.step() * i;
   merges.bar.attr('transform', (_, index) => translate(1, barOffset(scales.ySub, index)));
   merges.barGroup.attr('transform', (_, index) => translate(0, barOffset(scales.y, index)));
+  const groupHeight = scales.ySub.bandwidth;
+  const barTextOffset = {x: 0.4 * groupHeight(), y: -0.6 * (groupHeight() - font)};
+  const legendLine = groupHeight(), legendMargin = barMargin.inner(scales.ySub);
+  const legendOffset = {x: width + margin.inner, y: barMargin.outer(scales.y)};
   merges.legend.attr('transform', (_, index) => translate(0, legendOffset.y + barOffset(scales.ySub, index)));
-  selections.barText.attrs({dx: barTextOffset.x, dy: barTextOffset.y, x: scales.x, y: groupHeight});
   selections.barRect.attrs({width: scales.x, height: groupHeight});
+  selections.barText.attrs({dx: barTextOffset.x, dy: barTextOffset.y, x: scales.x, y: groupHeight});
   selections.legendSwatch.attrs({x: legendOffset.x, width: legendLine, height: legendLine});
-  selections.legendText.attrs({dy: barTextOffset.y, x: legendTextX, y: groupHeight});
+  selections.legendText.attrs({dy: barTextOffset.y, x: legendOffset.x + legendLine + legendMargin, y: groupHeight});
 }
 
 function mutateWithTransition({ selections, enters, merges, exits, initial }) {
@@ -203,8 +202,8 @@ function mutateWithTransition({ selections, enters, merges, exits, initial }) {
   merges.bar = merges.bar.transition(base);
   merges.barGroup = merges.barGroup.transition(base);
   merges.legend = merges.legend.transition(base);
-  selections.barText = selections.barText.transition(base);
   selections.barRect = selections.barRect.transition(base);
+  selections.barText = selections.barText.transition(base);
   selections.legendSwatch = selections.legendSwatch.transition(base);
   selections.legendText = selections.legendText.transition(base);
   exits.barGroup.transition(base).style('opacity', 0);
