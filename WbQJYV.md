@@ -4,7 +4,7 @@
 
 ```html
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="//assets.pengxwang.com/codepen-resources/common-helpers/main.css">
+<link rel="stylesheet" href="//assets.pengxwang.com/codepen-resources/common-helpers/main-v2.css">
 <script src="//assets.pengxwang.com/codepen-resources/unsupported.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js"></script>
 <script src="//d3js.org/d3-selection-multi.v1.min.js"></script>
@@ -12,7 +12,7 @@
 ```
 
 ```html
-<figure class="card-skin centered">
+<figure class="-card-skin -centered">
   <figcaption>Total Donated Per Quarter for <select name="dataset">
     <option value="2015" data-json='{
       "foo": {
@@ -59,13 +59,17 @@ body {
 }
 
 figure {
-  margin: 0;
   opacity: 0;
-  padding: 2rem;
-  position: absolute;
   transition: opacity .2s;
 }
-figure.ready {
+figure.-card-skin {
+  padding: 2rem;
+}
+figure.-centered {
+  margin: 0;
+  position: absolute;
+}
+figure.--ready {
   opacity: 1;
 }
 
@@ -227,5 +231,5 @@ let select = document.querySelector('[name=dataset]');
 const data = option => JSON.parse(option.getAttribute('data-json'));
 select.addEventListener('change', () => render(data(select.querySelector('option:checked'))));
 render(data(select.firstElementChild), true);
-setTimeout(() => document.querySelector('figure').classList.add('ready'), 500);
+setTimeout(() => document.querySelector('figure').classList.add('--ready'), 500);
 ```
