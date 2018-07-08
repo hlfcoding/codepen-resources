@@ -48,12 +48,6 @@
 ```
 
 ```css
-/*
-  using .card-skin
-  using .centered
-  using --codepen-gray
-*/
-
 body {
   background: var(--codepen-gray);
 }
@@ -74,7 +68,6 @@ figure.--ready {
 }
 
 figcaption {
-  margin-left: -90px;
   text-align: center;
   text-transform: uppercase;
 }
@@ -85,7 +78,7 @@ text {
 }
 
 .grid line {
-  stroke: #ddd;
+  opacity: .1;
 }
 .grid.x path {
   display: none;
