@@ -8,7 +8,6 @@
 <script src="//assets.pengxwang.com/codepen-resources/unsupported.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js"></script>
 <script src="//d3js.org/d3-selection-multi.v1.min.js"></script>
-<script src="//assets.pengxwang.com/codepen-resources/common-helpers/main.js"></script>
 ```
 
 ```html
