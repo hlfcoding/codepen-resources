@@ -163,7 +163,8 @@ html.no-flexbox .-bar-layout::after,
 
 /* Appearance */
 
-.-disabled-mobile-interactions {
+.-input-style-none *,
+.-input-style-none {
   -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
 }
