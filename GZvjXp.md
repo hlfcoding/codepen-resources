@@ -15,23 +15,23 @@
 ```html
 <div class="container">
 
-<div class="device">
+<div class="device -centered -input-style-none">
   <div class="body">
-    <div class="main-screen">
+    <div class="main-screen -display-skin">
       <div class="tint"></div>
       <div class="scanlines"></div>
-      <div class="body">
+      <div class="body -panel-skin">
         <div class="cli" data-module="cli"></div>
         <svg id="snap-svg-1" class="canvas" data-module="canvas"></svg>
       </div>
     </div><!--/main-screen-->
-    <div class="buttons-panel" data-module="slide-panel">
+    <div class="buttons-panel -slide-panel-motion -slide-panel-skin" data-module="slide-panel">
       <div class="cover"><div class="symbol">&middot;</div></div>
-      <nav class="inside">
-        <button name="A" type="button">A</button>
-        <button name="B" type="button">B</button>
-        <button name="C" type="button">C</button>
-        <button name="D" type="button">D</button>
+      <nav class="inside -bar-layout">
+        <button class="-button-skin" name="A" type="button">A</button>
+        <button class="-button-skin" name="B" type="button">B</button>
+        <button class="-button-skin" name="C" type="button">C</button>
+        <button class="-button-skin" name="D" type="button">D</button>
       </nav>
     </div><!--/btn-panel-->
   </div><!--/device-body-->
