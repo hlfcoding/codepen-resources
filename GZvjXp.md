@@ -7,6 +7,7 @@
 ```html
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="apple-touch-icon" href="//assets.pengxwang.com/codepen-resources/app-icons/device-1.png">
+<link rel="stylesheet" href="//assets.pengxwang.com/codepen-resources/common-helpers/main-v2.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/snap.svg/0.4.1/snap.svg-min.js"></script>
@@ -40,6 +41,74 @@
 </div><!--/container-->
 ```
 
+```css
+:root {
+  --bezel: 15px;
+  --corner-radius: 15px;
+  --corner-radius-inner: 7px;
+  --device-height: 300px;
+  --device-width: 300px;
+  --display-base-color: #111;
+  --display-height: 190px;
+  --intro-transition-duration: .6s;
+  --panel-base-color: #bbb;
+  --panel-dark-color: #6f6f6f;
+  --panel-darker-color: #3c3c3c;
+  --panel-depth: 2px;
+  --panel-diffuse-shadow-size: 10px;
+  --slide-panel-inside-color: #777;
+  --slide-panel-inside-dark-color: #444;
+  --slide-panel-inside-darker-color: #2b2b2b;
+}
+
+.-button-skin {
+  --depth: 2px;
+  background-color: var(--panel-base-color);
+  background-image: linear-gradient(var(--light-5), transparent);
+  border: 0;
+  border-radius: var(--corner-radius-inner);
+  /* front to back */
+  box-shadow:
+    inset 0 0 0 1px var(--light-3), /* inner edge */
+    inset 0 0 var(--corner-radius) var(--shade-2), /* contour */
+    0 var(--depth) 0 var(--panel-dark-color), /* edge */
+    0 calc(var(--depth) + 1px) 0 var(--panel-darker-color), /* edge shadow */
+    0 var(--depth) 3px 1px var(--shade-5); /* diffuse */
+  color: #666;
+  cursor: pointer;
+  font-weight: bold;
+  outline: none;
+  text-shadow: (
+    0 -1px 0 var(--shade-3),
+    0 1px 0 var(--light-5)
+  );
+  transition: color .2s ease-in-out;
+}
+.-button-skin.hover,
+.-button-skin:hover {
+  background-image: linear-gradient(var(--light-9), transparent);
+  color: #08f;
+}
+.-button-skin.active,
+.-button-skin:active {
+  background-color: #a2a2a2;
+  background-image: linear-gradient(var(--light-5), transparent);
+  /* front to back */
+  box-shadow:
+    inset 0 0 1px 1px var(--shade-2), /* shadow */
+    inset 0 2px 3px 1px var(--shade-2), /* shadow */
+    inset 0 0 var(--corner-radius) var(--shade-1), /* contour */
+    0 calc(var(--depth) * -1) 0 var(--slide-panel-inside-darker-color), /* socket edge */
+    0 0 0 1px var(--slide-panel-inside-dark-color); /* socket edge */
+  margin-bottom: calc(var(--depth) * -1);
+  margin-top: calc(var(--depth) - 1px);
+}
+
+nav.inside.-bar-layout {
+  --bar-layout-gutter: 11px;
+}
+```
+
 ```scss
 // using %centered
 // using %clearfix
@@ -66,60 +135,6 @@ $display-width: $device-width - (2 * $bezel);
 $display-size: 330px; // hypotenuse
 
 // section: includes
-
-%buttons-layout {
-  @include bar-layout($gutter: $button-gutter);
-}
-
-%button-skin {
-  $fill: $panel-base-color;
-  $depth: 2px;
-  background: {
-    color: $fill;
-    image: linear-gradient(light(.5), transparent);
-  }
-  border: 0;
-  border-radius: $corner-radius-inner;
-  box-shadow: ( // front to back
-    inset 0 0 0 1px light(.3), // inner edge
-    inset 0 0 $corner-radius shade(.2), // contour
-    0 $depth 0 darken($fill, 30%), // edge
-    0 ($depth + 1px) 0 darken($fill, 50%), // edge shadow
-    0 $depth 3px 1px shade(.5) // diffuse
-  );
-  color: #666;
-  cursor: pointer;
-  font-weight: bold;
-  outline: none;
-  text-shadow: (
-    0 -1px 0 shade(.3),
-    0 1px 0 light(.5)
-  );
-  transition: color .2s ease-in-out;
-  &.hover,
-  &:hover {
-    background-image: linear-gradient(light(.9), transparent);
-    color: #08f;
-  }
-  &.active,
-  &:active {
-    background: {
-      color: darken($fill, 10%);
-      image: linear-gradient(light(.5), transparent);
-    }
-    box-shadow: ( // front to back
-      inset 0 0 1px 1px shade(.2), // shadow
-      inset 0 2px 3px 1px shade(.2), // shadow
-      inset 0 0 $corner-radius shade(.1), // contour
-      0 (-$depth) 0 darken($slide-panel-inside-color, 30%), // socket edge
-      0 0 0 1px darken($slide-panel-inside-color, 20%) // socket edge
-    );
-    margin: {
-      bottom: -$depth;
-      top: $depth - 1px;
-    }
-  }
-}
 
 %display-skin {
   $color: #0f0;
@@ -362,10 +377,8 @@ body {
     }
   }
   nav.inside {
-    @extend %buttons-layout;
     padding: ($button-gutter - 1px) $bezel ($button-gutter + 1px);
     button {
-      @extend %button-skin;
       padding: 6px 10px 5px;
     }
   }
