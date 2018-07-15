@@ -104,6 +104,21 @@
   margin-top: calc(var(--depth) - 1px);
 }
 
+.-display-skin {
+  background-color: var(--display-base-color);
+  background-image: linear-gradient(var(--light-2), transparent);
+  border-color: transparent;
+  border-radius: var(--corner-radius-inner);
+  border-style: solid;
+  border-width: 2px 1px 0; /* edges */
+  /* front to back */
+  box-shadow:
+    inset 0 0 15px var(--shade-5), /* shadow */
+    inset 0 0 100px var(--shade-5), /* diffuse */
+    0 0 2px var(--light-8), /* edge */
+    0 0 var(--corner-radius-inner) 1px var(--light-8); /* highlight */
+}
+
 nav.inside.-bar-layout {
   --bar-layout-gutter: 11px;
 }
@@ -138,22 +153,6 @@ $display-size: 330px; // hypotenuse
 
 %display-skin {
   $color: #0f0;
-  background: {
-    color: $display-base-color;
-    image: linear-gradient(light(.2), transparent);
-  }
-  border: {
-    color: transparent;
-    style: solid;
-    width: 2px 1px 0; // edges
-  }
-  border-radius: $corner-radius-inner;
-  box-shadow: ( // front to back
-      inset 0 0 15px shade(.5), // shadow
-      inset 0 0 100px shade(.5), // diffuse
-      0 0 2px light(.8), // edge
-      0 0 $corner-radius-inner 1px light(.8) // highlight
-  );
   >.body {
     color: $color;
     font: 15px/1.7 'Menlo', 'Consolas', monospace;
