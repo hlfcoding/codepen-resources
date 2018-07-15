@@ -118,6 +118,54 @@
     0 0 2px var(--light-8), /* edge */
     0 0 var(--corner-radius-inner) 1px var(--light-8); /* highlight */
 }
+.-display-skin>.scanlines {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAD0lEQVQYV2NgYGAwZgABAAE8ADSqC3qCAAAAAElFTkSuQmCC');
+  border-radius: calc(var(--corner-radius-inner) - 1px);
+  margin: 1px;
+}
+
+.-display-skin>.body {
+  --color: #0f0;
+  color: var(--color);
+  font: 15px/1.7 'Menlo', 'Consolas', monospace;
+  padding: var(--bezel);
+  text-shadow: 0 -1px 0 var(--shade-9);
+}
+.-display-skin .power-button .dot {
+  fill: var(--color);
+}
+.-display-skin .power-button .ring {
+  fill: none;
+  stroke: var(--color);
+}
+.-display-skin .shape {
+  fill: none;
+  stroke: var(--color);
+  strokeWeight: 2;
+}
+.-display-skin .cursor {
+  --blink-duration: 1s;
+}
+
+.-display-skin>.tint {
+  --falloff-height: calc(var(--display-height) * .75);
+  --falloff-width: calc(var(--display-width) * .25);
+  background-image: linear-gradient(
+    145deg, /* diagonal gradient */
+    #fff calc(var(--device-width) / 2), /* midpoint before blur */
+    var(--light-5) calc(var(--device-width) / 2 + 4px), /* midpoint */
+    transparent var(--display-size));
+  border-radius: calc(var(--corner-radius-inner) - 1px);
+  box-shadow:
+    inset 0 0 2px var(--shade-8),
+    inset var(--falloff-width) calc(var(--falloff-height) * -1) var(--falloff-height) var(--shade-8);
+  opacity: .3;
+  transition: opacity .3s ease-in-out;
+}
+.-display-skin.hover>.tint,
+.-display-skin:hover>.tint {
+  opacity: 0;
+}
 
 nav.inside.-bar-layout {
   --bar-layout-gutter: 11px;
@@ -150,62 +198,6 @@ $display-width: $device-width - (2 * $bezel);
 $display-size: 330px; // hypotenuse
 
 // section: includes
-
-%display-skin {
-  $color: #0f0;
-  >.body {
-    color: $color;
-    font: 15px/1.7 'Menlo', 'Consolas', monospace;
-    padding: $bezel;
-    text-shadow: 0 -1px 0 shade(.9);
-  }
-  .power-button {
-    .dot {
-      fill: $color;
-    }
-    .ring {
-      fill: none;
-      stroke: $color;
-    }
-  }
-  .shape {
-    fill: none;
-    stroke: $color;
-    strokeWeight: 2;
-  }
-  >.tint {
-    $falloff-height: $display-height * .75;
-    $falloff-width: $display-width * .25;
-    background-image: linear-gradient(
-      145deg, // diagonal gradient
-      #fff ($device-width / 2), // midpoint before blur
-      light(.5) ($device-width / 2) + 4px, // midpoint
-      transparent $display-size
-    );
-    border-radius: $corner-radius-inner - 1px;
-    box-shadow: (
-      inset 0 0 2px shade(.8),
-      inset $falloff-width (-$falloff-height) $falloff-height shade(.8)
-    );
-    opacity: .3;
-    transition: opacity .3s ease-in-out;
-  }
-  >.scanlines {
-    $scanline: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAD0lEQVQYV2NgYGAwZgABAAE8ADSqC3qCAAAAAElFTkSuQmCC';
-    background-image: url($scanline);
-    border-radius: $corner-radius-inner - 1px;
-    margin: 1px;
-  }
-  &.hover,
-  &:hover {
-    >.tint {
-      opacity: 0;
-    }
-  }
-  .cursor {
-    @include blink($duration: 1s);
-  }
-}
 
 $panel-shadows: ( // front to back
   inset 0 0 $bezel shade(.3), // contour
@@ -347,7 +339,6 @@ body {
     opacity: 1;
   }
   .main-screen {
-    @extend %display-skin;
     height: $display-height;
     margin: {
       bottom: $bezel;
@@ -510,7 +501,7 @@ createOffState = ({ states, paper, $canvas }) ->
 createCLI = ($root, $context) ->
   html =
     command: (command) -> "&raquo; #{command}"
-    cursor: '<span class="cursor">&marker;</span>'
+    cursor: '<span class="cursor -blink">&marker;</span>'
     input: '<input type="text" class="invisible">'
     line: '<div class="line">'
 
