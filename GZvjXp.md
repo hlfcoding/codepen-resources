@@ -17,11 +17,11 @@
 <div class="container">
 
 <div class="device -centered -input-style-none">
-  <div class="body">
+  <div class="body -panel-skin">
     <div class="main-screen -display-skin">
       <div class="tint"></div>
       <div class="scanlines"></div>
-      <div class="body -panel-skin">
+      <div class="body">
         <div class="cli" data-module="cli"></div>
         <svg id="snap-svg-1" class="canvas" data-module="canvas"></svg>
       </div>
@@ -48,7 +48,6 @@
   --corner-radius-inner: 7px;
   --device-height: 300px;
   --device-width: 300px;
-  --display-base-color: #111;
   --display-height: 190px;
   --intro-transition-duration: .6s;
   --panel-base-color: #bbb;
@@ -56,6 +55,7 @@
   --panel-darker-color: #3c3c3c;
   --panel-depth: 2px;
   --panel-diffuse-shadow-size: 10px;
+  --panel-texture: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAD0lEQVQYV2NgYGAwZgABAAE8ADSqC3qCAAAAAElFTkSuQmCC';
   --slide-panel-inside-color: #777;
   --slide-panel-inside-dark-color: #444;
   --slide-panel-inside-darker-color: #2b2b2b;
@@ -105,7 +105,7 @@
 }
 
 .-display-skin {
-  background-color: var(--display-base-color);
+  background-color: #111;
   background-image: linear-gradient(var(--light-2), transparent);
   border-color: transparent;
   border-radius: var(--corner-radius-inner);
@@ -167,6 +167,18 @@
   opacity: 0;
 }
 
+.-panel-skin {
+  background-color: var(--panel-base-color);
+  background-image:
+    linear-gradient(var(--light-5), transparent var(--display-height)),
+    url('var(--panel-texture)');
+  border-radius: var(--corner-radius);
+}
+
+.-slide-panel-skin .cover {
+  background: var(--panel-base-color) url('var(--panel-texture)') repeat;
+}
+
 nav.inside.-bar-layout {
   --bar-layout-gutter: 11px;
 }
@@ -186,7 +198,6 @@ $corner-radius-inner: 7px;
 $button-gutter: 11px;
 $device-height: 300px;
 $device-width: 300px;
-$display-base-color: #111;
 $display-height: 190px;
 $intro-transition-duration: .6s;
 $panel-base-color: #bbb;
@@ -209,15 +220,6 @@ $panel-shadows: ( // front to back
 );
 $panel-shadow-diffuse: 0 ($panel-depth + 1px) $panel-diffuse-shadow-size shade(.8);
 $panel-shadow-diffuse-afloat: 0 ($panel-depth + 10px) ($panel-diffuse-shadow-size + 10px) 2px shade(.4);
-$panel-texture: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFUlEQVQYV2NkYGCQZGBgeM7IAAGSAAqqARzZRIhzAAAAAElFTkSuQmCC';
-
-%panel-skin {
-  background: {
-    color: $panel-base-color;
-    image: linear-gradient(light(.5), transparent $display-height), url($panel-texture);
-  }
-  border-radius: $corner-radius;
-}
 
 %slide-panel-skin {
   border: {
@@ -226,7 +228,6 @@ $panel-texture: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAAByt
   }
   cursor: pointer;
   .cover {
-    background: $panel-base-color url($panel-texture) repeat;
     border: {
       bottom: 1px solid shade(.2);
       top: 1px solid light(.5);
@@ -314,7 +315,6 @@ body {
     @extend %disabled-mobile-interactions;
   }
   >.body {
-    @extend %panel-skin;
     box-shadow: join($panel-shadows, ($panel-shadow-diffuse-afloat,));
     padding: $bezel 0;
     transform: translateY(-30%) scale(1.1);
