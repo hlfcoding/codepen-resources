@@ -175,8 +175,28 @@
   border-radius: var(--corner-radius);
 }
 
+.-slide-panel-skin {
+  border-bottom: 1px solid var(--light-5);
+  border-top: 1px solid var(--shade-2);
+  cursor: pointer;
+}
 .-slide-panel-skin .cover {
   background: var(--panel-base-color) url('var(--panel-texture)') repeat;
+  border-bottom: 1px solid var(--shade-2);
+  border-top: 1px solid var(--light-5);
+  padding-top: 1px;
+}
+.-slide-panel-skin .cover .symbol {
+  box-shadow: /* TODO: refactor */
+    inset 0 0 var(--bezel) var(--shade-3), /* contour */
+    inset 0 0 2px var(--shade-3), /* inner edges */
+    inset 0 0 1px 1px var(--shade-1);
+  color: #aaa;
+  font: bold 56px Helvetica, sans-serif;
+  text-align: center;
+  text-shadow:
+    0 -1px 0 var(--shade-3),
+    0 1px 0 var(--light-5);
 }
 
 nav.inside.-bar-layout {
@@ -222,32 +242,6 @@ $panel-shadow-diffuse: 0 ($panel-depth + 1px) $panel-diffuse-shadow-size shade(.
 $panel-shadow-diffuse-afloat: 0 ($panel-depth + 10px) ($panel-diffuse-shadow-size + 10px) 2px shade(.4);
 
 %slide-panel-skin {
-  border: {
-    bottom: 1px solid light(.5);
-    top: 1px solid shade(.2);
-  }
-  cursor: pointer;
-  .cover {
-    border: {
-      bottom: 1px solid shade(.2);
-      top: 1px solid light(.5);
-    }
-    padding-top: 1px;
-    .symbol {
-      box-shadow: ( // TODO: refactor
-        inset 0 0 $bezel shade(.3), // contour
-        inset 0 0 2px shade(.3), // inner edges
-        inset 0 0 1px 1px shade(.1)
-      );
-      color: #aaa;
-      font: bold 56px Helvetica, sans-serif;
-      text-align: center;
-      text-shadow: (
-        0 -1px 0 shade(.3),
-        0 1px 0 light(.5)
-      );
-    }
-  }
   .inside {
     $rubber-texture: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAYAAABLLYUHAAAAGklEQVQIW2NkQAKMMPb///+N4RygoA8yhwEAYOgDgYLmjHMAAAAASUVORK5CYII=';
     background: $slide-panel-inside-color url($rubber-texture);
