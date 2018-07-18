@@ -56,13 +56,9 @@
   --panel-depth: 2px;
   --panel-diffuse-shadow-size: 10px;
   --panel-texture: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAD0lEQVQYV2NgYGAwZgABAAE8ADSqC3qCAAAAAElFTkSuQmCC';
-  --slide-panel-inside-color: #777;
-  --slide-panel-inside-dark-color: #444;
-  --slide-panel-inside-darker-color: #2b2b2b;
 }
 
 .-button-skin {
-  --depth: 2px;
   background-color: var(--panel-base-color);
   background-image: linear-gradient(var(--light-5), transparent);
   border: 0;
@@ -71,9 +67,9 @@
   box-shadow:
     inset 0 0 0 1px var(--light-3), /* inner edge */
     inset 0 0 var(--corner-radius) var(--shade-2), /* contour */
-    0 var(--depth) 0 var(--panel-dark-color), /* edge */
-    0 calc(var(--depth) + 1px) 0 var(--panel-darker-color), /* edge shadow */
-    0 var(--depth) 3px 1px var(--shade-5); /* diffuse */
+    0 var(--panel-depth) 0 var(--panel-dark-color), /* edge */
+    0 calc(var(--panel-depth) + 1px) 0 var(--panel-darker-color), /* edge shadow */
+    0 var(--panel-depth) 3px 1px var(--shade-5); /* diffuse */
   color: #666;
   cursor: pointer;
   font-weight: bold;
@@ -97,11 +93,11 @@
   box-shadow:
     inset 0 0 1px 1px var(--shade-2), /* shadow */
     inset 0 2px 3px 1px var(--shade-2), /* shadow */
-    inset 0 0 var(--corner-radius) var(--shade-1), /* contour */
-    0 calc(var(--depth) * -1) 0 var(--slide-panel-inside-darker-color), /* socket edge */
-    0 0 0 1px var(--slide-panel-inside-dark-color); /* socket edge */
-  margin-bottom: calc(var(--depth) * -1);
-  margin-top: calc(var(--depth) - 1px);
+    inset 0 0 var(--corner-radius) var(--shade-2), /* contour */
+    0 calc(var(--panel-depth) * -1) 0 var(--shade-4), /* socket edge */
+    0 0 0 1px var(--shade-1); /* socket edge */
+  margin-bottom: calc(var(--panel-depth) * -1);
+  margin-top: calc(var(--panel-depth) - 1px);
 }
 
 .-display-skin {
@@ -186,6 +182,12 @@
   border-top: 1px solid var(--light-5);
   padding-top: 1px;
 }
+.-slide-panel-skin .cover.open  {
+  box-shadow:
+    0 0 2px var(--shade-5),
+    0 0 calc(var(--panel-diffuse-shadow-size) * 1.5) var(--shade-8),
+    0 0 0 var(--shade-2);
+}
 .-slide-panel-skin .cover .symbol {
   box-shadow: /* TODO: refactor */
     inset 0 0 var(--bezel) var(--shade-3), /* contour */
@@ -197,6 +199,18 @@
   text-shadow:
     0 -1px 0 var(--shade-3),
     0 1px 0 var(--light-5);
+}
+.-slide-panel-skin .inside {
+  background-color: #777;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAYAAABLLYUHAAAAGklEQVQIW2NkQAKMMPb///+N4RygoA8yhwEAYOgDgYLmjHMAAAAASUVORK5CYII=');
+  border-color: var(--shade-5) var(--shade-4) var(--light-8);
+  border-style: solid;
+  border-width: 2px 1px 1px;
+  /* front to back */
+  box-shadow:
+    inset 0 1px var(--bezel) var(--shade-5), /* diffuse */
+    inset 0 var(--panel-depth) 0 #6a6a6a, /* inner edge */
+    inset 0 calc(var(--panel-depth) + 1px) 0 #515151; /* edge shadow */
 }
 
 nav.inside.-bar-layout {
@@ -240,30 +254,6 @@ $panel-shadows: ( // front to back
 );
 $panel-shadow-diffuse: 0 ($panel-depth + 1px) $panel-diffuse-shadow-size shade(.8);
 $panel-shadow-diffuse-afloat: 0 ($panel-depth + 10px) ($panel-diffuse-shadow-size + 10px) 2px shade(.4);
-
-%slide-panel-skin {
-  .inside {
-    $rubber-texture: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAYAAABLLYUHAAAAGklEQVQIW2NkQAKMMPb///+N4RygoA8yhwEAYOgDgYLmjHMAAAAASUVORK5CYII=';
-    background: $slide-panel-inside-color url($rubber-texture);
-    border {
-      color: shade(.5) shade(.4) light(.8);
-      style: solid;
-      width: 2px 1px 1px;
-    }
-    box-shadow: ( // front to back
-      inset 0 1px $bezel shade(.5), // diffuse
-      inset 0 $panel-depth 0 darken($slide-panel-inside-color, 5%), // inner edge
-      inset 0 ($panel-depth + 1px) 0 darken($slide-panel-inside-color, 15%) // edge shadow
-    );
-  }
-  .cover.open  {
-    box-shadow: (
-      0 0 2px shade(.5),
-      0 0 ($panel-diffuse-shadow-size * 1.5) shade(.8),
-      0 0 0 shade(.2)
-    );
-  }
-}
 
 %slide-panel-motion {
   .cover {
@@ -324,7 +314,6 @@ body {
   }
   .buttons-panel {
     @extend %slide-panel-motion;
-    @extend %slide-panel-skin;
     margin-bottom: $bezel;
     opacity: 0;
     transition: opacity .2s ease-in-out $intro-transition-duration;
@@ -346,7 +335,7 @@ body {
 .device .buttons-panel {
   position: relative;
   .cover {
-    $height: 46px;
+    $height: 49px;
     height: $height;
     line-height: $height;
     left: 0;
