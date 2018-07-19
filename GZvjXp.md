@@ -42,33 +42,33 @@
 ```
 
 ```css
-:root {
+.device {
   --bezel: 15px;
-  --corner-radius: 15px;
-  --corner-radius-inner: 7px;
+  --corner: var(--bezel);
+  --corner-inner: 7px;
   --device-height: 300px;
   --device-width: 300px;
   --display-height: 190px;
-  --intro-transition-duration: .6s;
-  --panel-base-color: #bbb;
-  --panel-dark-color: #6f6f6f;
-  --panel-darker-color: #3c3c3c;
+  --intro-duration: .6s;
+  --panel-base: #bbb;
+  --panel-dark: #6f6f6f;
+  --panel-darker: #3c3c3c;
   --panel-depth: 2px;
-  --panel-diffuse-shadow-size: 10px;
+  --panel-drop-diffuse: 10px;
   --panel-texture: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAD0lEQVQYV2NgYGAwZgABAAE8ADSqC3qCAAAAAElFTkSuQmCC';
 }
 
 .-button-skin {
-  background-color: var(--panel-base-color);
+  background-color: var(--panel-base);
   background-image: linear-gradient(var(--light-5), transparent);
   border: 0;
-  border-radius: var(--corner-radius-inner);
+  border-radius: var(--corner-inner);
   /* front to back */
   box-shadow:
     inset 0 0 0 1px var(--light-3), /* inner edge */
-    inset 0 0 var(--corner-radius) var(--shade-2), /* contour */
-    0 var(--panel-depth) 0 var(--panel-dark-color), /* edge */
-    0 calc(var(--panel-depth) + 1px) 0 var(--panel-darker-color), /* edge shadow */
+    inset 0 0 var(--corner) var(--shade-2), /* contour */
+    0 var(--panel-depth) 0 var(--panel-dark), /* edge */
+    0 calc(var(--panel-depth) + 1px) 0 var(--panel-darker), /* edge shadow */
     0 var(--panel-depth) 3px 1px var(--shade-5); /* diffuse */
   color: #666;
   cursor: pointer;
@@ -93,7 +93,7 @@
   box-shadow:
     inset 0 0 1px 1px var(--shade-2), /* shadow */
     inset 0 2px 3px 1px var(--shade-2), /* shadow */
-    inset 0 0 var(--corner-radius) var(--shade-2), /* contour */
+    inset 0 0 var(--corner) var(--shade-2), /* contour */
     0 calc(var(--panel-depth) * -1) 0 var(--shade-4), /* socket edge */
     0 0 0 1px var(--shade-1); /* socket edge */
   margin-bottom: calc(var(--panel-depth) * -1);
@@ -104,7 +104,7 @@
   background-color: #111;
   background-image: linear-gradient(var(--light-2), transparent);
   border-color: transparent;
-  border-radius: var(--corner-radius-inner);
+  border-radius: var(--corner-inner);
   border-style: solid;
   border-width: 2px 1px 0; /* edges */
   /* front to back */
@@ -112,11 +112,11 @@
     inset 0 0 15px var(--shade-5), /* shadow */
     inset 0 0 100px var(--shade-5), /* diffuse */
     0 0 2px var(--light-8), /* edge */
-    0 0 var(--corner-radius-inner) 1px var(--light-8); /* highlight */
+    0 0 var(--corner-inner) 1px var(--light-8); /* highlight */
 }
 .-display-skin>.scanlines {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAD0lEQVQYV2NgYGAwZgABAAE8ADSqC3qCAAAAAElFTkSuQmCC');
-  border-radius: calc(var(--corner-radius-inner) - 1px);
+  border-radius: calc(var(--corner-inner) - 1px);
   margin: 1px;
 }
 
@@ -151,7 +151,7 @@
     #fff calc(var(--device-width) / 2), /* midpoint before blur */
     var(--light-5) calc(var(--device-width) / 2 + 4px), /* midpoint */
     transparent var(--display-size));
-  border-radius: calc(var(--corner-radius-inner) - 1px);
+  border-radius: calc(var(--corner-inner) - 1px);
   box-shadow:
     inset 0 0 2px var(--shade-8),
     inset var(--falloff-width) calc(var(--falloff-height) * -1) var(--falloff-height) var(--shade-8);
@@ -164,11 +164,11 @@
 }
 
 .-panel-skin {
-  background-color: var(--panel-base-color);
+  background-color: var(--panel-base);
   background-image:
     linear-gradient(var(--light-5), transparent var(--display-height)),
     url('var(--panel-texture)');
-  border-radius: var(--corner-radius);
+  border-radius: var(--corner);
 }
 
 .-slide-panel-skin {
@@ -177,15 +177,15 @@
   cursor: pointer;
 }
 .-slide-panel-skin .cover {
-  background: var(--panel-base-color) url('var(--panel-texture)') repeat;
+  background: var(--panel-base) url('var(--panel-texture)') repeat;
   border-bottom: 1px solid var(--shade-2);
   border-top: 1px solid var(--light-5);
   padding-top: 1px;
 }
-.-slide-panel-skin .cover.open  {
+.-slide-panel-skin .cover.--open  {
   box-shadow:
     0 0 2px var(--shade-5),
-    0 0 calc(var(--panel-diffuse-shadow-size) * 1.5) var(--shade-8),
+    0 0 calc(var(--panel-drop-diffuse) * 1.5) var(--shade-8),
     0 0 0 var(--shade-2);
 }
 .-slide-panel-skin .cover .symbol {
@@ -215,6 +215,21 @@
 
 nav.inside.-bar-layout {
   --bar-layout-gutter: 11px;
+}
+
+.-slide-panel-motion .cover {
+  transition-property: box-shadow, transform;
+  transition-duration: .4s;
+  will-change: box-shadow, transform;
+}
+.-slide-panel-motion .cover.--closed {
+  transform: translateX(0);
+  transition-timing-function: cubic-bezier(.9,0, .1,1);
+}
+.-slide-panel-motion .cover.--open {
+  --hinge-size: calc(var(--bezel) / 3);
+  transform: translateX(calc(var(--hinge-size) - var(--device-width)));
+  transition-timing-function: cubic-bezier(.8,0, .2,1.1);
 }
 ```
 
@@ -255,25 +270,6 @@ $panel-shadows: ( // front to back
 $panel-shadow-diffuse: 0 ($panel-depth + 1px) $panel-diffuse-shadow-size shade(.8);
 $panel-shadow-diffuse-afloat: 0 ($panel-depth + 10px) ($panel-diffuse-shadow-size + 10px) 2px shade(.4);
 
-%slide-panel-motion {
-  .cover {
-    transition: {
-      property: box-shadow, transform;
-      duration: .4s;
-    }
-    will-change: box-shadow, transform;
-    &.open {
-      $hinge-size: round($bezel / 3);
-      transform: translateX(-($device-width - $hinge-size));
-      transition-timing-function: cubic-bezier(.8, 0, .2, 1.1);
-    }
-    &.closed {
-      transform: translateX(0);
-      transition-timing-function: cubic-bezier(.9, 0, .1, 1);
-    }
-  }
-}
-
 // section: main, layout
 
 body {
@@ -313,7 +309,6 @@ body {
     transform: translateY(0) scale(1);
   }
   .buttons-panel {
-    @extend %slide-panel-motion;
     margin-bottom: $bezel;
     opacity: 0;
     transition: opacity .2s ease-in-out $intro-transition-duration;
@@ -660,15 +655,15 @@ initSlidePanel = ($context) ->
   $cover = $root.find '.cover'
   $inside = $root.find '.inside'
 
-  $cover.addClass 'closed'
+  $cover.addClass '--closed'
   $cover.on 'click', (e) ->
     return unless $(e.currentTarget).is '.cover'
-    $cover.toggleClass 'open closed'
+    $cover.toggleClass '--open --closed'
     return
   $context.on 'slide-panel:toggle', (e, visible) ->
     $cover
-      .toggleClass 'open', visible
-      .toggleClass 'closed', not visible
+      .toggleClass '--open', visible
+      .toggleClass '--closed', not visible
     return
 
   api = {}
