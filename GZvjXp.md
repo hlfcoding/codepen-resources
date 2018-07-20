@@ -49,6 +49,8 @@
   --device-height: 300px;
   --device-width: 300px;
   --display-height: 190px;
+  --display-width: calc(var(--device-width) - 2 * var(--bezel));
+  --display-size: 330px; /* hypotenuse */
   --intro-duration: .6s;
   --panel-base: #bbb;
   --panel-dark: #6f6f6f;
@@ -213,10 +215,6 @@
     inset 0 calc(var(--panel-depth) + 1px) 0 #515151; /* edge shadow */
 }
 
-nav.inside.-bar-layout {
-  --bar-layout-gutter: 11px;
-}
-
 .-slide-panel-motion .cover {
   transition-property: box-shadow, transform;
   transition-duration: .4s;
@@ -230,6 +228,63 @@ nav.inside.-bar-layout {
   --hinge-size: calc(var(--bezel) / 3);
   transform: translateX(calc(var(--hinge-size) - var(--device-width)));
   transition-timing-function: cubic-bezier(.8,0, .2,1.1);
+}
+
+body {
+  background: #eee url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAPElEQVQYV2OcNWuWDyMj4/P///9LpqWlbWGcOXOmJAMUpKenP2ecPXu28b9//54xMTFJpaamnmWEycJoAFZbFAVaNOxjAAAAAElFTkSuQmCC') repeat;
+}
+body>.container {
+  background: linear-gradient(to bottom, var(--light-5), transparent, var(--shade-2));
+  height: 100%;
+  position: absolute;
+  width: 100%;
+}
+
+.device {
+  height: var(--device-height);
+  text-align: left;
+  width: var(--device-width);
+}
+.device.-input-style-none ::selection {
+  background: transparent;
+}
+.device>.body {
+  padding: var(--bezel) 0;
+}
+.device .buttons-panel {
+  --button-gutter: 11px;
+  margin-bottom: var(--bezel);
+  position: relative;
+}
+.device .buttons-panel .cover {
+  --cover-height: 49px;
+  height: var(--cover-height);
+  line-height: var(--cover-height);
+  left: 0;
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+}
+.device .buttons-panel .cover .symbol {
+  /* fills container */
+  line-height: var(--cover-height);
+  margin-top: calc(var(--panel-drop-diffuse) * -1);
+  padding: var(--panel-drop-diffuse) 0;
+}
+.device .buttons-panel nav.inside {
+  padding: calc(var(--button-gutter) - 1px) var(--bezel) calc(var(--button-gutter) + 1px);
+}
+.device .buttons-panel nav.inside.-bar-layout {
+  --bar-layout-gutter: var(--button-gutter);
+}
+.device .buttons-panel nav.inside button {
+  padding: 6px 10px 5px;
+}
+.device .main-screen {
+  height: var(--display-height);
+  margin: var(--bezel);
+  margin-top: 0;
+  position: relative;
 }
 ```
 
@@ -272,31 +327,9 @@ $panel-shadow-diffuse-afloat: 0 ($panel-depth + 10px) ($panel-diffuse-shadow-siz
 
 // section: main, layout
 
-body {
-  $mesh: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAPElEQVQYV2OcNWuWDyMj4/P///9LpqWlbWGcOXOmJAMUpKenP2ecPXu28b9//54xMTFJpaamnmWEycJoAFZbFAVaNOxjAAAAAElFTkSuQmCC';
-  background: #eee url($mesh) repeat;
-  >.container {
-    background: linear-gradient(to bottom, light(.5), transparent, shade(.2));
-    height: 100%;
-    position: absolute;
-    width: 100%;
-  }
-}
-
 .device {
-  @extend %centered;
-  height: $device-height;
-  text-align: left;
-  width: $device-width;
-  ::selection {
-    background: transparent;
-  }
-  * {
-    @extend %disabled-mobile-interactions;
-  }
   >.body {
     box-shadow: join($panel-shadows, ($panel-shadow-diffuse-afloat,));
-    padding: $bezel 0;
     transform: translateY(-30%) scale(1.1);
     transition: (
       box-shadow .2s ease-out .2s,
@@ -309,46 +342,11 @@ body {
     transform: translateY(0) scale(1);
   }
   .buttons-panel {
-    margin-bottom: $bezel;
     opacity: 0;
     transition: opacity .2s ease-in-out $intro-transition-duration;
   }
   &.ready .buttons-panel {
     opacity: 1;
-  }
-  .main-screen {
-    height: $display-height;
-    margin: {
-      bottom: $bezel;
-      left: $bezel;
-      right: $bezel;
-    }
-    position: relative;
-  }
-}
-
-.device .buttons-panel {
-  position: relative;
-  .cover {
-    $height: 49px;
-    height: $height;
-    line-height: $height;
-    left: 0;
-    overflow: hidden;
-    position: absolute;
-    width: 100%;
-    .symbol {
-      // fills container
-      line-height: $height;
-      margin-top: -$panel-diffuse-shadow-size;
-      padding: $panel-diffuse-shadow-size 0;
-    }
-  }
-  nav.inside {
-    padding: ($button-gutter - 1px) $bezel ($button-gutter + 1px);
-    button {
-      padding: 6px 10px 5px;
-    }
   }
 }
 
