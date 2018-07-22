@@ -51,7 +51,6 @@
   --display-height: 190px;
   --display-width: calc(var(--device-width) - 2 * var(--bezel));
   --display-size: 330px; /* hypotenuse */
-  --intro-duration: .6s;
   --panel-base: #bbb;
   --panel-dark: #6f6f6f;
   --panel-darker: #3c3c3c;
@@ -166,6 +165,14 @@
 }
 
 .-panel-skin {
+  /* front to back */
+  --panel-shadows:
+    inset 0 0 var(--bezel) var(--shade-3), /* contour */
+    inset 0 0 2px var(--shade-3), /* inner edges */
+    inset 0 0 1px 1px var(--shade-1),
+    0 1px 0 var(--panel-darker), /* edge */
+    0 calc(var(--panel-depth) + 1px) 0 var(--panel-dark), /* edge */
+    0 calc(var(--panel-depth) + 2px) 0 var(--panel-darker); /* edge shadow */
   background-color: var(--panel-base);
   background-image:
     linear-gradient(var(--light-5), transparent var(--display-height)),
@@ -286,6 +293,29 @@ body>.container {
   margin-top: 0;
   position: relative;
 }
+
+.device>.body {
+  --intro-duration: .6s;
+  --panel-drop: 0 calc(var(--panel-depth) + 1px) var(--panel-drop-diffuse) var(--shade-8);
+  --panel-drop-afloat: 0 calc(var(--panel-depth) + 10px) calc(var(--panel-drop-diffuse) + 10px) 2px var(--shade-4);
+  box-shadow: var(--panel-shadows), var(--panel-drop-afloat);
+  transform: translateY(-30%) scale(1.1);
+  transition:
+    box-shadow .2s ease-out .2s,
+    transform var(--intro-duration) cubic-bezier(0, .9, .3, 1);
+  will-change: box-shadow, transform;
+}
+.device.--ready>.body {
+  box-shadow: var(--panel-shadows), var(--panel-drop);
+  transform: translateY(0) scale(1);
+}
+.device .buttons-panel {
+  opacity: 0;
+  transition: opacity .2s ease-in-out var(--intro-duration);
+}
+.device.--ready .buttons-panel {
+  opacity: 1;
+}
 ```
 
 ```scss
@@ -312,43 +342,7 @@ $slide-panel-inside-color: #777;
 $display-width: $device-width - (2 * $bezel);
 $display-size: 330px; // hypotenuse
 
-// section: includes
-
-$panel-shadows: ( // front to back
-  inset 0 0 $bezel shade(.3), // contour
-  inset 0 0 2px shade(.3), // inner edges
-  inset 0 0 1px 1px shade(.1),
-  0 1px 0 darken($panel-base-color, 25%), // edge
-  0 ($panel-depth + 1px) 0 darken($panel-base-color, 20%), // edge
-  0 ($panel-depth + 2px) 0 darken($panel-base-color, 30%) // edge shadow
-);
-$panel-shadow-diffuse: 0 ($panel-depth + 1px) $panel-diffuse-shadow-size shade(.8);
-$panel-shadow-diffuse-afloat: 0 ($panel-depth + 10px) ($panel-diffuse-shadow-size + 10px) 2px shade(.4);
-
 // section: main, layout
-
-.device {
-  >.body {
-    box-shadow: join($panel-shadows, ($panel-shadow-diffuse-afloat,));
-    transform: translateY(-30%) scale(1.1);
-    transition: (
-      box-shadow .2s ease-out .2s,
-      transform $intro-transition-duration cubic-bezier(0, .9, .3, 1)
-    );
-    will-change: box-shadow, transform;
-  }
-  &.ready>.body {
-    box-shadow: join($panel-shadows, ($panel-shadow-diffuse,));
-    transform: translateY(0) scale(1);
-  }
-  .buttons-panel {
-    opacity: 0;
-    transition: opacity .2s ease-in-out $intro-transition-duration;
-  }
-  &.ready .buttons-panel {
-    opacity: 1;
-  }
-}
 
 .device .main-screen {
   line-height: 0;
@@ -404,7 +398,7 @@ $panel-shadow-diffuse-afloat: 0 ($panel-depth + 10px) ($panel-diffuse-shadow-siz
 
 $ ->
   $root = $ '.device'
-  $root.addClass 'ready'
+  $root.addClass '--ready'
   buttons = initButtons $root
   slidePanel = initSlidePanel $root
   normalScaleWait = $root.find('.body').cssDuration('transition') + 300
