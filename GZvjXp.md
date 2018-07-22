@@ -247,6 +247,8 @@ body>.container {
   width: 100%;
 }
 
+/* Layout */
+
 .device {
   height: var(--device-height);
   text-align: left;
@@ -293,6 +295,41 @@ body>.container {
   margin-top: 0;
   position: relative;
 }
+.device .main-screen {
+  line-height: 0;
+  overflow: scroll;
+}
+.device .main-screen>.body {
+  cursor: crosshair;
+  padding: var(--bezel);
+}
+.device .main-screen>.body .cli input.-invisible {
+  /* fixed so it doesn't scroll
+     only positions correctly as last child,
+     so focusing doesn't change scroll position */
+  position: fixed;
+}
+.device .main-screen>.body .canvas {
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+.device .main-screen>.scanlines,
+.device .main-screen>.tint {
+  --edges: 2px;
+  height: calc(var(--display-height) - var(--edges));
+  /* fixed so it doesn't scroll
+     only positions correctly as first child */
+  position: fixed;
+  width: calc(var(--display-width) - var(--edges));
+}
+html.no-touch .device .main-screen>.scanlines { z-index: 9; }
+html.no-touch .device .main-screen>.tint { z-index: 10; }
+html.no-touch .device .main-screen:hover>.body .canvas { z-index: 20; }
+
+/* Intro */
 
 .device>.body {
   --intro-duration: .6s;
@@ -315,71 +352,6 @@ body>.container {
 }
 .device.--ready .buttons-panel {
   opacity: 1;
-}
-```
-
-```scss
-// using %centered
-// using %clearfix
-// using %disabled-mobile-interactions
-// using light(), shade()
-
-// section: vars
-
-$bezel: 15px;
-$corner-radius: 15px;
-$corner-radius-inner: 7px;
-$button-gutter: 11px;
-$device-height: 300px;
-$device-width: 300px;
-$display-height: 190px;
-$intro-transition-duration: .6s;
-$panel-base-color: #bbb;
-$panel-depth: 2px;
-$panel-diffuse-shadow-size: 10px;
-$slide-panel-inside-color: #777;
-
-$display-width: $device-width - (2 * $bezel);
-$display-size: 330px; // hypotenuse
-
-// section: main, layout
-
-.device .main-screen {
-  line-height: 0;
-  overflow: scroll;
-  >.body {
-    cursor: crosshair;
-    padding: $bezel;
-  }
-  >.body .cli input.invisible {
-    // fixed so it doesn't scroll
-    // only positions correctly as last child,
-    // so focusing doesn't change scroll position
-    position: fixed;
-  }
-  >.body .canvas {
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 100%;
-  }
-  >.scanlines,
-  >.tint {
-    $edges: 2px;
-    height: $display-height - $edges;
-    // fixed so it doesn't scroll
-    // only positions correctly as first child
-    position: fixed;
-    width: $display-width - $edges;
-  }
-  html.no-touch & {
-    >.scanlines { z-index: 9; }
-    >.tint { z-index: 10; }
-    &:hover {
-      >.body .canvas { z-index: 20; }
-    }
-  }
 }
 ```
 
@@ -472,7 +444,7 @@ createCLI = ($root, $context) ->
   html =
     command: (command) -> "&raquo; #{command}"
     cursor: '<span class="cursor -blink">&marker;</span>'
-    input: '<input type="text" class="invisible">'
+    input: '<input type="text" class="-invisible">'
     line: '<div class="line">'
 
   ms = { pause: 500 }
