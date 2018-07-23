@@ -51,15 +51,31 @@
   --display-height: 190px;
   --display-width: calc(var(--device-width) - 2 * var(--bezel));
   --display-size: 330px; /* hypotenuse */
+}
+
+.-panel-skin {
   --panel-base: #bbb;
   --panel-dark: #6f6f6f;
   --panel-darker: #3c3c3c;
   --panel-depth: 2px;
   --panel-drop-diffuse: 10px;
   --panel-texture: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAD0lEQVQYV2NgYGAwZgABAAE8ADSqC3qCAAAAAElFTkSuQmCC';
+  /* front to back */
+  --panel-shadows:
+    inset 0 0 var(--bezel) var(--shade-3), /* contour */
+    inset 0 0 2px var(--shade-3), /* inner edges */
+    inset 0 0 1px 1px var(--shade-1),
+    0 1px 0 var(--panel-darker), /* edge */
+    0 calc(var(--panel-depth) + 1px) 0 var(--panel-dark), /* edge */
+    0 calc(var(--panel-depth) + 2px) 0 var(--panel-darker); /* edge shadow */
+  background-color: var(--panel-base);
+  background-image:
+    linear-gradient(var(--light-5), transparent var(--display-height)),
+    url('var(--panel-texture)');
+  border-radius: var(--corner);
 }
 
-.-button-skin {
+.-panel-skin .-button-skin {
   background-color: var(--panel-base);
   background-image: linear-gradient(var(--light-5), transparent);
   border: 0;
@@ -81,13 +97,13 @@
   );
   transition: color .2s ease-in-out;
 }
-.-button-skin.hover,
-.-button-skin:hover {
+.-panel-skin .-button-skin.hover,
+.-panel-skin .-button-skin:hover {
   background-image: linear-gradient(var(--light-9), transparent);
   color: #08f;
 }
-.-button-skin.active,
-.-button-skin:active {
+.-panel-skin .-button-skin.active,
+.-panel-skin .-button-skin:active {
   background-color: #a2a2a2;
   background-image: linear-gradient(var(--light-5), transparent);
   /* front to back */
@@ -162,22 +178,6 @@
 .-display-skin.hover>.tint,
 .-display-skin:hover>.tint {
   opacity: 0;
-}
-
-.-panel-skin {
-  /* front to back */
-  --panel-shadows:
-    inset 0 0 var(--bezel) var(--shade-3), /* contour */
-    inset 0 0 2px var(--shade-3), /* inner edges */
-    inset 0 0 1px 1px var(--shade-1),
-    0 1px 0 var(--panel-darker), /* edge */
-    0 calc(var(--panel-depth) + 1px) 0 var(--panel-dark), /* edge */
-    0 calc(var(--panel-depth) + 2px) 0 var(--panel-darker); /* edge shadow */
-  background-color: var(--panel-base);
-  background-image:
-    linear-gradient(var(--light-5), transparent var(--display-height)),
-    url('var(--panel-texture)');
-  border-radius: var(--corner);
 }
 
 .-slide-panel-skin {
