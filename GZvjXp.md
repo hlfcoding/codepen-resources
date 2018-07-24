@@ -14,6 +14,7 @@
 ```
 
 ```html
+<!-- using: -bar-layout -blink -centered -input-style-none -invisible -->
 <div class="container">
 
 <div class="device -centered -input-style-none">
@@ -26,7 +27,7 @@
         <svg id="snap-svg-1" class="canvas" data-module="canvas"></svg>
       </div>
     </div><!--/main-screen-->
-    <div class="buttons-panel -slide-panel-motion -slide-panel-skin" data-module="slide-panel">
+    <div class="buttons-panel -slide-panel" data-module="slide-panel">
       <div class="cover"><div class="symbol">&middot;</div></div>
       <nav class="inside -bar-layout">
         <button class="-button-skin" name="A" type="button">A</button>
@@ -34,8 +35,8 @@
         <button class="-button-skin" name="C" type="button">C</button>
         <button class="-button-skin" name="D" type="button">D</button>
       </nav>
-    </div><!--/btn-panel-->
-  </div><!--/device-body-->
+    </div><!--/buttons-panel-->
+  </div><!--/body-->
 </div><!--/device-->
 
 </div><!--/container-->
@@ -117,6 +118,63 @@
   margin-top: calc(var(--panel-depth) - 1px);
 }
 
+.-panel-skin .-slide-panel {
+  border-bottom: 1px solid var(--light-5);
+  border-top: 1px solid var(--shade-2);
+  cursor: pointer;
+}
+.-panel-skin .-slide-panel .cover {
+  background: var(--panel-base) url('var(--panel-texture)') repeat;
+  border-bottom: 1px solid var(--shade-2);
+  border-top: 1px solid var(--light-5);
+  padding-top: 1px;
+}
+.-panel-skin .-slide-panel .cover.--open  {
+  box-shadow:
+    0 0 2px var(--shade-5),
+    0 0 calc(var(--panel-drop-diffuse) * 1.5) var(--shade-8),
+    0 0 0 var(--shade-2);
+}
+.-panel-skin .-slide-panel .cover .symbol {
+  box-shadow: /* TODO: refactor */
+    inset 0 0 var(--bezel) var(--shade-3), /* contour */
+    inset 0 0 2px var(--shade-3), /* inner edges */
+    inset 0 0 1px 1px var(--shade-1);
+  color: #aaa;
+  font: bold 56px Helvetica, sans-serif;
+  text-align: center;
+  text-shadow:
+    0 -1px 0 var(--shade-3),
+    0 1px 0 var(--light-5);
+}
+.-panel-skin .-slide-panel .inside {
+  background-color: #777;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAYAAABLLYUHAAAAGklEQVQIW2NkQAKMMPb///+N4RygoA8yhwEAYOgDgYLmjHMAAAAASUVORK5CYII=');
+  border-color: var(--shade-5) var(--shade-4) var(--light-8);
+  border-style: solid;
+  border-width: 2px 1px 1px;
+  /* front to back */
+  box-shadow:
+    inset 0 1px var(--bezel) var(--shade-5), /* diffuse */
+    inset 0 var(--panel-depth) 0 #6a6a6a, /* inner edge */
+    inset 0 calc(var(--panel-depth) + 1px) 0 #515151; /* edge shadow */
+}
+
+.-panel-skin .-slide-panel .cover {
+  transition-property: box-shadow, transform;
+  transition-duration: .4s;
+  will-change: box-shadow, transform;
+}
+.-panel-skin .-slide-panel .cover.--closed {
+  transform: translateX(0);
+  transition-timing-function: cubic-bezier(.9,0, .1,1);
+}
+.-panel-skin .-slide-panel .cover.--open {
+  --hinge-size: calc(var(--bezel) / 3);
+  transform: translateX(calc(var(--hinge-size) - var(--device-width)));
+  transition-timing-function: cubic-bezier(.8,0, .2,1.1);
+}
+
 .-display-skin {
   background-color: #111;
   background-image: linear-gradient(var(--light-2), transparent);
@@ -178,63 +236,6 @@
 .-display-skin.hover>.tint,
 .-display-skin:hover>.tint {
   opacity: 0;
-}
-
-.-slide-panel-skin {
-  border-bottom: 1px solid var(--light-5);
-  border-top: 1px solid var(--shade-2);
-  cursor: pointer;
-}
-.-slide-panel-skin .cover {
-  background: var(--panel-base) url('var(--panel-texture)') repeat;
-  border-bottom: 1px solid var(--shade-2);
-  border-top: 1px solid var(--light-5);
-  padding-top: 1px;
-}
-.-slide-panel-skin .cover.--open  {
-  box-shadow:
-    0 0 2px var(--shade-5),
-    0 0 calc(var(--panel-drop-diffuse) * 1.5) var(--shade-8),
-    0 0 0 var(--shade-2);
-}
-.-slide-panel-skin .cover .symbol {
-  box-shadow: /* TODO: refactor */
-    inset 0 0 var(--bezel) var(--shade-3), /* contour */
-    inset 0 0 2px var(--shade-3), /* inner edges */
-    inset 0 0 1px 1px var(--shade-1);
-  color: #aaa;
-  font: bold 56px Helvetica, sans-serif;
-  text-align: center;
-  text-shadow:
-    0 -1px 0 var(--shade-3),
-    0 1px 0 var(--light-5);
-}
-.-slide-panel-skin .inside {
-  background-color: #777;
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAYAAABLLYUHAAAAGklEQVQIW2NkQAKMMPb///+N4RygoA8yhwEAYOgDgYLmjHMAAAAASUVORK5CYII=');
-  border-color: var(--shade-5) var(--shade-4) var(--light-8);
-  border-style: solid;
-  border-width: 2px 1px 1px;
-  /* front to back */
-  box-shadow:
-    inset 0 1px var(--bezel) var(--shade-5), /* diffuse */
-    inset 0 var(--panel-depth) 0 #6a6a6a, /* inner edge */
-    inset 0 calc(var(--panel-depth) + 1px) 0 #515151; /* edge shadow */
-}
-
-.-slide-panel-motion .cover {
-  transition-property: box-shadow, transform;
-  transition-duration: .4s;
-  will-change: box-shadow, transform;
-}
-.-slide-panel-motion .cover.--closed {
-  transform: translateX(0);
-  transition-timing-function: cubic-bezier(.9,0, .1,1);
-}
-.-slide-panel-motion .cover.--open {
-  --hinge-size: calc(var(--bezel) / 3);
-  transform: translateX(calc(var(--hinge-size) - var(--device-width)));
-  transition-timing-function: cubic-bezier(.8,0, .2,1.1);
 }
 
 body {
