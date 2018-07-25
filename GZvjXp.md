@@ -356,280 +356,387 @@ html.no-touch .device .main-screen:hover>.body .canvas { z-index: 20; }
 }
 ```
 
-```coffee
-# using $.fn.animateChars
-# using $.fn.center
-# using $.fn.cssDuration
-# using $.fn.innerSize
-# using $.fn.keyboardHandling
-# using createStateMachine
-# using delay
-# using delayed
-# using delayDeferred
+```js
+/*
+using $.fn.animateChars
+using $.fn.center
+using $.fn.cssDuration
+using $.fn.innerSize
+using $.fn.keyboardHandling
+using createStateMachine
+using delay
+using delayed
+using delayDeferred
+*/
 
-{ isTouch } = Modernizr
+var isTouch;
 
-$ ->
-  $root = $ '.device'
-  $root.addClass '--ready'
-  buttons = initButtons $root
-  slidePanel = initSlidePanel $root
-  normalScaleWait = $root.find('.body').cssDuration('transition') + 300
-  delay normalScaleWait, ->
-    api.mainScreen = initMainScreen $root
-  api = { buttons, slidePanel }
+({isTouch} = Modernizr);
 
-createGameState = ({ states, shapes, paper, cli, $context }) ->
-  buttonShapes =
-    A: 'triangle'
-    B: 'square'
-    C: 'circle'
+$(function() {
+  var $root, api, buttons, normalScaleWait, slidePanel;
+  $root = $('.device');
+  $root.addClass('--ready');
+  buttons = initButtons($root);
+  slidePanel = initSlidePanel($root);
+  normalScaleWait = $root.find('.body').cssDuration('transition') + 300;
+  delay(normalScaleWait, function() {
+    api.mainScreen = initMainScreen($root);
+  });
+  api = {buttons, slidePanel};
+});
+
+function createGameState({states, shapes, paper, cli, $context}) {
+  var buttonShapes;
+  buttonShapes = {
+    A: 'triangle',
+    B: 'square',
+    C: 'circle',
     D: 'semicircle'
-  name: 'game'
-  enter: ->
-    delay 0, -> $context.trigger 'slide-panel:toggle', on
-    drawn = 0
-    $context.on 'click.shape', '[type=button]', (e) ->
-      return states.next() if drawn >= 10
-      drawn += 1;
-      $button = $ e.target
-      shapes.draw
-        relSize: Math.random()
-        relX: Math.random()
-        relY: Math.random()
-        shape: buttonShapes[$button.attr('name')]
-      return
-    # draw first
-    delay 1000, -> $context.trigger 'button:click', 'A'
-    return
-  leave: ->
-    paper.clear()
-    $context.trigger 'slide-panel:toggle', off
-    $context.off 'click.shape'
-    cli.echo 'too much, need rest...'
-    .then -> delayDeferred 500
-    .then -> cli.clear()
+  };
+  return {
+    name: 'game',
+    enter: function() {
+      var drawn;
+      delay(0, function() {
+        return $context.trigger('slide-panel:toggle', true);
+      });
+      drawn = 0;
+      $context.on('click.shape', '[type=button]', function(e) {
+        var $button;
+        if (drawn >= 10) {
+          return states.next();
+        }
+        drawn += 1;
+        $button = $(e.target);
+        shapes.draw({
+          relSize: Math.random(),
+          relX: Math.random(),
+          relY: Math.random(),
+          shape: buttonShapes[$button.attr('name')]
+        });
+      });
+      // draw first
+      delay(1000, function() {
+        return $context.trigger('button:click', 'A');
+      });
+    },
+    leave: function() {
+      paper.clear();
+      $context.trigger('slide-panel:toggle', false);
+      $context.off('click.shape');
+      return cli.echo('too much, need rest...').then(function() {
+        return delayDeferred(500);
+      }).then(function() {
+        return cli.clear();
+      });
+    }
+  };
+}
 
-createGreetState = ({ states, cli }) ->
-  name: 'greet'
-  enter: ->
-    cli.echo 'hello, your name?'
-    .then -> cli.command()
-    .then (name) ->
-      cli.echo "play a game, #{name}?"
-      .then -> cli.command()
-    .then (response) ->
-      agree = /^y/i.test response
-      cli.echo if agree then 'great...' else 'going to force you...'
-      .then -> delay 1000, states.next
-      return
-    return
-  leave: -> cli.clear(); return
+function createGreetState({states, cli}) {
+  return {
+    name: 'greet',
+    enter: function() {
+      cli.echo('hello, your name?').then(function() {
+        return cli.command();
+      }).then(function(name) {
+        return cli.echo(`play a game, ${name}?`).then(function() {
+          return cli.command();
+        });
+      }).then(function(response) {
+        var agree;
+        agree = /^y/i.test(response);
+        cli.echo(agree ? 'great...' : 'going to force you...').then(function() {
+          return delay(1000, states.next);
+        });
+      });
+    },
+    leave: function() {
+      cli.clear();
+    }
+  };
+}
 
-createOffState = ({ states, paper, $canvas }) ->
-  name: 'off'
-  enter: ->
-    power = createPowerButton paper, $canvas
-    power.toggle on
-    $canvas.on 'power:on', delayed 300, ->
-      power.toggle off, delayed(600, states.next)
-      return
-    return
-  leave: ->
-    paper.clear()
-    $canvas.off 'power:on'
-    return
+createOffState = function({states, paper, $canvas}) {
+  return {
+    name: 'off',
+    enter: function() {
+      var power;
+      power = createPowerButton(paper, $canvas);
+      power.toggle(true);
+      $canvas.on('power:on', delayed(300, function() {
+        power.toggle(false, delayed(600, states.next));
+      }));
+    },
+    leave: function() {
+      paper.clear();
+      $canvas.off('power:on');
+    }
+  };
+};
 
-# a stateful cli subview with a promise-based api
-createCLI = ($root, $context) ->
-  html =
-    command: (command) -> "&raquo; #{command}"
-    cursor: '<span class="cursor -blink">&marker;</span>'
-    input: '<input type="text" class="-invisible">'
+// a stateful cli subview with a promise-based api
+function createCLI($root, $context) {
+  var api, clear, command, echo, html, ms, state;
+  html = {
+    command: function(command) {
+      return `&raquo; ${command}`;
+    },
+    cursor: '<span class="cursor -blink">&marker;</span>',
+    input: '<input type="text" class="-invisible">',
     line: '<div class="line">'
+  };
+  ms = {
+    pause: 500
+  };
+  state = {};
+  state.$buffer = function() {
+    return $root.find('.line');
+  };
+  state.$input = $(html.input).appendTo($root);
+  state.$newLine = function() {
+    return $(html.line).insertBefore(this.$input);
+  };
+  state.beginCommand = function() {
+    this.commandDfd = $.Deferred();
+    this.$line = this.$newLine();
+    delay(ms.pause, () => {
+      this.updateCommand();
+      this.$line.get(0).scrollIntoView();
+    });
+    return this;
+  };
+  state.endCommand = function() {
+    var ref7;
+    if ((ref7 = this.$input) != null) {
+      ref7.val('');
+    }
+    this.$line = null;
+    this.command = '';
+    this.commandDfd = null;
+    return this;
+  };
+  state.updateCommand = function({action, payload} = {}) {
+    var cursor;
+    switch (action) {
+      case 'add':
+        this.command += payload;
+        break;
+      case 'delete':
+        this.command = this.command.slice(0, -1);
+        break;
+      case 'submit':
+        delay(ms.pause, () => {
+          this.commandDfd.resolve(this.command);
+        });
+    }
+    cursor = action === 'submit' ? '' : html.cursor;
+    this.$line.html(`${html.command(this.command)}${cursor}`);
+    return this;
+  };
+  state.endCommand();
+  state.beginInput = function() {
+    this.inputting = true;
+    $context.on('click.cli', () => {
+      this.$input.focus();
+    });
+    this.$input.focus().keyboardHandling({
+      onDelete: () => {
+        this.updateCommand({
+          action: 'delete'
+        });
+      },
+      onEnter: () => {
+        this.updateCommand({
+          action: 'submit'
+        });
+      },
+      onChar: (char) => {
+        this.updateCommand({
+          action: 'add',
+          payload: char
+        });
+      }
+    });
+    return this;
+  };
+  state.endInput = function() {
+    this.inputting = false;
+    $context.off('click.cli');
+    this.$input.blur().keyboardHandling(false);
+    return this;
+  };
+  state.resetEcho = function() {
+    this.echoDfd = null;
+    return this;
+  };
+  clear = function() {
+    state.$buffer().remove();
+    state.endInput().endCommand();
+    return api;
+  };
+  command = function() {
+    if (state.$line) {
+      return;
+    }
+    if (!state.inputting) {
+      state.beginInput();
+    }
+    return state.beginCommand().commandDfd.promise();
+  };
+  echo = function(message) {
+    var $line;
+    $line = state.$newLine();
+    $line.get(0).scrollIntoView();
+    state.endCommand();
+    // animate
+    state.echoDfd = $.Deferred();
+    $line.animateChars({
+      string: message,
+      completion: state.echoDfd
+    });
+    return state.echoDfd.promise();
+  };
+  return (api = {clear, command, echo});
+}
 
-  ms = { pause: 500 }
+// simple subview
+function createPowerButton(paper, $root) {
+  var api, button, center, dot, e, ms, radius, ring, state, toggle;
+  state = {
+    power: false
+  };
+  center = $root.center();
+  radius = {
+    ring: 30,
+    dot: 5
+  };
+  // svg styling props often need to be attributes
+  ring = paper.circle(center.x, center.y, radius.ring).addClass('ring').attr('strokeWidth', 2);
+  dot = paper.circle(center.x, center.y, radius.dot).addClass('dot');
+  button = paper.group(ring, dot).addClass('power-button').attr('opacity', 0);
+  // animate
+  ms = 300;
+  e = mina.easeinout;
+  button.hover(function() {
+    ring.animate({
+      r: radius.ring / 2
+    }, ms, e);
+    dot.animate({
+      r: radius.dot * 2
+    }, ms, e);
+    state.power = true;
+    delay(ms, function() {
+      if (state.power !== true) {
+        return;
+      }
+      $root.trigger('power:on');
+    });
+  }, function() {
+    ring.animate({
+      r: radius.ring
+    }, ms, e);
+    dot.animate({
+      r: radius.dot
+    }, ms, e);
+    state.power = false;
+  });
+  toggle = function(visible, completion) {
+    var opacity;
+    opacity = visible ? 1 : 0;
+    button.animate({opacity}, ms, e, completion);
+  };
+  return (api = {toggle});
+}
 
-  state = {}
-  state.$buffer = -> $root.find '.line'
-  state.$input = $(html.input).appendTo $root
-  state.$newLine = -> $(html.line).insertBefore @$input
+// a basic subview factory
+function createShapeDrawer(paper, $root) {
+  var api, draw, max, min, round, sqrt;
+  ({max, min, round, sqrt} = Math);
+  draw = function({relSize, relX, relY, shape}) {
+    var cx, cy, el, mx, my, r, size, stage, x, y;
+    relSize = max(.1, relSize / 2);
+    relX = min(.9, max(.1, relX));
+    relY = min(.8, max(.2, relY));
+    // convert to absolute
+    stage = $root.innerSize();
+    size = round(stage.w * relSize);
+    x = round((stage.w - size) * relX);
+    mx = x + size;
+    y = round((stage.h - size) * relY);
+    my = y + size;
+    r = size / 2;
+    cx = x + r;
+    cy = y + r;
+    // draw
+    el = (function() {
+      switch (shape) {
+        case 'circle':
+          return paper.circle(cx, cy, r);
+        case 'square':
+          return paper.rect(x, y, size, size, 6, 6);
+        case 'triangle':
+          return paper.polygon([cx, y + my * (1 - sqrt(3) / 2), mx, my, x, my]);
+        case 'semicircle':
+          return paper.path(`M${x} ${my}, L${mx} ${my}, A${r} ${r} 0 0 0 ${x} ${my}, Z`);
+        default:
+          throw 'unsupported shape';
+      }
+    })();
+    el.addClass('shape').attr('strokeWidth', 2);
+    return el;
+  };
+  return (api = {draw});
+}
 
-  state.beginCommand = ->
-    @commandDfd = $.Deferred()
-    @$line = @$newLine()
-    delay ms.pause, =>
-      @updateCommand()
-      @$line.get(0).scrollIntoView()
-      return
-    @
-  state.endCommand = ->
-    @$input?.val ''
-    @$line = null
-    @command = ''
-    @commandDfd = null
-    @
-  state.updateCommand = ({ action, payload }={}) ->
-    switch action
-      when 'add' then @command += payload
-      when 'delete' then @command = @command.slice 0, -1
-      when 'submit' then delay ms.pause, => @commandDfd.resolve @command; return
-    cursor = if action is 'submit' then '' else html.cursor
-    @$line.html "#{html.command(@command)}#{cursor}"
-    @
-  state.endCommand()
+function initButtons($context) {
+  var api;
+  $context.on('button:click', function(e, name) {
+    var $button;
+    $button = $context.find(`[type=button][name=${name}]`);
+    if (!$button.length) {
+      return;
+    }
+    $button.addClass('hover active');
+    return delay(300, function() {
+      return $button.trigger('click').removeClass('hover active');
+    });
+  });
+  return (api = {});
+}
 
-  state.beginInput = ->
-    @inputting = yes
-    $context.on 'click.cli', => @$input.focus(); return
-    @$input.focus().keyboardHandling
-      onDelete: => @updateCommand { action: 'delete' }; return
-      onEnter: => @updateCommand { action: 'submit' }; return
-      onChar: (char) => @updateCommand { action: 'add', payload: char }; return
-    @
-  state.endInput = ->
-    @inputting = no
-    $context.off 'click.cli'
-    @$input.blur().keyboardHandling off
-    @
+function initMainScreen($context) {
+  var $canvas, $cli, $root, api, cli, paper, shapes, states;
+  $root = $context.find('.main-screen');
+  $cli = $root.find('[data-module=cli]');
+  $canvas = $root.find('[data-module=canvas]');
+  paper = Snap(`#${$canvas.attr('id')}`);
+  cli = createCLI($cli, $root);
+  shapes = createShapeDrawer(paper, $canvas);
+  states = createStateMachine();
+  states.push(createOffState({states, paper, $canvas}));
+  states.push(createGreetState({states, cli}));
+  states.push(createGameState({states, shapes, paper, cli, $context}));
+  states.to('off');
+  return (api = {});
+}
 
-  state.resetEcho = ->
-    @echoDfd = null
-    @
-
-  clear = ->
-    state.$buffer().remove()
-    state.endInput().endCommand()
-    api
-
-  command = ->
-    return if state.$line
-    state.beginInput() unless state.inputting
-    state.beginCommand().commandDfd.promise()
-
-  echo = (message) ->
-    $line = state.$newLine()
-    $line.get(0).scrollIntoView()
-    state.endCommand()
-    # animate
-    state.echoDfd = $.Deferred()
-    $line.animateChars string: message, completion: state.echoDfd
-    state.echoDfd.promise()
-
-  api = { clear, command, echo }
-
-# simple subview
-createPowerButton = (paper, $root) ->
-  state = { power: off }
-  center = $root.center()
-  radius = { ring: 30, dot: 5 }
-  # svg styling props often need to be attributes
-  ring = paper.circle center.x, center.y, radius.ring
-    .addClass 'ring'
-    .attr 'strokeWidth', 2
-  dot = paper.circle center.x, center.y, radius.dot
-    .addClass 'dot'
-  button = paper.group ring, dot
-    .addClass 'power-button'
-    .attr 'opacity', 0
-  # animate
-  ms = 300
-  e = mina.easeinout
-  button.hover( ->
-    ring.animate { r: radius.ring / 2 }, ms, e
-    dot.animate { r: radius.dot * 2 }, ms, e
-    state.power = on
-    delay ms, ->
-      return unless state.power is on
-      $root.trigger 'power:on'
-      return
-    return
-  , ->
-    ring.animate { r: radius.ring }, ms, e
-    dot.animate { r: radius.dot }, ms, e
-    state.power = off
-    return
-  )
-
-  toggle = (visible, completion) ->
-    opacity = if visible then 1 else 0
-    button.animate { opacity }, ms, e, completion
-    return
-
-  api = { toggle }
-
-# a basic subview factory
-createShapeDrawer = (paper, $root) ->
-  { max, min, round, sqrt } = Math
-
-  draw = ({ relSize, relX, relY, shape }) ->
-    relSize = max .1, relSize / 2
-    relX = min .9, max .1, relX
-    relY = min .8, max .2, relY
-    # convert to absolute
-    stage = $root.innerSize()
-    size = round stage.w * relSize
-    x = round (stage.w - size) * relX; mx = x + size
-    y = round (stage.h - size) * relY; my = y + size
-    r = size / 2; cx = x + r; cy = y + r
-    # draw
-    el = switch shape
-      when 'circle' then paper.circle cx, cy, r
-      when 'square' then paper.rect x, y, size, size, 6, 6
-      when 'triangle' then paper.polygon [
-        cx, y + my * (1 - sqrt(3) / 2), mx, my, x, my
-      ]
-      when 'semicircle' then paper.path(
-        "M#{x} #{my}, L#{mx} #{my}, A#{r} #{r} 0 0 0 #{x} #{my}, Z"
-      )
-      else throw 'unsupported shape'
-    el.addClass 'shape'
-      .attr 'strokeWidth', 2
-    el
-
-  api = { draw }
-
-initButtons = ($context) ->
-  $context.on 'button:click', (e, name) ->
-    $button = $context.find "[type=button][name=#{name}]"
-    return unless $button.length
-    $button.addClass 'hover active'
-    delay 300, -> $button.trigger('click').removeClass 'hover active'
-
-  api = {}
-
-initMainScreen = ($context) ->
-  $root = $context.find '.main-screen'
-  $cli = $root.find '[data-module=cli]'
-  $canvas = $root.find '[data-module=canvas]'
-  paper = Snap "##{$canvas.attr('id')}"
-
-  cli = createCLI $cli, $root
-  shapes = createShapeDrawer paper, $canvas
-
-  states = createStateMachine()
-  states.push createOffState { states, paper, $canvas }
-  states.push createGreetState { states, cli }
-  states.push createGameState { states, shapes, paper, cli, $context }
-  states.to 'off'
-
-  api = {}
-
-initSlidePanel = ($context) ->
-  $root = $context.find '[data-module=slide-panel]'
-  $cover = $root.find '.cover'
-  $inside = $root.find '.inside'
-
-  $cover.addClass '--closed'
-  $cover.on 'click', (e) ->
-    return unless $(e.currentTarget).is '.cover'
-    $cover.toggleClass '--open --closed'
-    return
-  $context.on 'slide-panel:toggle', (e, visible) ->
-    $cover
-      .toggleClass '--open', visible
-      .toggleClass '--closed', not visible
-    return
-
-  api = {}
+function initSlidePanel($context) {
+  var $cover, $inside, $root, api;
+  $root = $context.find('[data-module=slide-panel]');
+  $cover = $root.find('.cover');
+  $inside = $root.find('.inside');
+  $cover.addClass('--closed');
+  $cover.on('click', function(e) {
+    if (!$(e.currentTarget).is('.cover')) {
+      return;
+    }
+    $cover.toggleClass('--open --closed');
+  });
+  $context.on('slide-panel:toggle', function(e, visible) {
+    $cover.toggleClass('--open', visible).toggleClass('--closed', !visible);
+  });
+  return (api = {});
+}
 ```
