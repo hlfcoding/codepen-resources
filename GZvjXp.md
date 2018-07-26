@@ -369,22 +369,25 @@ using delayed
 using delayDeferred
 */
 
-var isTouch;
+import {
+  delay,
+  getComputedTransitionDurations,
+} from '//assets.pengxwang.com/codepen-resources/common-helpers/main.mjs';
 
-({isTouch} = Modernizr);
+const { isTouch } = Modernizr;
 
-$(function() {
-  var $root, api, buttons, normalScaleWait, slidePanel;
-  $root = $('.device');
-  $root.addClass('--ready');
-  buttons = initButtons($root);
-  slidePanel = initSlidePanel($root);
-  normalScaleWait = $root.find('.body').cssDuration('transition') + 300;
-  delay(normalScaleWait, function() {
-    api.mainScreen = initMainScreen($root);
+document.onreadystatechange = () => {
+  if (document.readyState !== 'complete') { return; }
+  let api = {};
+  let rootElement = document.querySelector('.device');
+  rootElement.classList.add('--ready');
+  api.buttons = initButtons(rootElement);
+  api.slidePanel = initSlidePanel(rootElement);
+  delay(getComputedTransitionDurations(document.querySelector('.device > .body'))[1], () => {
+    api.mainScreen = initMainScreen(rootElement);
   });
-  api = {buttons, slidePanel};
-});
+  window.deviceOne = api;
+};
 
 function createGameState({states, shapes, paper, cli, $context}) {
   var buttonShapes;
@@ -458,7 +461,7 @@ function createGreetState({states, cli}) {
   };
 }
 
-createOffState = function({states, paper, $canvas}) {
+function createOffState({states, paper, $canvas}) {
   return {
     name: 'off',
     enter: function() {
@@ -474,7 +477,7 @@ createOffState = function({states, paper, $canvas}) {
       $canvas.off('power:on');
     }
   };
-};
+}
 
 // a stateful cli subview with a promise-based api
 function createCLI($root, $context) {
@@ -690,8 +693,9 @@ function createShapeDrawer(paper, $root) {
   return (api = {draw});
 }
 
-function initButtons($context) {
+function initButtons(contextElement) {
   var api;
+  let $context = $(contextElement);
   $context.on('button:click', function(e, name) {
     var $button;
     $button = $context.find(`[type=button][name=${name}]`);
@@ -706,8 +710,9 @@ function initButtons($context) {
   return (api = {});
 }
 
-function initMainScreen($context) {
+function initMainScreen(contextElement) {
   var $canvas, $cli, $root, api, cli, paper, shapes, states;
+  let $context = $(contextElement);
   $root = $context.find('.main-screen');
   $cli = $root.find('[data-module=cli]');
   $canvas = $root.find('[data-module=canvas]');
@@ -722,8 +727,9 @@ function initMainScreen($context) {
   return (api = {});
 }
 
-function initSlidePanel($context) {
+function initSlidePanel(contextElement) {
   var $cover, $inside, $root, api;
+  let $context = $(contextElement);
   $root = $context.find('[data-module=slide-panel]');
   $cover = $root.find('.cover');
   $inside = $root.find('.inside');

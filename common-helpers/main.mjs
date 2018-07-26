@@ -49,6 +49,11 @@ export function fixActiveStateForTouch(el) {
   return el.addEventListener('touchstart', (function() {}), false);
 }
 
+export function getComputedTransitionDurations(element) {
+  return getComputedStyle(element).transitionDuration.split(',')
+    .map(secondsString => parseFloat(secondsString) * 1000);
+}
+
 export function resolveCompletion(obj) {
   if (obj.resolve) { return obj.resolve.bind(obj); }
   if (typeof obj === 'function') { return obj; }
