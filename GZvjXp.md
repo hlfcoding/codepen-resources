@@ -421,7 +421,7 @@ function createGameState({states, shapes, paper, cli, $context}) {
       });
       // draw first
       delay(1000, function() {
-        return $context.trigger('button:click', 'A');
+        window.deviceOne.buttons.click('A');
       });
     },
     leave: function() {
@@ -694,20 +694,18 @@ function createShapeDrawer(paper, $root) {
 }
 
 function initButtons(contextElement) {
-  var api;
-  let $context = $(contextElement);
-  $context.on('button:click', function(e, name) {
-    var $button;
-    $button = $context.find(`[type=button][name=${name}]`);
-    if (!$button.length) {
-      return;
+  function click(name) {
+    let buttonElement = contextElement.querySelector(`[type=button][name=${name}]`);
+    if (buttonElement) {
+      const click = new MouseEvent('click', {bubbles: true, cancelable: true});
+      buttonElement.classList.add('hover', 'active');
+      delay(300, () => {
+        buttonElement.dispatchEvent(click);
+        buttonElement.classList.remove('hover', 'active');
+      });
     }
-    $button.addClass('hover active');
-    return delay(300, function() {
-      return $button.trigger('click').removeClass('hover active');
-    });
-  });
-  return (api = {});
+  }
+  return { click };
 }
 
 function initMainScreen(contextElement) {
