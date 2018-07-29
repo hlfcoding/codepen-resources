@@ -401,9 +401,6 @@ function createGameState({states, shapes, paper, cli, $context}) {
     name: 'game',
     enter: function() {
       var drawn;
-      delay(0, function() {
-        return $context.trigger('slide-panel:toggle', true);
-      });
       drawn = 0;
       $context.on('click.shape', '[type=button]', function(e) {
         var $button;
@@ -420,7 +417,10 @@ function createGameState({states, shapes, paper, cli, $context}) {
         });
       });
       // draw first
-      delay(1000, function() {
+      delay(0, () => {
+        window.deviceOne.slidePanel.toggle(true);
+      });
+      delay(1000, () => {
         window.deviceOne.buttons.click('A');
       });
     },
@@ -696,51 +696,44 @@ function createShapeDrawer(paper, $root) {
 function initButtons(contextElement) {
   function click(name) {
     let buttonElement = contextElement.querySelector(`[type=button][name=${name}]`);
-    if (buttonElement) {
-      const click = new MouseEvent('click', {bubbles: true, cancelable: true});
-      buttonElement.classList.add('hover', 'active');
-      delay(300, () => {
-        buttonElement.dispatchEvent(click);
-        buttonElement.classList.remove('hover', 'active');
-      });
-    }
+    if (!buttonElement) { return; }
+    const click = new MouseEvent('click', {bubbles: true, cancelable: true});
+    buttonElement.classList.add('hover', 'active');
+    delay(300, () => {
+      buttonElement.dispatchEvent(click);
+      buttonElement.classList.remove('hover', 'active');
+    });
   }
   return { click };
 }
 
 function initMainScreen(contextElement) {
-  var $canvas, $cli, $root, api, cli, paper, shapes, states;
-  let $context = $(contextElement);
-  $root = $context.find('.main-screen');
-  $cli = $root.find('[data-module=cli]');
-  $canvas = $root.find('[data-module=canvas]');
-  paper = Snap(`#${$canvas.attr('id')}`);
-  cli = createCLI($cli, $root);
-  shapes = createShapeDrawer(paper, $canvas);
-  states = createStateMachine();
-  states.push(createOffState({states, paper, $canvas}));
+  const rootElement = contextElement.querySelector('.main-screen');
+  const cliElement = rootElement.querySelector('[data-module=cli]');
+  const canvasElement = rootElement.querySelector('[data-module=canvas]');
+  const paper = Snap(`#${canvasElement.id}`);
+  const cli = createCLI($(cliElement), $(rootElement));
+  const shapes = createShapeDrawer(paper, $(canvasElement));
+  let states = createStateMachine();
+  states.push(createOffState({states, paper, $canvas: $(canvasElement)}));
   states.push(createGreetState({states, cli}));
-  states.push(createGameState({states, shapes, paper, cli, $context}));
+  states.push(createGameState({states, shapes, paper, cli, $context: $(contextElement)}));
   states.to('off');
   return (api = {});
 }
 
 function initSlidePanel(contextElement) {
-  var $cover, $inside, $root, api;
-  let $context = $(contextElement);
-  $root = $context.find('[data-module=slide-panel]');
-  $cover = $root.find('.cover');
-  $inside = $root.find('.inside');
-  $cover.addClass('--closed');
-  $cover.on('click', function(e) {
-    if (!$(e.currentTarget).is('.cover')) {
-      return;
-    }
-    $cover.toggleClass('--open --closed');
+  const rootElement = contextElement.querySelector('[data-module=slide-panel]');
+  let coverElement = rootElement.querySelector('.cover');
+  function toggle(visible) {
+    coverElement.classList.toggle('--open', visible);
+    coverElement.classList.toggle('--closed', !visible);
+  }
+  toggle(false);
+  coverElement.addEventListener('click', (event) => {
+    if (event.currentTarget !== coverElement) { return; }
+    toggle();
   });
-  $context.on('slide-panel:toggle', function(e, visible) {
-    $cover.toggleClass('--open', visible).toggleClass('--closed', !visible);
-  });
-  return (api = {});
+  return { toggle };
 }
 ```
