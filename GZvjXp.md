@@ -440,22 +440,16 @@ function createGameState({states, shapes, paper, cli, $context}) {
 function createGreetState({states, cli}) {
   return {
     name: 'greet',
-    enter: function() {
-      cli.echo('hello, your name?').then(function() {
-        return cli.command();
-      }).then(function(name) {
-        return cli.echo(`play a game, ${name}?`).then(function() {
-          return cli.command();
-        });
-      }).then(function(response) {
-        var agree;
-        agree = /^y/i.test(response);
-        cli.echo(agree ? 'great...' : 'going to force you...').then(function() {
-          return delay(1000, states.next);
-        });
+    enter() {
+      cli.echo('hello, your name?')
+      .then(() => cli.command())
+      .then((name) => cli.echo(`play a game, ${name}?`).then(() => cli.command()))
+      .then((response) => {
+        const text = /^y/i.test(response) ? 'great...' : 'going to force you...';
+        cli.echo(text).then(() => delay(1000, states.next));
       });
     },
-    leave: function() {
+    leave() {
       cli.clear();
     }
   };
