@@ -37,6 +37,18 @@ export function createStateMachine() {
   return states;
 }
 
+export function animateChars({ completion, element, stepDuration, string }) {
+  completion = resolveCompletion(completion);
+  stepDuration = stepDuration || 30;
+  let chars = string.split('');
+  function step() {
+    if (!chars.length) { return completion(); }
+    element.textContent += chars.shift();
+    delay(stepDuration, () => { requestAnimationFrame(step); });
+  }
+  requestAnimationFrame(step);
+}
+
 export function delay(duration, completion) {
   return setTimeout(resolveCompletion(completion), duration);
 }

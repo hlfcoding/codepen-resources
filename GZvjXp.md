@@ -713,7 +713,7 @@ function initMainScreen(contextElement) {
   states.push(createGreetState({states, cli}));
   states.push(createGameState({states, shapes, paper, cli, $context: $(contextElement)}));
   states.to('off');
-  return (api = {});
+  return {};
 }
 
 function initSlidePanel(contextElement) {
