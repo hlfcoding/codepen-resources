@@ -358,18 +358,16 @@ html.no-touch .device .main-screen:hover>.body .canvas { z-index: 20; }
 
 ```js
 /*
-using $.fn.animateChars
 using $.fn.center
-using $.fn.cssDuration
 using $.fn.innerSize
 using $.fn.keyboardHandling
-using createStateMachine
-using delay
 using delayed
 using delayDeferred
 */
 
 import {
+  animateChars,
+  createStateMachine,
   delay,
   getComputedTransitionDurations,
 } from '//assets.pengxwang.com/codepen-resources/common-helpers/main.mjs';
@@ -564,10 +562,6 @@ function createCLI($root, $context) {
     this.$input.blur().keyboardHandling(false);
     return this;
   };
-  state.resetEcho = function() {
-    this.echoDfd = null;
-    return this;
-  };
   clear = function() {
     state.$buffer().remove();
     state.endInput().endCommand();
@@ -582,19 +576,19 @@ function createCLI($root, $context) {
     }
     return state.beginCommand().commandDfd.promise();
   };
-  echo = function(message) {
-    var $line;
-    $line = state.$newLine();
-    $line.get(0).scrollIntoView();
+  function echo(message) {
+    let lineElement = state.$newLine().get(0);
+    lineElement.scrollIntoView();
     state.endCommand();
     // animate
-    state.echoDfd = $.Deferred();
-    $line.animateChars({
-      string: message,
-      completion: state.echoDfd
+    return new Promise((fulfill, reject) => {
+      animateChars({
+        element: lineElement,
+        string: message,
+        completion: fulfill,
+      });
     });
-    return state.echoDfd.promise();
-  };
+  }
   return (api = {clear, command, echo});
 }
 
