@@ -361,14 +361,14 @@ html.no-touch .device .main-screen:hover>.body .canvas { z-index: 20; }
 using $.fn.center
 using $.fn.innerSize
 using $.fn.keyboardHandling
-using delayed
-using delayDeferred
 */
 
 import {
   animateChars,
   createStateMachine,
   delay,
+  delayed,
+  delayedPromise,
   getComputedTransitionDurations,
 } from '//assets.pengxwang.com/codepen-resources/common-helpers/main.mjs';
 
@@ -426,11 +426,9 @@ function createGameState({states, shapes, paper, cli, $context}) {
       paper.clear();
       $context.trigger('slide-panel:toggle', false);
       $context.off('click.shape');
-      return cli.echo('too much, need rest...').then(function() {
-        return delayDeferred(500);
-      }).then(function() {
-        return cli.clear();
-      });
+      return cli.echo('too much, need rest...')
+        .then(() => delayedPromise(500))
+        .then(() => cli.clear());
     }
   };
 }

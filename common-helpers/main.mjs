@@ -57,6 +57,12 @@ export function delayed(duration, completion) {
   return function() { delay(duration, completion); };
 }
 
+export function delayedPromise(duration, completion) {
+  return new Promise(function(fulfill, reject) {
+    delay(duration, fulfill);
+  });
+}
+
 export function fixActiveStateForTouch(el) {
   return el.addEventListener('touchstart', (function() {}), false);
 }
