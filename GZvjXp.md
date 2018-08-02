@@ -24,7 +24,12 @@
       <div class="scanlines"></div>
       <div class="body">
         <div class="cli" data-module="cli"></div>
-        <svg id="snap-svg-1" class="canvas" data-module="canvas"></svg>
+        <svg class="canvas" data-module="canvas">
+          <g class="power-button">
+            <circle class="ring"></circle>
+            <circle class="dot"></circle>
+          </g>
+        </svg>
       </div>
     </div><!--/main-screen-->
     <div class="buttons-panel -slide-panel" data-module="slide-panel">
@@ -358,7 +363,6 @@ html.no-touch .device .main-screen:hover>.body .canvas { z-index: 20; }
 
 ```js
 /*
-using $.fn.center
 using $.fn.innerSize
 using $.fn.keyboardHandling
 */
@@ -415,12 +419,8 @@ function createGameState({states, shapes, paper, cli, $context}) {
         });
       });
       // draw first
-      delay(0, () => {
-        window.deviceOne.slidePanel.toggle(true);
-      });
-      delay(1000, () => {
-        window.deviceOne.buttons.click('A');
-      });
+      delay(0, () => window.deviceOne.slidePanel.toggle(true));
+      delay(1000, () => window.deviceOne.buttons.click('A'));
     },
     leave: function() {
       paper.clear();
@@ -456,7 +456,7 @@ function createOffState({states, paper, $canvas}) {
     name: 'off',
     enter: function() {
       var power;
-      power = createPowerButton(paper, $canvas);
+      power = createPowerButton($canvas.get(0));
       power.toggle(true);
       $canvas.on('power:on', delayed(300, function() {
         power.toggle(false, delayed(600, states.next));
@@ -591,52 +591,47 @@ function createCLI($root, $context) {
 }
 
 // simple subview
-function createPowerButton(paper, $root) {
-  var api, button, center, dot, e, ms, radius, ring, state, toggle;
-  state = {
-    power: false
-  };
-  center = $root.center();
-  radius = {
-    ring: 30,
-    dot: 5
-  };
+function createPowerButton(rootElement) {
+  let state = { power: false };
+  const center = { x: rootElement.clientWidth / 2, y: rootElement.clientHeight / 2 };
+  const radius = { ring: 30, dot: 5 };
   // svg styling props often need to be attributes
-  ring = paper.circle(center.x, center.y, radius.ring).addClass('ring').attr('strokeWidth', 2);
-  dot = paper.circle(center.x, center.y, radius.dot).addClass('dot');
-  button = paper.group(ring, dot).addClass('power-button').attr('opacity', 0);
+  let buttonElement = rootElement.querySelector('.power-button');
+  buttonElement.setAttribute('opacity', 0);
+  let ringElement = buttonElement.querySelector('.ring');
+  ringElement.setAttribute('cx', center.x);
+  ringElement.setAttribute('cy', center.y);
+  ringElement.setAttribute('r', radius.ring);
+  ringElement.setAttribute('stroke-width', 2);
+  let dotElement = buttonElement.querySelector('.dot');
+  dotElement.setAttribute('cx', center.x);
+  dotElement.setAttribute('cy', center.y);
+  dotElement.setAttribute('r', radius.dot);
   // animate
-  ms = 300;
-  e = mina.easeinout;
-  button.hover(function() {
-    ring.animate({
-      r: radius.ring / 2
-    }, ms, e);
-    dot.animate({
-      r: radius.dot * 2
-    }, ms, e);
+  const options = { duration: 300, easing: 'ease-in-out', fill: 'both' };
+  function onEnter() {
+    ringElement.animate({ r: [parseFloat(ringElement.getAttribute('r')), radius.ring / 2] }, options);
+    dotElement.animate({ r: [parseFloat(dotElement.getAttribute('r')), radius.dot * 2] }, options);
     state.power = true;
-    delay(ms, function() {
-      if (state.power !== true) {
-        return;
-      }
-      $root.trigger('power:on');
+    delay(options.duration, () => {
+      if (!state.power) { return; }
+      rootElement.dispatchEvent(new CustomEvent('power:on'));
     });
-  }, function() {
-    ring.animate({
-      r: radius.ring
-    }, ms, e);
-    dot.animate({
-      r: radius.dot
-    }, ms, e);
+  }
+  function onLeave() {
+    ringElement.animate({ r: [parseFloat(ringElement.getAttribute('r')), radius.ring] }, options);
+    dotElement.animate({ r: [parseFloat(dotElement.getAttribute('r')), radius.dot] }, options);
     state.power = false;
-  });
-  toggle = function(visible, completion) {
-    var opacity;
-    opacity = visible ? 1 : 0;
-    button.animate({opacity}, ms, e, completion);
-  };
-  return (api = {toggle});
+  }
+  buttonElement.addEventListener('mouseenter', onEnter);
+  buttonElement.addEventListener('mouseleave', onLeave);
+  // api
+  function toggle(visible, completion) {
+    const opacity = visible ? 1 : 0;
+    let animation = buttonElement.animate({ opacity: [parseFloat(buttonElement.getAttribute('opacity')), opacity] }, options);
+    animation.onfinish = completion;
+  }
+  return { toggle };
 }
 
 // a basic subview factory
@@ -697,7 +692,7 @@ function initMainScreen(contextElement) {
   const rootElement = contextElement.querySelector('.main-screen');
   const cliElement = rootElement.querySelector('[data-module=cli]');
   const canvasElement = rootElement.querySelector('[data-module=canvas]');
-  const paper = Snap(`#${canvasElement.id}`);
+  const paper = Snap(canvasElement);
   const cli = createCLI($(cliElement), $(rootElement));
   const shapes = createShapeDrawer(paper, $(canvasElement));
   let states = createStateMachine();
