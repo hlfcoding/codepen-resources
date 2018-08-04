@@ -451,27 +451,27 @@ function createGreetState({states, cli}) {
   };
 }
 
-function createOffState({states, paper, $canvas}) {
+function createOffState({ states, powerButton }) {
+  const powerOnListener = delayed(300, (event) => {
+    powerButton.toggleVisible(false, delayed(600, states.next));
+  });
   return {
     name: 'off',
-    enter: function() {
-      var power;
-      power = createPowerButton($canvas.get(0));
-      power.toggle(true);
-      $canvas.on('power:on', delayed(300, function() {
-        power.toggle(false, delayed(600, states.next));
-      }));
+    enter() {
+      powerButton.toggleAttached(true);
+      powerButton.toggleVisible(true);
+      powerButton.rootElement.addEventListener('power:on', powerOnListener);
     },
-    leave: function() {
-      paper.clear();
-      $canvas.off('power:on');
+    leave() {
+      powerButton.toggleAttached(false);
+      powerButton.rootElement.removeEventListener('power:on', powerOnListener);
     }
   };
 }
 
 // a stateful cli subview with a promise-based api
 function createCLI($root, $context) {
-  var api, clear, command, echo, html, ms, state;
+  var api, clear, command, html, ms, state;
   html = {
     command: function(command) {
       return `&raquo; ${command}`;
@@ -609,7 +609,7 @@ function createPowerButton(rootElement) {
   dotElement.setAttribute('r', radius.dot);
   // animate
   const options = { duration: 300, easing: 'ease-in-out', fill: 'both' };
-  function onEnter() {
+  function onEnter(event) {
     ringElement.animate({ r: [parseFloat(ringElement.getAttribute('r')), radius.ring / 2] }, options);
     dotElement.animate({ r: [parseFloat(dotElement.getAttribute('r')), radius.dot * 2] }, options);
     state.power = true;
@@ -618,7 +618,7 @@ function createPowerButton(rootElement) {
       rootElement.dispatchEvent(new CustomEvent('power:on'));
     });
   }
-  function onLeave() {
+  function onLeave(event) {
     ringElement.animate({ r: [parseFloat(ringElement.getAttribute('r')), radius.ring] }, options);
     dotElement.animate({ r: [parseFloat(dotElement.getAttribute('r')), radius.dot] }, options);
     state.power = false;
@@ -626,12 +626,20 @@ function createPowerButton(rootElement) {
   buttonElement.addEventListener('mouseenter', onEnter);
   buttonElement.addEventListener('mouseleave', onLeave);
   // api
-  function toggle(visible, completion) {
+  function toggleAttached(attached) {
+    if (attached) {
+      rootElement.appendChild(buttonElement);
+    } else {
+      onLeave(null);
+      rootElement.removeChild(buttonElement);
+    }
+  }
+  function toggleVisible(visible, completion) {
     const opacity = visible ? 1 : 0;
     let animation = buttonElement.animate({ opacity: [parseFloat(buttonElement.getAttribute('opacity')), opacity] }, options);
     animation.onfinish = completion;
   }
-  return { toggle };
+  return { rootElement, toggleAttached, toggleVisible };
 }
 
 // a basic subview factory
@@ -640,9 +648,9 @@ function createShapeDrawer(paper, $root) {
   ({max, min, round, sqrt} = Math);
   draw = function({relSize, relX, relY, shape}) {
     var cx, cy, el, mx, my, r, size, stage, x, y;
-    relSize = max(.1, relSize / 2);
-    relX = min(.9, max(.1, relX));
-    relY = min(.8, max(.2, relY));
+    relSize = max(0.1, relSize / 2);
+    relX = min(0.9, max(0.1, relX));
+    relY = min(0.8, max(0.2, relY));
     // convert to absolute
     stage = $root.innerSize();
     size = round(stage.w * relSize);
@@ -694,9 +702,10 @@ function initMainScreen(contextElement) {
   const canvasElement = rootElement.querySelector('[data-module=canvas]');
   const paper = Snap(canvasElement);
   const cli = createCLI($(cliElement), $(rootElement));
+  const powerButton = createPowerButton(canvasElement);
   const shapes = createShapeDrawer(paper, $(canvasElement));
   let states = createStateMachine();
-  states.push(createOffState({states, paper, $canvas: $(canvasElement)}));
+  states.push(createOffState({ states, powerButton }));
   states.push(createGreetState({states, cli}));
   states.push(createGameState({states, shapes, paper, cli, $context: $(contextElement)}));
   states.to('off');
