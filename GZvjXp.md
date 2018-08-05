@@ -447,7 +447,7 @@ function createGreetState({states, cli}) {
     },
     leave() {
       cli.clear();
-    }
+    },
   };
 }
 
@@ -465,7 +465,7 @@ function createOffState({ states, powerButton }) {
     leave() {
       powerButton.toggleAttached(false);
       powerButton.rootElement.removeEventListener('power:on', powerOnListener);
-    }
+    },
   };
 }
 
