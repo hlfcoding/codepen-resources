@@ -389,49 +389,46 @@ document.onreadystatechange = () => {
   window.deviceOne = api;
 };
 
-function createGameState({states, canvas, cli, $context}) {
-  var buttonShapes;
-  buttonShapes = {
+function createGameState({ states, canvas, cli, contextElement }) {
+  const buttonShapes = {
     A: 'triangle',
     B: 'square',
     C: 'circle',
-    D: 'semicircle'
+    D: 'semicircle',
   };
+  let drawn = 0;
+  function drawListener({ target: button }) {
+    if (button.type !== 'button') { return; }
+    if (!(button.name in buttonShapes)) { return; }
+    if (drawn >= 10) { return states.next(); }
+    drawn += 1;
+    canvas.draw({
+      relSize: Math.random(),
+      relX: Math.random(),
+      relY: Math.random(),
+      shape: buttonShapes[button.name],
+    });
+  }
   return {
     name: 'game',
-    enter: function() {
-      var drawn;
-      drawn = 0;
-      $context.on('click.shape', '[type=button]', function(e) {
-        var $button;
-        if (drawn >= 10) {
-          return states.next();
-        }
-        drawn += 1;
-        $button = $(e.target);
-        canvas.draw({
-          relSize: Math.random(),
-          relX: Math.random(),
-          relY: Math.random(),
-          shape: buttonShapes[$button.attr('name')]
-        });
-      });
+    enter() {
+      contextElement.addEventListener('click', drawListener);
       // draw first
       delay(0, () => window.deviceOne.slidePanel.toggle(true));
       delay(1000, () => window.deviceOne.buttons.click('A'));
     },
-    leave: function() {
+    leave() {
       canvas.erase();
-      $context.trigger('slide-panel:toggle', false);
-      $context.off('click.shape');
+      window.deviceOne.slidePanel.toggle(false);
+      contextElement.removeEventListener('click', drawListener);
       return cli.echo('too much, need rest...')
         .then(() => delayedPromise(500))
         .then(() => cli.clear());
-    }
+    },
   };
 }
 
-function createGreetState({states, cli}) {
+function createGreetState({ states, cli }) {
   return {
     name: 'greet',
     enter() {
@@ -718,8 +715,8 @@ function initMainScreen(contextElement) {
   const canvas = createCanvas(canvasElement);
   let states = createStateMachine();
   states.push(createOffState({ states, powerButton }));
-  states.push(createGreetState({states, cli}));
-  states.push(createGameState({states, canvas, cli, $context: $(contextElement)}));
+  states.push(createGreetState({ states, cli }));
+  states.push(createGameState({ states, canvas, cli, contextElement }));
   states.to('off');
   return {};
 }
