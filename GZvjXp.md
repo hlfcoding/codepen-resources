@@ -10,7 +10,6 @@
 <link rel="stylesheet" href="//assets.pengxwang.com/codepen-resources/common-helpers/main-v2.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/snap.svg/0.4.1/snap.svg-min.js"></script>
 ```
 
 ```html
@@ -363,7 +362,6 @@ html.no-touch .device .main-screen:hover>.body .canvas { z-index: 20; }
 
 ```js
 /*
-using $.fn.innerSize
 using $.fn.keyboardHandling
 */
 
@@ -391,7 +389,7 @@ document.onreadystatechange = () => {
   window.deviceOne = api;
 };
 
-function createGameState({states, shapes, paper, cli, $context}) {
+function createGameState({states, canvas, cli, $context}) {
   var buttonShapes;
   buttonShapes = {
     A: 'triangle',
@@ -411,7 +409,7 @@ function createGameState({states, shapes, paper, cli, $context}) {
         }
         drawn += 1;
         $button = $(e.target);
-        shapes.draw({
+        canvas.draw({
           relSize: Math.random(),
           relX: Math.random(),
           relY: Math.random(),
@@ -423,7 +421,7 @@ function createGameState({states, shapes, paper, cli, $context}) {
       delay(1000, () => window.deviceOne.buttons.click('A'));
     },
     leave: function() {
-      paper.clear();
+      canvas.erase();
       $context.trigger('slide-panel:toggle', false);
       $context.off('click.shape');
       return cli.echo('too much, need rest...')
@@ -643,43 +641,58 @@ function createPowerButton(rootElement) {
 }
 
 // a basic subview factory
-function createShapeDrawer(paper, $root) {
-  var api, draw, max, min, round, sqrt;
-  ({max, min, round, sqrt} = Math);
-  draw = function({relSize, relX, relY, shape}) {
-    var cx, cy, el, mx, my, r, size, stage, x, y;
+function createCanvas(rootElement) {
+  function draw({ relSize, relX, relY, shape }) {
+    const { max, min, round, sqrt } = Math;
     relSize = max(0.1, relSize / 2);
     relX = min(0.9, max(0.1, relX));
     relY = min(0.8, max(0.2, relY));
-    // convert to absolute
-    stage = $root.innerSize();
-    size = round(stage.w * relSize);
-    x = round((stage.w - size) * relX);
-    mx = x + size;
-    y = round((stage.h - size) * relY);
-    my = y + size;
-    r = size / 2;
-    cx = x + r;
-    cy = y + r;
-    // draw
-    el = (function() {
-      switch (shape) {
-        case 'circle':
-          return paper.circle(cx, cy, r);
-        case 'square':
-          return paper.rect(x, y, size, size, 6, 6);
-        case 'triangle':
-          return paper.polygon([cx, y + my * (1 - sqrt(3) / 2), mx, my, x, my]);
-        case 'semicircle':
-          return paper.path(`M${x} ${my}, L${mx} ${my}, A${r} ${r} 0 0 0 ${x} ${my}, Z`);
-        default:
-          throw 'unsupported shape';
-      }
-    })();
-    el.addClass('shape').attr('strokeWidth', 2);
-    return el;
-  };
-  return (api = {draw});
+    const h = rootElement.clientHeight;
+    const w = rootElement.clientWidth;
+    const size = round(w * relSize);
+    const x = round((w - size) * relX);
+    const mx = x + size;
+    const y = round((h - size) * relY);
+    const my = y + size;
+    const r = size / 2;
+    const cx = x + r;
+    const cy = y + r;
+    let name;
+    let attributes = { 'stroke-width': 2 };
+    switch (shape) {
+      case 'circle':
+        name = 'circle';
+        Object.assign(attributes, { cx, cy, r });
+        break;
+      case 'square':
+        name = 'rect';
+        Object.assign(attributes, { x, y, width: size, height: size, rx: 6, ry: 6 });
+        break;
+      case 'triangle':
+        name = 'polygon';
+        Object.assign(attributes, { points: [cx, y + my * (1 - sqrt(3) / 2), mx, my, x, my].join(',') });
+        break;
+      case 'semicircle':
+        name = 'path';
+        Object.assign(attributes, { d: `M${x} ${my}, L${mx} ${my}, A${r} ${r} 0 0 0 ${x} ${my}, Z` });
+        break;
+      default:
+        throw 'unsupported shape';
+    }
+    let element = document.createElementNS('http://www.w3.org/2000/svg', name);
+    element.classList.add('shape');
+    Object.keys(attributes).forEach(name => {
+      element.setAttribute(name, attributes[name]);
+    });
+    rootElement.appendChild(element);
+    return element;
+  }
+  function erase() {
+    [...rootElement.querySelectorAll('.shape')].forEach(element => {
+      element.parentElement.removeChild(element);
+    });
+  }
+  return { draw, erase };
 }
 
 function initButtons(contextElement) {
@@ -700,14 +713,13 @@ function initMainScreen(contextElement) {
   const rootElement = contextElement.querySelector('.main-screen');
   const cliElement = rootElement.querySelector('[data-module=cli]');
   const canvasElement = rootElement.querySelector('[data-module=canvas]');
-  const paper = Snap(canvasElement);
   const cli = createCLI($(cliElement), $(rootElement));
   const powerButton = createPowerButton(canvasElement);
-  const shapes = createShapeDrawer(paper, $(canvasElement));
+  const canvas = createCanvas(canvasElement);
   let states = createStateMachine();
   states.push(createOffState({ states, powerButton }));
   states.push(createGreetState({states, cli}));
-  states.push(createGameState({states, shapes, paper, cli, $context: $(contextElement)}));
+  states.push(createGameState({states, canvas, cli, $context: $(contextElement)}));
   states.to('off');
   return {};
 }
