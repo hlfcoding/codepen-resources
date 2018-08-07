@@ -361,10 +361,6 @@ html.no-touch .device .main-screen:hover>.body .canvas { z-index: 20; }
 ```
 
 ```js
-/*
-using $.fn.keyboardHandling
-*/
-
 import {
   animateChars,
   createStateMachine,
@@ -372,6 +368,7 @@ import {
   delayed,
   delayedPromise,
   getComputedTransitionDurations,
+  setupKeyboardHandling,
 } from '//assets.pengxwang.com/codepen-resources/common-helpers/main.mjs';
 
 const { isTouch } = Modernizr;
@@ -529,30 +526,28 @@ function createCLI($root, $context) {
     $context.on('click.cli', () => {
       this.$input.focus();
     });
-    this.$input.focus().keyboardHandling({
-      onDelete: () => {
-        this.updateCommand({
-          action: 'delete'
-        });
+    this.$input.focus();
+    state.teardownKeyboardHandling = setupKeyboardHandling({
+      element: this.$input.get(0),
+      keyHandlers: {
+        character(character) {
+          state.updateCommand({ action: 'add', payload: character });
+        },
+        delete() {
+          state.updateCommand({ action: 'delete' });
+        },
+        enter() {
+          state.updateCommand({ action: 'submit' });
+        },
       },
-      onEnter: () => {
-        this.updateCommand({
-          action: 'submit'
-        });
-      },
-      onChar: (char) => {
-        this.updateCommand({
-          action: 'add',
-          payload: char
-        });
-      }
-    });
+    }).teardown;
     return this;
   };
   state.endInput = function() {
     this.inputting = false;
     $context.off('click.cli');
-    this.$input.blur().keyboardHandling(false);
+    this.$input.blur();
+    state.teardownKeyboardHandling();
     return this;
   };
   clear = function() {

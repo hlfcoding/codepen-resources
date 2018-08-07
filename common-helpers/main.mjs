@@ -95,6 +95,40 @@ export function setupDisplayClasses(context) {
   });
 }
 
+export function setupKeyboardHandling({ element, keyHandlers }) {
+  const { tagName, type } = element;
+  if (tagName.toLowerCase() !== 'input' || type !== 'text') {
+    throw 'unsupported input';
+  }
+  const keyCodes = {
+    backspace: 8, delete: 46, enter: 13,
+  };
+  let oldValue = '';
+  function keydownListener({ keyCode }) {
+    switch (keyCode) {
+      case keyCodes.backspace:
+      case keyCodes.delete:
+        keyHandlers.delete();
+        break;
+      case keyCodes.enter:
+        keyHandlers.enter();
+        return false;
+      default:
+        setTimeout(() => {
+          const character = element.value.replace(oldValue, '');
+          keyHandlers.character(character);
+        });
+        break;
+    }
+    oldValue = element.value;
+  }
+  element.addEventListener('keydown', keydownListener);
+  function teardown() {
+    element.removeEventListener('keydown', keydownListener);
+  }
+  return { teardown };
+}
+
 export function showOnReady(completion) {
   document.onreadystatechange = function() {
     if (document.readyState !== 'complete') { return; }
