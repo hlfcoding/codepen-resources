@@ -58,8 +58,8 @@ export function delayed(duration, completion) {
 }
 
 export function delayedPromise(duration, completion) {
-  return new Promise(function(fulfill, reject) {
-    delay(duration, fulfill);
+  return new Promise(function(resolve, reject) {
+    delay(duration, resolve);
   });
 }
 

@@ -9,7 +9,6 @@
 <link rel="apple-touch-icon" href="//assets.pengxwang.com/codepen-resources/app-icons/device-1.png">
 <link rel="stylesheet" href="//assets.pengxwang.com/codepen-resources/common-helpers/main-v2.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 ```
 
 ```html
@@ -22,7 +21,9 @@
       <div class="tint"></div>
       <div class="scanlines"></div>
       <div class="body">
-        <div class="cli" data-module="cli"></div>
+        <div class="cli" data-module="cli">
+          <input type="text" class="-invisible">
+        </div>
         <svg class="canvas" data-module="canvas">
           <g class="power-button">
             <circle class="ring"></circle>
@@ -462,122 +463,107 @@ function createOffState({ states, powerButton }) {
 }
 
 // a stateful cli subview with a promise-based api
-function createCLI($root, $context) {
-  var api, clear, command, html, ms, state;
-  html = {
-    command: function(command) {
-      return `&raquo; ${command}`;
-    },
-    cursor: '<span class="cursor -blink">&marker;</span>',
-    input: '<input type="text" class="-invisible">',
-    line: '<div class="line">'
-  };
-  ms = {
-    pause: 500
-  };
-  state = {};
-  state.$buffer = function() {
-    return $root.find('.line');
-  };
-  state.$input = $(html.input).appendTo($root);
-  state.$newLine = function() {
-    return $(html.line).insertBefore(this.$input);
-  };
-  state.beginCommand = function() {
-    this.commandDfd = $.Deferred();
-    this.$line = this.$newLine();
-    delay(ms.pause, () => {
-      this.updateCommand();
-      this.$line.get(0).scrollIntoView();
+function createCLI(rootElement, contextElement) {
+  const pauseDuration = 500;
+  const inputElement = rootElement.querySelector('input[type=text]');
+  const initialCommandState = () => ({
+    command: '',
+    pending: { reject: null, resolve: null },
+    lineElement: null,
+  });
+  const initialState = () => Object.assign({
+    isInputting: false,
+    teardownKeyboardHandling: null,
+  }, initialCommandState());
+  let state = initialState();
+  function createLineElement() {
+    let element = document.createElement('div');
+    element.classList.add('line');
+    inputElement.parentElement.insertBefore(element, inputElement);
+    return element;
+  }
+  function beginCommand() {
+    state.lineElement = createLineElement();
+    delay(pauseDuration, () => {
+      updateCommand();
+      state.lineElement.scrollIntoView();
     });
-    return this;
-  };
-  state.endCommand = function() {
-    var ref7;
-    if ((ref7 = this.$input) != null) {
-      ref7.val('');
-    }
-    this.$line = null;
-    this.command = '';
-    this.commandDfd = null;
-    return this;
-  };
-  state.updateCommand = function({action, payload} = {}) {
-    var cursor;
+    return new Promise((resolve, reject) => {
+      state.pending = { resolve, reject };
+    });
+  }
+  function endCommand() {
+    inputElement.value = '';
+    Object.assign(state, initialCommandState());
+  }
+  function updateCommand({ action, payload } = {}) {
     switch (action) {
       case 'add':
-        this.command += payload;
+        state.command += payload;
         break;
       case 'delete':
-        this.command = this.command.slice(0, -1);
+        state.command = state.command.slice(0, -1);
         break;
       case 'submit':
-        delay(ms.pause, () => {
-          this.commandDfd.resolve(this.command);
+        const { resolve } = state.pending;
+        delay(pauseDuration, () => {
+          resolve(state.command);
         });
+        break;
     }
-    cursor = action === 'submit' ? '' : html.cursor;
-    this.$line.html(`${html.command(this.command)}${cursor}`);
-    return this;
-  };
-  state.endCommand();
-  state.beginInput = function() {
-    this.inputting = true;
-    $context.on('click.cli', () => {
-      this.$input.focus();
-    });
-    this.$input.focus();
+    const cursor = (action === 'submit') ? '' : '<span class="cursor -blink">&marker;</span>';
+    state.lineElement.innerHTML = `&raquo; ${state.command}${cursor}`;
+  }
+  function beginInput() {
+    state.focusListener = event => inputElement.focus();
+    state.isInputting = true;
+    contextElement.addEventListener('click', state.focusListener);
+    inputElement.focus();
     state.teardownKeyboardHandling = setupKeyboardHandling({
-      element: this.$input.get(0),
+      element: inputElement,
       keyHandlers: {
-        character(character) {
-          state.updateCommand({ action: 'add', payload: character });
-        },
-        delete() {
-          state.updateCommand({ action: 'delete' });
-        },
-        enter() {
-          state.updateCommand({ action: 'submit' });
-        },
+        character(character) { updateCommand({ action: 'add', payload: character }); },
+        delete() { updateCommand({ action: 'delete' }); },
+        enter() { updateCommand({ action: 'submit' }); },
       },
     }).teardown;
-    return this;
-  };
-  state.endInput = function() {
-    this.inputting = false;
-    $context.off('click.cli');
-    this.$input.blur();
-    state.teardownKeyboardHandling();
-    return this;
-  };
-  clear = function() {
-    state.$buffer().remove();
-    state.endInput().endCommand();
-    return api;
-  };
-  command = function() {
-    if (state.$line) {
-      return;
+  }
+  function endInput() {
+    state.isInputting = false;
+    contextElement.removeEventListener('click', state.focusListener);
+    inputElement.blur();
+    if (state.teardownKeyboardHandling) {
+      state.teardownKeyboardHandling();
     }
-    if (!state.inputting) {
-      state.beginInput();
+  }
+  function clear() {
+    const bufferElements = rootElement.querySelectorAll('.line');
+    [...bufferElements].forEach(line => line.parentElement.removeChild(line));
+    endInput();
+    endCommand();
+    state = initialState();
+  }
+  function command() {
+    if (state.lineElement) { return; }
+    if (!state.isInputting) {
+      beginInput();
     }
-    return state.beginCommand().commandDfd.promise();
-  };
+    return beginCommand();
+  }
   function echo(message) {
-    let lineElement = state.$newLine().get(0);
+    let lineElement = createLineElement();
     lineElement.scrollIntoView();
-    state.endCommand();
+    endCommand();
     // animate
-    return new Promise((fulfill, reject) => {
+    return new Promise((resolve, reject) => {
       animateChars({
         element: lineElement,
         string: message,
-        completion: fulfill,
+        completion: resolve,
       });
     });
   }
-  return (api = {clear, command, echo});
+  return { clear, command, echo };
 }
 
 // simple subview
@@ -705,7 +691,7 @@ function initMainScreen(contextElement) {
   const rootElement = contextElement.querySelector('.main-screen');
   const cliElement = rootElement.querySelector('[data-module=cli]');
   const canvasElement = rootElement.querySelector('[data-module=canvas]');
-  const cli = createCLI($(cliElement), $(rootElement));
+  const cli = createCLI(cliElement, rootElement);
   const powerButton = createPowerButton(canvasElement);
   const canvas = createCanvas(canvasElement);
   let states = createStateMachine();
