@@ -394,7 +394,7 @@ function createGameState({ states, canvas, cli, contextElement }) {
     C: 'circle',
     D: 'semicircle',
   };
-  let drawn = 0;
+  let drawn;
   function drawListener({ target: button }) {
     if (button.type !== 'button') { return; }
     if (!(button.name in buttonShapes)) { return; }
@@ -410,6 +410,7 @@ function createGameState({ states, canvas, cli, contextElement }) {
   return {
     name: 'game',
     enter() {
+      drawn = 0;
       contextElement.addEventListener('click', drawListener);
       // draw first
       delay(0, () => window.deviceOne.slidePanel.toggle(true));
@@ -506,9 +507,7 @@ function createCLI(rootElement, contextElement) {
         break;
       case 'submit':
         const { resolve } = state.pending;
-        delay(pauseDuration, () => {
-          resolve(state.command);
-        });
+        delay(pauseDuration, () => resolve(state.command));
         break;
     }
     const cursor = (action === 'submit') ? '' : '<span class="cursor -blink">&marker;</span>';
