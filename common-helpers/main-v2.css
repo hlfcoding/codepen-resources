@@ -54,17 +54,27 @@
 .-bar-layout>button:last-child {
   margin-right: 0;
 }
-html.no-flexbox .-bar-layout {
-  display: block;
-}
-html.no-flexbox .-bar-layout>button} {
-  float: left;
-}
-html.flexbox .-bar-layout {
+.-bar-layout {
   display: flex;
 }
-html.flexbox .-bar-layout>button {
+.-bar-layout>button {
   flex: 1 1 auto;
+}
+@supports not (display: flex) {
+  .-bar-layout {
+    display: block;
+  }
+  .-bar-layout>button {
+    float: left;
+  }
+  .-bar-layout::before,
+  .-bar-layout::after {
+    content: ' ';
+    display: table;
+  }
+  .-bar-layout::after {
+    clear: both;
+  }
 }
 
 .-centered {
@@ -74,14 +84,11 @@ html.flexbox .-bar-layout>button {
   transform: translate(-50%, -50%);
 }
 
-html.no-flexbox .-bar-layout::before,
-html.no-flexbox .-bar-layout::after,
 .-clearfix::before,
 .-clearfix::after {
   content: ' ';
   display: table;
 }
-html.no-flexbox .-bar-layout::after,
 .-clearfix::after {
   clear: both;
 }

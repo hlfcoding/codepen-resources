@@ -8,7 +8,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="apple-touch-icon" href="//assets.pengxwang.com/codepen-resources/app-icons/device-1.png">
 <link rel="stylesheet" href="//assets.pengxwang.com/codepen-resources/common-helpers/main-v2.css">
-<script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
 ```
 
 ```html
@@ -331,9 +330,11 @@ body>.container {
   position: fixed;
   width: calc(var(--display-width) - var(--edges));
 }
-html.no-touch .device .main-screen>.scanlines { z-index: 9; }
-html.no-touch .device .main-screen>.tint { z-index: 10; }
-html.no-touch .device .main-screen:hover>.body .canvas { z-index: 20; }
+@media (hover: none) {
+  .device .main-screen>.scanlines { z-index: 9; }
+  .device .main-screen>.tint { z-index: 10; }
+  .device .main-screen:hover>.body .canvas { z-index: 20; }
+}
 
 /* Intro */
 
@@ -371,8 +372,6 @@ import {
   getComputedTransitionDurations,
   setupKeyboardHandling,
 } from '//assets.pengxwang.com/codepen-resources/common-helpers/main.mjs';
-
-const { isTouch } = Modernizr;
 
 document.onreadystatechange = () => {
   if (document.readyState !== 'complete') { return; }
