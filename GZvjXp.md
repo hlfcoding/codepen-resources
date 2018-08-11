@@ -431,8 +431,8 @@ function createGreetState({ states, cli }) {
     name: 'greet',
     enter() {
       cli.echo('hello, your name?')
-      .then(() => cli.command())
-      .then((name) => cli.echo(`play a game, ${name}?`).then(() => cli.command()))
+      .then(() => cli.read())
+      .then((name) => cli.echo(`play a game, ${name}?`).then(() => cli.read()))
       .then((response) => {
         const text = /^y/i.test(response) ? 'great...' : 'going to force you...';
         cli.echo(text).then(() => delay(1000, states.next));
@@ -466,15 +466,20 @@ function createOffState({ states, powerButton }) {
 function createCLI(rootElement, contextElement) {
   const pauseDuration = 500;
   const inputElement = rootElement.querySelector('input[type=text]');
-  const initialCommandState = () => ({
-    command: '',
-    pending: { reject: null, resolve: null },
+  const initialReadingState = () => ({
+    input: '',
+    pendingReading: { reject: null, resolve: null },
     lineElement: null,
   });
   const initialState = () => Object.assign({
     isInputting: false,
     teardownKeyboardHandling: null,
-  }, initialCommandState());
+  }, initialReadingState());
+  const keyHandlers = {
+    character(character) { updateReading({ action: 'add', payload: character }); },
+    delete() { updateReading({ action: 'delete' }); },
+    enter() { updateReading({ action: 'submit' }); },
+  };
   let state = initialState();
   function createLineElement() {
     let element = document.createElement('div');
@@ -482,49 +487,43 @@ function createCLI(rootElement, contextElement) {
     inputElement.parentElement.insertBefore(element, inputElement);
     return element;
   }
-  function beginCommand() {
+  function beginReading() {
     state.lineElement = createLineElement();
     delay(pauseDuration, () => {
-      updateCommand();
+      updateReading();
       state.lineElement.scrollIntoView();
     });
     return new Promise((resolve, reject) => {
-      state.pending = { resolve, reject };
+      state.pendingReading = { resolve, reject };
     });
   }
-  function endCommand() {
+  function endReading() {
     inputElement.value = '';
-    Object.assign(state, initialCommandState());
+    Object.assign(state, initialReadingState());
   }
-  function updateCommand({ action, payload } = {}) {
+  function updateReading({ action, payload } = {}) {
     switch (action) {
       case 'add':
-        state.command += payload;
+        state.input += payload;
         break;
       case 'delete':
-        state.command = state.command.slice(0, -1);
+        state.input = state.input.slice(0, -1);
         break;
       case 'submit':
-        const { resolve } = state.pending;
-        delay(pauseDuration, () => resolve(state.command));
+        const { resolve } = state.pendingReading;
+        delay(pauseDuration, () => resolve(state.input));
         break;
     }
     const cursor = (action === 'submit') ? '' : '<span class="cursor -blink">&marker;</span>';
-    state.lineElement.innerHTML = `&raquo; ${state.command}${cursor}`;
+    state.lineElement.innerHTML = `&raquo; ${state.input}${cursor}`;
   }
   function beginInput() {
-    state.focusListener = event => inputElement.focus();
+    const element = inputElement;
+    state.focusListener = event => element.focus();
     state.isInputting = true;
     contextElement.addEventListener('click', state.focusListener);
-    inputElement.focus();
-    state.teardownKeyboardHandling = setupKeyboardHandling({
-      element: inputElement,
-      keyHandlers: {
-        character(character) { updateCommand({ action: 'add', payload: character }); },
-        delete() { updateCommand({ action: 'delete' }); },
-        enter() { updateCommand({ action: 'submit' }); },
-      },
-    }).teardown;
+    element.focus();
+    state.teardownKeyboardHandling = setupKeyboardHandling({ element, keyHandlers }).teardown;
   }
   function endInput() {
     state.isInputting = false;
@@ -537,21 +536,21 @@ function createCLI(rootElement, contextElement) {
   function clear() {
     const bufferElements = rootElement.querySelectorAll('.line');
     [...bufferElements].forEach(line => line.parentElement.removeChild(line));
+    endReading();
     endInput();
-    endCommand();
     state = initialState();
   }
-  function command() {
+  function read() {
     if (state.lineElement) { return; }
     if (!state.isInputting) {
       beginInput();
     }
-    return beginCommand();
+    return beginReading();
   }
   function echo(message) {
     let lineElement = createLineElement();
     lineElement.scrollIntoView();
-    endCommand();
+    endReading();
     // animate
     return new Promise((resolve, reject) => {
       animateChars({
@@ -561,7 +560,7 @@ function createCLI(rootElement, contextElement) {
       });
     });
   }
-  return { clear, command, echo };
+  return { clear, read, echo };
 }
 
 // simple subview
