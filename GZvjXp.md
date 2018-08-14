@@ -432,11 +432,14 @@ function createGreetState({ states, cli }) {
     enter() {
       cli.echo('hello, your name?')
       .then(() => cli.read())
-      .then((name) => cli.echo(`play a game, ${name}?`).then(() => cli.read()))
-      .then((response) => {
-        const text = /^y/i.test(response) ? 'great...' : 'going to force you...';
-        cli.echo(text).then(() => delay(1000, states.next));
-      });
+      .then(name => cli.echo(`play a game, ${name}?`))
+      .then(() => cli.read())
+      .then(response => cli.echo(
+        /^y/i.test(response) ? 'great...'
+        : /^n/i.test(response) ? 'going to force you...'
+        : 'i don\'t understand, going to force you...'
+      ))
+      .then(() => delay(1000, states.next));
     },
     leave() {
       cli.clear();
