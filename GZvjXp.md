@@ -706,6 +706,7 @@ function initSlidePanel(contextElement) {
   const rootElement = contextElement.querySelector('[data-module=slide-panel]');
   let coverElement = rootElement.querySelector('.cover');
   function toggle(visible) {
+    visible = visible || coverElement.classList.contains('--closed');
     coverElement.classList.toggle('--open', visible);
     coverElement.classList.toggle('--closed', !visible);
   }
