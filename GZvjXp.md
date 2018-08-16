@@ -568,7 +568,7 @@ function createCLI(rootElement, contextElement) {
 
 // simple subview
 function createPowerButton(rootElement) {
-  let state = { power: false };
+  let state = { animations: { dot: null, ring: null } };
   const center = { x: rootElement.clientWidth / 2, y: rootElement.clientHeight / 2 };
   const radius = { ring: 30, dot: 5 };
   // svg styling props often need to be attributes
@@ -584,20 +584,27 @@ function createPowerButton(rootElement) {
   dotElement.setAttribute('cy', center.y);
   dotElement.setAttribute('r', radius.dot);
   // animate
-  const options = { duration: 300, easing: 'ease-in-out', fill: 'both' };
+  const options = { duration: 1000, easing: 'ease-in-out', fill: 'both' };
+  Object.assign(state.animations, {
+    ring: ringElement.animate({ r: [radius.ring, radius.ring / 2] }, options),
+    dot: dotElement.animate({ r: [radius.dot, radius.dot * 2] }, options),
+  });
+  function forEachAnimation(callback) {
+    Object.keys(state.animations).forEach(name => callback(state.animations[name]));
+  }
+  state.animations.dot.onfinish = ({ target: animation }) => {
+    if (animation.playbackRate < 0) { return; }
+    rootElement.dispatchEvent(new CustomEvent('power:on'));
+  };
+  forEachAnimation(a => a.pause());
   function onEnter(event) {
-    ringElement.animate({ r: [parseFloat(ringElement.getAttribute('r')), radius.ring / 2] }, options);
-    dotElement.animate({ r: [parseFloat(dotElement.getAttribute('r')), radius.dot * 2] }, options);
-    state.power = true;
-    delay(options.duration, () => {
-      if (!state.power) { return; }
-      rootElement.dispatchEvent(new CustomEvent('power:on'));
+    forEachAnimation(a => {
+      if (a.playState === 'paused') { return a.play(); }
+      a.reverse();
     });
   }
   function onLeave(event) {
-    ringElement.animate({ r: [parseFloat(ringElement.getAttribute('r')), radius.ring] }, options);
-    dotElement.animate({ r: [parseFloat(dotElement.getAttribute('r')), radius.dot] }, options);
-    state.power = false;
+    forEachAnimation(a => a.reverse());
   }
   buttonElement.addEventListener('mouseenter', onEnter);
   buttonElement.addEventListener('mouseleave', onLeave);
@@ -606,7 +613,6 @@ function createPowerButton(rootElement) {
     if (attached) {
       rootElement.appendChild(buttonElement);
     } else {
-      onLeave(null);
       rootElement.removeChild(buttonElement);
     }
   }
