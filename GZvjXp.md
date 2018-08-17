@@ -1,6 +1,6 @@
 # [Device #1](https://codepen.io/hlfcoding/details/GZvjXp)
 
-> An old sketch from 2013, updated for 2016.
+> An old sketch from 2013, updated for 2016, updated for 2018.
 >
 > A contrived device with command line, basic drawing, physical buttons, and lots of shadows.
 
