@@ -584,7 +584,7 @@ function createPowerButton(rootElement) {
   dotElement.setAttribute('cy', center.y);
   dotElement.setAttribute('r', radius.dot);
   // animate
-  const options = { duration: 1000, easing: 'ease-in-out', fill: 'both' };
+  const options = { duration: 500, easing: 'ease-in-out', fill: 'both' };
   Object.assign(state.animations, {
     ring: ringElement.animate({ r: [radius.ring, radius.ring / 2] }, options),
     dot: dotElement.animate({ r: [radius.dot, radius.dot * 2] }, options),
@@ -592,18 +592,21 @@ function createPowerButton(rootElement) {
   function forEachAnimation(callback) {
     Object.keys(state.animations).forEach(name => callback(state.animations[name]));
   }
-  state.animations.dot.onfinish = ({ target: animation }) => {
+  const mainAnimation = state.animations.dot;
+  mainAnimation.onfinish = ({ target: animation }) => {
     if (animation.playbackRate < 0) { return; }
     rootElement.dispatchEvent(new CustomEvent('power:on'));
   };
   forEachAnimation(a => a.pause());
   function onEnter(event) {
+    if (mainAnimation.playState === 'running') { return; }
     forEachAnimation(a => {
       if (a.playState === 'paused') { return a.play(); }
       a.reverse();
     });
   }
   function onLeave(event) {
+    if (mainAnimation.playState === 'running') { return; }
     forEachAnimation(a => a.reverse());
   }
   buttonElement.addEventListener('mouseenter', onEnter);
@@ -617,8 +620,14 @@ function createPowerButton(rootElement) {
     }
   }
   function toggleVisible(visible, completion) {
-    const opacity = visible ? 1 : 0;
-    let animation = buttonElement.animate({ opacity: [parseFloat(buttonElement.getAttribute('opacity')), opacity] }, options);
+    let keyframes;
+    if (visible) {
+      keyframes = { opacity: [0, 1] };
+    } else {
+      const offscreen = rootElement.clientHeight / 2 + radius.ring * 2;
+      keyframes = { transform: [0, offscreen].map(y => `translateY(${y}px)`) };
+    }
+    let animation = buttonElement.animate(keyframes, options);
     animation.onfinish = completion;
   }
   return { rootElement, toggleAttached, toggleVisible };
