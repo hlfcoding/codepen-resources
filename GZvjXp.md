@@ -32,7 +32,10 @@
       </div>
     </div><!--/main-screen-->
     <div class="buttons-panel -slide-panel" data-module="slide-panel">
-      <div class="cover"><div class="symbol">&middot;</div></div>
+      <div class="cover">
+        <div class="power-led"></div>
+        <div class="symbol">&middot;</div>
+      </div>
       <nav class="inside -bar-layout">
         <button class="-button-skin" name="A" type="button">A</button>
         <button class="-button-skin" name="B" type="button">B</button>
@@ -53,6 +56,8 @@
   --corner-inner: 7px;
   --device-height: 300px;
   --device-width: 300px;
+  --display-base: #0f0;
+  --display-dark: #090;
   --display-height: 190px;
   --display-width: calc(var(--device-width) - 2 * var(--bezel));
   --display-size: 330px; /* hypotenuse */
@@ -139,6 +144,24 @@
     0 0 calc(var(--panel-drop-diffuse) * 1.5) var(--shade-8),
     0 0 0 var(--shade-2);
 }
+.-panel-skin .-slide-panel .cover .power-led {
+  --diameter: 9px;
+  --radius: calc(var(--diameter) / 2);
+  background: radial-gradient(
+    circle var(--radius), var(--display-base) 50%, var(--display-dark)
+  );
+  border-radius: var(--radius);
+  height: var(--diameter);
+  left: calc(50% - var(--radius));
+  opacity: 0;
+  position: absolute;
+  top: calc(50% - var(--radius) - 1.5px);
+  transition: opacity .2s;
+  width: var(--diameter);
+}
+.-panel-skin .-slide-panel .cover .power-led.--on {
+  opacity: 1;
+}
 .-panel-skin .-slide-panel .cover .symbol {
   box-shadow: /* TODO: refactor */
     inset 0 0 var(--bezel) var(--shade-3), /* contour */
@@ -200,7 +223,7 @@
 }
 
 .-display-skin>.body {
-  --color: #0f0;
+  --color: var(--display-base);
   color: var(--color);
   font: 15px/1.7 'Menlo', 'Consolas', monospace;
   padding: var(--bezel);
@@ -449,11 +472,15 @@ function createGreetState({ states, cli }) {
 
 function createOffState({ states, powerButton }) {
   const powerOnListener = delayed(300, (event) => {
-    powerButton.toggleVisible(false, delayed(600, states.next));
+    powerButton.toggleVisible(false, () => {
+      window.deviceOne.slidePanel.togglePowerLED(true);
+      delay(600, states.next);
+    });
   });
   return {
     name: 'off',
     enter() {
+      window.deviceOne.slidePanel.togglePowerLED(false);
       powerButton.toggleAttached(true);
       powerButton.toggleVisible(true);
       powerButton.rootElement.addEventListener('power:on', powerOnListener);
@@ -622,7 +649,7 @@ function createPowerButton(rootElement) {
   function toggleVisible(visible, completion) {
     let keyframes;
     if (visible) {
-      keyframes = { opacity: [0, 1] };
+      keyframes = { opacity: [0, 1], transform: ['none', 'none'] };
     } else {
       const offscreen = rootElement.clientHeight / 2 + radius.ring * 2;
       keyframes = { transform: [0, offscreen].map(y => `translateY(${y}px)`) };
@@ -721,15 +748,20 @@ function initSlidePanel(contextElement) {
   const rootElement = contextElement.querySelector('[data-module=slide-panel]');
   let coverElement = rootElement.querySelector('.cover');
   function toggle(visible) {
-    visible = visible || coverElement.classList.contains('--closed');
+    if (visible == null) { visible = coverElement.classList.contains('--closed'); }
     coverElement.classList.toggle('--open', visible);
     coverElement.classList.toggle('--closed', !visible);
+  }
+  const ledElement = coverElement.querySelector('.power-led');
+  function togglePowerLED(on) {
+    if (on == null) { on = ledElement.classList.contains('--on'); }
+    ledElement.classList.toggle('--on', on);
   }
   toggle(false);
   coverElement.addEventListener('click', (event) => {
     if (event.currentTarget !== coverElement) { return; }
     toggle();
   });
-  return { toggle };
+  return { toggle, togglePowerLED };
 }
 ```
