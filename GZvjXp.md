@@ -17,8 +17,8 @@
 <div class="device -centered -input-style-none">
   <div class="body -panel-skin">
     <div class="main-screen -display-skin">
-      <div class="tint"></div>
-      <div class="scanlines"></div>
+      <div class="tint" role="presentation"></div>
+      <div class="scanlines" role="presentation"></div>
       <div class="body">
         <div class="cli" data-module="cli">
           <input type="text" class="-invisible">
@@ -33,8 +33,8 @@
     </div><!--/main-screen-->
     <div class="buttons-panel -slide-panel" data-module="slide-panel">
       <div class="cover">
-        <div class="power-led"></div>
-        <div class="symbol">&middot;</div>
+        <div class="power-led" role="presentation"></div>
+        <div class="symbol" role="presentation">&middot;</div>
       </div>
       <nav class="inside -bar-layout">
         <button class="-button-skin" name="A" type="button">A</button>
