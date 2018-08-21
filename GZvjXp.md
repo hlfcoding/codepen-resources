@@ -34,7 +34,7 @@
     <div class="buttons-panel -slide-panel" data-module="slide-panel">
       <div class="cover">
         <div class="power-led" role="presentation"></div>
-        <div class="symbol" role="presentation">&middot;</div>
+        <div class="symbol" role="presentation"></div>
       </div>
       <nav class="inside -bar-layout">
         <button class="-button-skin" name="A" type="button">A</button>
@@ -173,6 +173,9 @@
   text-shadow:
     0 -1px 0 var(--shade-3),
     0 1px 0 var(--light-5);
+}
+.-panel-skin .-slide-panel .cover .symbol::before {
+  content: '\00b7';
 }
 .-panel-skin .-slide-panel .inside {
   background-color: #777;
