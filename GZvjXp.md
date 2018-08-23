@@ -101,18 +101,17 @@
   cursor: pointer;
   font-weight: bold;
   outline: none;
-  text-shadow: (
+  text-shadow:
     0 -1px 0 var(--shade-3),
-    0 1px 0 var(--light-5)
-  );
+    0 1px 0 var(--light-5);
   transition: color .2s ease-in-out;
 }
-.-panel-skin .-button-skin.hover,
+.-panel-skin .-button-skin.--hover,
 .-panel-skin .-button-skin:hover {
   background-image: linear-gradient(var(--light-9), transparent);
   color: #08f;
 }
-.-panel-skin .-button-skin.active,
+.-panel-skin .-button-skin.--active,
 .-panel-skin .-button-skin:active {
   background-color: #a2a2a2;
   background-image: linear-gradient(var(--light-5), transparent);
@@ -130,12 +129,12 @@
 .-panel-skin .-slide-panel {
   border-bottom: 1px solid var(--light-5);
   border-top: 1px solid var(--shade-2);
-  cursor: pointer;
 }
 .-panel-skin .-slide-panel .cover {
   background: var(--panel-base) url('var(--panel-texture)') repeat;
   border-bottom: 1px solid var(--shade-2);
   border-top: 1px solid var(--light-5);
+  cursor: pointer;
   padding-top: 1px;
 }
 .-panel-skin .-slide-panel .cover.--open  {
@@ -263,7 +262,7 @@
   opacity: .3;
   transition: opacity .3s ease-in-out;
 }
-.-display-skin.hover>.tint,
+.-display-skin.--hover>.tint,
 .-display-skin:hover>.tint {
   opacity: 0;
 }
@@ -723,10 +722,10 @@ function initButtons(contextElement) {
     let buttonElement = contextElement.querySelector(`[type=button][name=${name}]`);
     if (!buttonElement) { return; }
     const click = new MouseEvent('click', {bubbles: true, cancelable: true});
-    buttonElement.classList.add('hover', 'active');
+    buttonElement.classList.add('--hover', '--active');
     delay(300, () => {
       buttonElement.dispatchEvent(click);
-      buttonElement.classList.remove('hover', 'active');
+      buttonElement.classList.remove('--hover', '--active');
     });
   }
   return { click };
