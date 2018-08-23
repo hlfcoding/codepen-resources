@@ -98,7 +98,6 @@
     0 calc(var(--panel-depth) + 1px) 0 var(--panel-darker), /* edge shadow */
     0 var(--panel-depth) 3px 1px var(--shade-5); /* diffuse */
   color: #666;
-  cursor: pointer;
   font-weight: bold;
   outline: none;
   text-shadow:
@@ -106,13 +105,15 @@
     0 1px 0 var(--light-5);
   transition: color .2s ease-in-out;
 }
-.-panel-skin .-button-skin.--hover,
-.-panel-skin .-button-skin:hover {
-  background-image: linear-gradient(var(--light-9), transparent);
-  color: #08f;
+.-panel-skin .-button-skin:not(disabled) {
+  cursor: pointer;
 }
-.-panel-skin .-button-skin.--active,
-.-panel-skin .-button-skin:active {
+.-panel-skin .-button-skin:not(disabled).--hover,
+.-panel-skin .-button-skin:not(disabled):hover {
+  background-image: linear-gradient(var(--light-9), transparent);
+}
+.-panel-skin .-button-skin:not(disabled).--active,
+.-panel-skin .-button-skin:not(disabled):active {
   background-color: #a2a2a2;
   background-image: linear-gradient(var(--light-5), transparent);
   /* front to back */
@@ -122,6 +123,7 @@
     inset 0 0 var(--corner) var(--shade-2), /* contour */
     0 calc(var(--panel-depth) * -1) 0 var(--shade-4), /* socket edge */
     0 0 0 1px var(--shade-1); /* socket edge */
+  color: var(--display-dark);
   margin-bottom: calc(var(--panel-depth) * -1);
   margin-top: calc(var(--panel-depth) - 1px);
 }
@@ -437,7 +439,10 @@ function createGameState({ states, canvas, cli, contextElement }) {
       drawn = 0;
       contextElement.addEventListener('click', drawListener);
       // draw first
-      delay(0, () => window.deviceOne.slidePanel.toggle(true));
+      delay(0, () => {
+        window.deviceOne.buttons.toggleDisabled(false);
+        window.deviceOne.slidePanel.toggle(true);
+      });
       delay(1000, () => window.deviceOne.buttons.click('A'));
     },
     leave() {
@@ -482,6 +487,7 @@ function createOffState({ states, powerButton }) {
   return {
     name: 'off',
     enter() {
+      window.deviceOne.buttons.toggleDisabled(true);
       window.deviceOne.slidePanel.togglePowerLED(false);
       powerButton.toggleAttached(true);
       powerButton.toggleVisible(true);
@@ -728,7 +734,17 @@ function initButtons(contextElement) {
       buttonElement.classList.remove('--hover', '--active');
     });
   }
-  return { click };
+  function toggleDisabled(disabled) {
+    const buttons = contextElement.querySelectorAll(`[type=button]`);
+    [...buttons].forEach(b => {
+      if (disabled) {
+        b.setAttribute('disabled', 'disabled');
+      } else {
+        b.removeAttribute('disabled');
+      }
+    });
+  }
+  return { click, toggleDisabled };
 }
 
 function initMainScreen(contextElement) {
