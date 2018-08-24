@@ -105,15 +105,15 @@
     0 1px 0 var(--light-5);
   transition: color .2s ease-in-out;
 }
-.-panel-skin .-button-skin:not(disabled) {
+.-panel-skin .-button-skin:not([disabled]) {
   cursor: pointer;
 }
-.-panel-skin .-button-skin:not(disabled).--hover,
-.-panel-skin .-button-skin:not(disabled):hover {
+.-panel-skin .-button-skin:not([disabled]).--hover,
+.-panel-skin .-button-skin:not([disabled]):hover {
   background-image: linear-gradient(var(--light-9), transparent);
 }
-.-panel-skin .-button-skin:not(disabled).--active,
-.-panel-skin .-button-skin:not(disabled):active {
+.-panel-skin .-button-skin:not([disabled]).--active,
+.-panel-skin .-button-skin:not([disabled]):active {
   background-color: #a2a2a2;
   background-image: linear-gradient(var(--light-5), transparent);
   /* front to back */
