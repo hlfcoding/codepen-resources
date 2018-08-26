@@ -400,6 +400,27 @@ import {
   setupKeyboardHandling,
 } from '//assets.pengxwang.com/codepen-resources/common-helpers/main.mjs';
 
+const settings = {
+  buttonShapesByName: {
+    A: 'triangle',
+    B: 'square',
+    C: 'circle',
+    D: 'semicircle',
+  },
+  demoButtonName: 'A',
+  powerButtonLayout: {
+    radius: { ring: 30, dot: 5 },
+    endRadiusRatio: { ring: 0.5, dot: 2 },
+  },
+  shapeLayout: {
+    baseAttributes: { 'stroke-width': 2 },
+    boundsPaddingRatio: { x: 0.1, y: 0.2 },
+    rectCorner: 6,
+    sizeLimits: { min: 0.1, scale: 0.5 },
+  },
+  shapeLimit: 10,
+};
+
 document.onreadystatechange = () => {
   if (document.readyState !== 'complete') { return; }
   let api = {};
@@ -414,23 +435,18 @@ document.onreadystatechange = () => {
 };
 
 function createGameState({ states, canvas, cli, contextElement }) {
-  const buttonShapes = {
-    A: 'triangle',
-    B: 'square',
-    C: 'circle',
-    D: 'semicircle',
-  };
+  const { buttonShapesByName, demoButtonName, shapeLimit } = settings;
   let drawn;
   function drawListener({ target: button }) {
     if (button.type !== 'button') { return; }
-    if (!(button.name in buttonShapes)) { return; }
-    if (drawn >= 10) { return states.next(); }
+    if (!(button.name in buttonShapesByName)) { return; }
+    if (drawn >= shapeLimit) { return states.next(); }
     drawn += 1;
     canvas.draw({
-      relSize: Math.random(),
-      relX: Math.random(),
-      relY: Math.random(),
-      shape: buttonShapes[button.name],
+      sizeRatio: Math.random(),
+      xRatio: Math.random(),
+      yRatio: Math.random(),
+      shape: buttonShapesByName[button.name],
     });
   }
   return {
@@ -443,7 +459,7 @@ function createGameState({ states, canvas, cli, contextElement }) {
         window.deviceOne.buttons.toggleDisabled(false);
         window.deviceOne.slidePanel.toggle(true);
       });
-      delay(1000, () => window.deviceOne.buttons.click('A'));
+      delay(1000, () => window.deviceOne.buttons.click(demoButtonName));
     },
     leave() {
       canvas.erase();
@@ -605,7 +621,7 @@ function createCLI(rootElement, contextElement) {
 function createPowerButton(rootElement) {
   let state = { animations: { dot: null, ring: null } };
   const center = { x: rootElement.clientWidth / 2, y: rootElement.clientHeight / 2 };
-  const radius = { ring: 30, dot: 5 };
+  const { radius, endRadiusRatio: ratio } = settings.powerButtonLayout;
   // svg styling props often need to be attributes
   let buttonElement = rootElement.querySelector('.power-button');
   buttonElement.setAttribute('opacity', 0);
@@ -621,8 +637,8 @@ function createPowerButton(rootElement) {
   // animate
   const options = { duration: 500, easing: 'ease-in-out', fill: 'both' };
   Object.assign(state.animations, {
-    ring: ringElement.animate({ r: [radius.ring, radius.ring / 2] }, options),
-    dot: dotElement.animate({ r: [radius.dot, radius.dot * 2] }, options),
+    ring: ringElement.animate({ r: [radius.ring, radius.ring * ratio.ring] }, options),
+    dot: dotElement.animate({ r: [radius.dot, radius.dot * ratio.dot] }, options),
   });
   function forEachAnimation(callback) {
     Object.keys(state.animations).forEach(name => callback(state.animations[name]));
@@ -670,31 +686,34 @@ function createPowerButton(rootElement) {
 
 // a basic subview factory
 function createCanvas(rootElement) {
-  function draw({ relSize, relX, relY, shape }) {
+  const { shapeLayout } = settings;
+  function draw({ sizeRatio, xRatio, yRatio, shape }) {
     const { max, min, round, sqrt } = Math;
-    relSize = max(0.1, relSize / 2);
-    relX = min(0.9, max(0.1, relX));
-    relY = min(0.8, max(0.2, relY));
+    const { boundsPaddingRatio: padding, sizeLimits } = shapeLayout;
+    sizeRatio = max(sizeLimits.min, sizeRatio * sizeLimits.scale);
+    xRatio = min(1 - padding.x, max(padding.x, xRatio));
+    yRatio = min(1 - padding.y, max(padding.y, yRatio));
     const h = rootElement.clientHeight;
     const w = rootElement.clientWidth;
-    const size = round(w * relSize);
-    const x = round((w - size) * relX);
+    const size = round(w * sizeRatio);
+    const x = round((w - size) * xRatio);
     const mx = x + size;
-    const y = round((h - size) * relY);
+    const y = round((h - size) * yRatio);
     const my = y + size;
     const r = size / 2;
     const cx = x + r;
     const cy = y + r;
     let name;
-    let attributes = { 'stroke-width': 2 };
+    let attributes = Object.assign({}, shapeLayout.baseAttributes);
     switch (shape) {
       case 'circle':
         name = 'circle';
         Object.assign(attributes, { cx, cy, r });
         break;
       case 'square':
+        const { rectCorner: radius } = shapeLayout;
         name = 'rect';
-        Object.assign(attributes, { x, y, width: size, height: size, rx: 6, ry: 6 });
+        Object.assign(attributes, { x, y, width: size, height: size, rx: radius, ry: radius });
         break;
       case 'triangle':
         name = 'polygon';
