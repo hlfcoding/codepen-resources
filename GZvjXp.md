@@ -568,9 +568,22 @@ function createCLI(rootElement, contextElement) {
         delay(pauseDuration, () => resolve(state.input));
         break;
     }
-    const cursor = (action === 'submit') ? '' : '<span class="cursor -blink">&marker;</span>';
+    const cursor = (action === 'submit') ? '' : '<span class="cursor">&marker;</span>';
     state.lineElement.innerHTML = `&raquo; ${state.input}${cursor}`;
+    if (document.activeElement === inputElement) {
+      onInputFocus();
+    }
   }
+  function onInputBlur(event) {
+    if (!state.lineElement) { return; }
+    state.lineElement.querySelector('.cursor').classList.remove('-blink');
+  }
+  function onInputFocus(event) {
+    if (!state.lineElement) { return; }
+    state.lineElement.querySelector('.cursor').classList.add('-blink');
+  }
+  inputElement.addEventListener('blur', onInputBlur);
+  inputElement.addEventListener('focus', onInputFocus);
   function beginInput() {
     const element = inputElement;
     state.focusListener = event => element.focus();
@@ -583,6 +596,7 @@ function createCLI(rootElement, contextElement) {
     state.isInputting = false;
     contextElement.removeEventListener('click', state.focusListener);
     inputElement.blur();
+    onInputBlur();
     if (state.teardownKeyboardHandling) {
       state.teardownKeyboardHandling();
     }
