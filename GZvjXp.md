@@ -534,13 +534,13 @@ function createCLI(rootElement, contextElement) {
     delete() { updateReading({ action: 'delete' }); },
     enter() { updateReading({ action: 'submit' }); },
   };
-  let state = initialState();
   function createLineElement() {
     let element = document.createElement('div');
     element.classList.add('line');
     inputElement.parentElement.insertBefore(element, inputElement);
     return element;
   }
+  let state = initialState();
   function beginReading() {
     state.lineElement = createLineElement();
     delay(pauseDuration, () => {
@@ -601,34 +601,35 @@ function createCLI(rootElement, contextElement) {
       state.teardownKeyboardHandling();
     }
   }
-  function clear() {
-    const bufferElements = rootElement.querySelectorAll('.line');
-    [...bufferElements].forEach(line => line.parentElement.removeChild(line));
-    endReading();
-    endInput();
-    state = initialState();
-  }
-  function read() {
-    if (state.lineElement) { return; }
-    if (!state.isInputting) {
-      beginInput();
-    }
-    return beginReading();
-  }
-  function echo(message) {
-    let lineElement = createLineElement();
-    lineElement.scrollIntoView();
-    endReading();
-    // animate
-    return new Promise((resolve, reject) => {
-      animateChars({
-        element: lineElement,
-        string: message,
-        completion: resolve,
+  return {
+    clear() {
+      const bufferElements = rootElement.querySelectorAll('.line');
+      [...bufferElements].forEach(line => line.parentElement.removeChild(line));
+      endReading();
+      endInput();
+      state = initialState();
+    },
+    read() {
+      if (state.lineElement) { return; }
+      if (!state.isInputting) {
+        beginInput();
+      }
+      return beginReading();
+    },
+    echo(message) {
+      let lineElement = createLineElement();
+      lineElement.scrollIntoView();
+      endReading();
+      // animate
+      return new Promise((resolve, reject) => {
+        animateChars({
+          element: lineElement,
+          string: message,
+          completion: resolve,
+        });
       });
-    });
-  }
-  return { clear, read, echo };
+    },
+  };
 }
 
 // simple subview
@@ -707,18 +708,11 @@ function createCanvas(rootElement) {
     sizeRatio = max(sizeLimits.min, sizeRatio * sizeLimits.scale);
     xRatio = min(1 - padding.x, max(padding.x, xRatio));
     yRatio = min(1 - padding.y, max(padding.y, yRatio));
-    const h = rootElement.clientHeight;
-    const w = rootElement.clientWidth;
-    const size = round(w * sizeRatio);
-    const x = round((w - size) * xRatio);
-    const mx = x + size;
-    const y = round((h - size) * yRatio);
-    const my = y + size;
-    const r = size / 2;
-    const cx = x + r;
-    const cy = y + r;
-    let name;
-    let attributes = Object.assign({}, shapeLayout.baseAttributes);
+    const { clientHeight: h, clientWidth: w } = rootElement;
+    const size = round(w * sizeRatio), r = size / 2;
+    const x = round((w - size) * xRatio), mx = x + size, cx = x + r;
+    const y = round((h - size) * yRatio), my = y + size, cy = y + r;
+    let name, attributes = Object.assign({}, shapeLayout.baseAttributes);
     switch (shape) {
       case 'circle':
         name = 'circle';
