@@ -400,6 +400,8 @@ import {
   setupKeyboardHandling,
 } from '//assets.pengxwang.com/codepen-resources/common-helpers/main.mjs';
 
+const { log10, max, min, random, round, sqrt } = Math;
+
 const settings = {
   buttonShapesByName: {
     A: 'triangle',
@@ -415,6 +417,7 @@ const settings = {
   shapeLayout: {
     baseAttributes: { 'stroke-width': 2 },
     boundsPaddingRatio: { x: 0.1, y: 0.2 },
+    gridResolution: 10,
     rectCorner: 6,
     sizeLimits: { min: 0.1, scale: 0.5 },
   },
@@ -443,9 +446,9 @@ function createGameState({ states, canvas, cli, contextElement }) {
     if (drawn >= shapeLimit) { return states.next(); }
     drawn += 1;
     canvas.draw({
-      sizeRatio: Math.random(),
-      xRatio: Math.random(),
-      yRatio: Math.random(),
+      sizeRatio: random(),
+      xRatio: random(),
+      yRatio: random(),
       shape: buttonShapesByName[button.name],
     });
   }
@@ -702,12 +705,14 @@ function createPowerButton(rootElement) {
 // a basic subview factory
 function createCanvas(rootElement) {
   const { shapeLayout } = settings;
+  function snap(number) {
+    return number.toFixed(log10(shapeLayout.gridResolution)) * 1;
+  }
   function draw({ sizeRatio, xRatio, yRatio, shape }) {
-    const { max, min, round, sqrt } = Math;
     const { boundsPaddingRatio: padding, sizeLimits } = shapeLayout;
-    sizeRatio = max(sizeLimits.min, sizeRatio * sizeLimits.scale);
-    xRatio = min(1 - padding.x, max(padding.x, xRatio));
-    yRatio = min(1 - padding.y, max(padding.y, yRatio));
+    sizeRatio = max(sizeLimits.min, snap(sizeRatio) * sizeLimits.scale);
+    xRatio = min(1 - padding.x, max(padding.x, snap(xRatio)));
+    yRatio = min(1 - padding.y, max(padding.y, snap(yRatio)));
     const { clientHeight: h, clientWidth: w } = rootElement;
     const size = round(w * sizeRatio), r = size / 2;
     const x = round((w - size) * xRatio), mx = x + size, cx = x + r;
