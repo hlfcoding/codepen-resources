@@ -736,8 +736,9 @@ function createCanvas(rootElement) {
         Object.assign(attributes, { x, y, width: size, height: size, rx: radius, ry: radius });
         break;
       case 'triangle':
+        const dy = round(size * (1 - sqrt(3) / 2));
         name = 'polygon';
-        Object.assign(attributes, { points: [cx, y + my * (1 - sqrt(3) / 2), mx, my, x, my].join(',') });
+        Object.assign(attributes, { points: [cx, y + dy, mx, my, x, my].join(',') });
         break;
       case 'semicircle':
         name = 'path';
