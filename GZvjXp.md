@@ -637,7 +637,7 @@ function createCLI(rootElement, contextElement) {
 
 // simple subview
 function createPowerButton(rootElement) {
-  let state = { animations: { dot: null, ring: null } };
+  let state = { animations: { dot: null, ring: null }, isOn: false };
   const center = { x: rootElement.clientWidth / 2, y: rootElement.clientHeight / 2 };
   const { radius, endRadiusRatio: ratio } = settings.powerButtonLayout;
   // svg styling props often need to be attributes
@@ -665,18 +665,22 @@ function createPowerButton(rootElement) {
   mainAnimation.onfinish = ({ target: animation }) => {
     if (animation.playbackRate < 0) { return; }
     rootElement.dispatchEvent(new CustomEvent('power:on'));
+    state.isOn = true;
   };
   forEachAnimation(a => a.pause());
   function onEnter(event) {
-    if (mainAnimation.playState === 'running') { return; }
+    if (!isInteractive()) { return; }
     forEachAnimation(a => {
       if (a.playState === 'paused') { return a.play(); }
       a.reverse();
     });
   }
   function onLeave(event) {
-    if (mainAnimation.playState === 'running') { return; }
+    if (!isInteractive()) { return; }
     forEachAnimation(a => a.reverse());
+  }
+  function isInteractive() {
+    return mainAnimation.playState !== 'running' && !state.isOn;
   }
   buttonElement.addEventListener('mouseenter', onEnter);
   buttonElement.addEventListener('mouseleave', onLeave);
@@ -686,6 +690,9 @@ function createPowerButton(rootElement) {
       rootElement.appendChild(buttonElement);
     } else {
       rootElement.removeChild(buttonElement);
+      console.assert(state.isOn);
+      forEachAnimation(a => a.reverse());
+      state.isOn = false;
     }
   }
   function toggleVisible(visible, completion) {
