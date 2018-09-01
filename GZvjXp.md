@@ -467,10 +467,14 @@ function createGameState({ states, canvas, cli, contextElement }) {
     leave() {
       canvas.erase();
       window.deviceOne.slidePanel.toggle(false);
+      window.deviceOne.slidePanel.toggleDisabled(true);
       contextElement.removeEventListener('click', drawListener);
       return cli.echo('too much, need rest...')
         .then(() => delayedPromise(500))
-        .then(() => cli.clear());
+        .then(() => {
+          cli.clear();
+          window.deviceOne.slidePanel.toggleDisabled(false);
+        });
     },
   };
 }
@@ -805,10 +809,15 @@ function initMainScreen(contextElement) {
 function initSlidePanel(contextElement) {
   const rootElement = contextElement.querySelector('[data-module=slide-panel]');
   let coverElement = rootElement.querySelector('.cover');
+  let state = { disabled: false };
   function toggle(visible) {
+    if (state.disabled) { return; }
     if (visible == null) { visible = coverElement.classList.contains('--closed'); }
     coverElement.classList.toggle('--open', visible);
     coverElement.classList.toggle('--closed', !visible);
+  }
+  function toggleDisabled(disabled) {
+    state.disabled = disabled;
   }
   const ledElement = coverElement.querySelector('.power-led');
   function togglePowerLED(on) {
@@ -820,6 +829,6 @@ function initSlidePanel(contextElement) {
     if (event.currentTarget !== coverElement) { return; }
     toggle();
   });
-  return { toggle, togglePowerLED };
+  return { toggle, toggleDisabled, togglePowerLED };
 }
 ```
