@@ -424,6 +424,13 @@ const settings = {
   shapeLimit: 10,
 };
 
+function act(targetName, methodName, ...parameters) {
+  const target = window.deviceOne[targetName];
+  if (!target) { return console.warn(`no '${targetName}' target`); }
+  if (!target[methodName]) { return console.warn(`no '${methodName}' method`); }
+  target[methodName](...parameters);
+}
+
 document.onreadystatechange = () => {
   if (document.readyState !== 'complete') { return; }
   let api = {};
@@ -459,21 +466,21 @@ function createGameState({ states, canvas, cli, contextElement }) {
       contextElement.addEventListener('click', drawListener);
       // draw first
       delay(0, () => {
-        window.deviceOne.buttons.toggleDisabled(false);
-        window.deviceOne.slidePanel.toggle(true);
+        act('buttons', 'toggleDisabled', false);
+        act('slidePanel', 'toggle', true);
       });
-      delay(1000, () => window.deviceOne.buttons.click(demoButtonName));
+      delay(1000, () => act('buttons', 'click', demoButtonName));
     },
     leave() {
       canvas.erase();
-      window.deviceOne.slidePanel.toggle(false);
-      window.deviceOne.slidePanel.toggleDisabled(true);
+      act('slidePanel', 'toggle', false);
+      act('slidePanel', 'toggleDisabled', true);
       contextElement.removeEventListener('click', drawListener);
       return cli.echo('too much, need rest...')
         .then(() => delayedPromise(500))
         .then(() => {
           cli.clear();
-          window.deviceOne.slidePanel.toggleDisabled(false);
+          act('slidePanel', 'toggleDisabled', false);
         });
     },
   };
@@ -503,15 +510,15 @@ function createGreetState({ states, cli }) {
 function createOffState({ states, powerButton }) {
   const powerOnListener = delayed(300, (event) => {
     powerButton.toggleVisible(false, () => {
-      window.deviceOne.slidePanel.togglePowerLED(true);
+      act('slidePanel', 'togglePowerLED', true);
       delay(600, states.next);
     });
   });
   return {
     name: 'off',
     enter() {
-      window.deviceOne.buttons.toggleDisabled(true);
-      window.deviceOne.slidePanel.togglePowerLED(false);
+      act('buttons', 'toggleDisabled', true);
+      act('slidePanel', 'togglePowerLED', false);
       powerButton.toggleAttached(true);
       powerButton.toggleVisible(true);
       powerButton.rootElement.addEventListener('power:on', powerOnListener);
