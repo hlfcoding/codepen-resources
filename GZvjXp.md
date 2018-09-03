@@ -332,8 +332,11 @@ body>.container {
   overflow: scroll;
 }
 .device .main-screen>.body {
-  cursor: crosshair;
+  cursor: none;
   padding: var(--bezel);
+}
+.device .main-screen.--pointer-enabled>.body {
+  cursor: crosshair;
 }
 .device .main-screen>.body .cli input.-invisible {
   /* fixed so it doesn't scroll
@@ -518,12 +521,14 @@ function createOffState({ states, powerButton }) {
     name: 'off',
     enter() {
       act('buttons', 'toggleDisabled', true);
+      act('mainScreen', 'toggleClass', '--pointer-enabled', true);
       act('slidePanel', 'togglePowerLED', false);
       powerButton.toggleAttached(true);
       powerButton.toggleVisible(true);
       powerButton.rootElement.addEventListener('power:on', powerOnListener);
     },
     leave() {
+      act('mainScreen', 'toggleClass', '--pointer-enabled', false);
       powerButton.toggleAttached(false);
       powerButton.rootElement.removeEventListener('power:on', powerOnListener);
     },
@@ -805,12 +810,15 @@ function initMainScreen(contextElement) {
   const cli = createCLI(cliElement, rootElement);
   const powerButton = createPowerButton(canvasElement);
   const canvas = createCanvas(canvasElement);
+  function toggleClass(className, on) {
+    rootElement.classList.toggle(className, on);
+  }
   let states = createStateMachine();
   states.push(createOffState({ states, powerButton }));
   states.push(createGreetState({ states, cli }));
   states.push(createGameState({ states, canvas, cli, contextElement }));
-  states.to('off');
-  return {};
+  delay(0, () => states.to('off'));
+  return { toggleClass };
 }
 
 function initSlidePanel(contextElement) {
