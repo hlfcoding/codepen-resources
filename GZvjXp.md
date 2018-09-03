@@ -508,7 +508,7 @@ function createGreetState({ states, cli }) {
 }
 
 function createOffState({ states, powerButton }) {
-  const powerOnListener = delayed(300, (event) => {
+  const powerOnListener = delayed(300, event => {
     powerButton.toggleVisible(false, () => {
       act('slidePanel', 'togglePowerLED', true);
       delay(600, states.next);
@@ -832,7 +832,7 @@ function initSlidePanel(contextElement) {
     ledElement.classList.toggle('--on', on);
   }
   toggle(false);
-  coverElement.addEventListener('click', (event) => {
+  coverElement.addEventListener('click', event => {
     if (event.currentTarget !== coverElement) { return; }
     toggle();
   });
