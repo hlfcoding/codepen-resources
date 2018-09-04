@@ -417,6 +417,7 @@ const settings = {
     radius: { ring: 30, dot: 5 },
     endRadiusRatio: { ring: 0.5, dot: 2 },
   },
+  shapeLayerOpaqueValue: 0.1,
   shapeLayout: {
     baseAttributes: { 'stroke-width': 2 },
     boundsPaddingRatio: { x: 0.1, y: 0.2 },
@@ -727,7 +728,7 @@ function createPowerButton(rootElement) {
 
 // a basic subview factory
 function createCanvas(rootElement) {
-  const { shapeLayout } = settings;
+  const { shapeLayerOpaqueValue, shapeLayout } = settings;
   function snap(number) {
     return number.toFixed(log10(shapeLayout.gridResolution)) * 1;
   }
@@ -740,7 +741,7 @@ function createCanvas(rootElement) {
     const size = round(w * sizeRatio), r = size / 2;
     const x = round((w - size) * xRatio), mx = x + size, cx = x + r;
     const y = round((h - size) * yRatio), my = y + size, cy = y + r;
-    let name, attributes = Object.assign({}, shapeLayout.baseAttributes);
+    let name, attributes = Object.assign({ opacity: 1 }, shapeLayout.baseAttributes);
     switch (shape) {
       case 'circle':
         name = 'circle';
@@ -767,6 +768,10 @@ function createCanvas(rootElement) {
     element.classList.add('shape');
     Object.keys(attributes).forEach(name => {
       element.setAttribute(name, attributes[name]);
+    });
+    [...rootElement.querySelectorAll('.shape')].forEach(element => {
+      const opacity = parseFloat(element.getAttribute('opacity')) - shapeLayerOpaqueValue;
+      element.setAttribute('opacity', opacity);
     });
     rootElement.appendChild(element);
     return element;
