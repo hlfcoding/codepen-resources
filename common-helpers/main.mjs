@@ -63,8 +63,8 @@ export function delayedPromise(duration, completion) {
   });
 }
 
-export function fixActiveStateForTouch(el) {
-  return el.addEventListener('touchstart', (function() {}), false);
+export function fixActiveStateForTouch(element) {
+  return element.addEventListener('touchstart', (function() {}), false);
 }
 
 export function forEach(object, callback) {
@@ -76,9 +76,9 @@ export function getComputedTransitionDurations(element) {
     .map(secondsString => parseFloat(secondsString) * 1000);
 }
 
-export function resolveCompletion(obj) {
-  if (obj.resolve) { return obj.resolve.bind(obj); }
-  if (typeof obj === 'function') { return obj; }
+export function resolveCompletion(object) {
+  if (object.resolve) { return object.resolve.bind(object); }
+  if (typeof object === 'function') { return object; }
   throw 'unsupported input';
 }
 
