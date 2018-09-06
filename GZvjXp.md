@@ -399,7 +399,9 @@ import {
   delay,
   delayed,
   delayedPromise,
+  forEach,
   getComputedTransitionDurations,
+  setAttributes,
   setupKeyboardHandling,
 } from '//assets.pengxwang.com/codepen-resources/common-helpers/main.mjs';
 
@@ -661,40 +663,32 @@ function createPowerButton(rootElement) {
   let buttonElement = rootElement.querySelector('.power-button');
   buttonElement.setAttribute('opacity', 0);
   let ringElement = buttonElement.querySelector('.ring');
-  ringElement.setAttribute('cx', center.x);
-  ringElement.setAttribute('cy', center.y);
-  ringElement.setAttribute('r', radius.ring);
-  ringElement.setAttribute('stroke-width', 2);
+  setAttributes(ringElement, { cx: center.x, cy: center.y, r: radius.ring, 'stroke-width': 2 });
   let dotElement = buttonElement.querySelector('.dot');
-  dotElement.setAttribute('cx', center.x);
-  dotElement.setAttribute('cy', center.y);
-  dotElement.setAttribute('r', radius.dot);
+  setAttributes(dotElement, { cx: center.x, cy: center.y, r: radius.dot });
   // animate
   const options = { duration: 500, easing: 'ease-in-out', fill: 'both' };
   Object.assign(state.animations, {
     ring: ringElement.animate({ r: [radius.ring, radius.ring * ratio.ring] }, options),
     dot: dotElement.animate({ r: [radius.dot, radius.dot * ratio.dot] }, options),
   });
-  function forEachAnimation(callback) {
-    Object.keys(state.animations).forEach(name => callback(state.animations[name]));
-  }
   const mainAnimation = state.animations.dot;
   mainAnimation.onfinish = ({ target: animation }) => {
     if (animation.playbackRate < 0) { return; }
     rootElement.dispatchEvent(new CustomEvent('power:on'));
     state.isOn = true;
   };
-  forEachAnimation(a => a.pause());
+  forEach(state.animations, (_, a) => a.pause());
   function onEnter(event) {
     if (!isInteractive()) { return; }
-    forEachAnimation(a => {
+    forEach(state.animations, (_, a) => {
       if (a.playState === 'paused') { return a.play(); }
       a.reverse();
     });
   }
   function onLeave(event) {
     if (!isInteractive()) { return; }
-    forEachAnimation(a => a.reverse());
+    forEach(state.animations, (_, a) => a.reverse());
   }
   function isInteractive() {
     return mainAnimation.playState !== 'running' && !state.isOn;
@@ -708,7 +702,7 @@ function createPowerButton(rootElement) {
     } else {
       rootElement.removeChild(buttonElement);
       console.assert(state.isOn);
-      forEachAnimation(a => a.reverse());
+      forEach(state.animations, (_, a) => a.reverse());
       state.isOn = false;
     }
   }
@@ -766,9 +760,7 @@ function createCanvas(rootElement) {
     }
     let element = document.createElementNS('http://www.w3.org/2000/svg', name);
     element.classList.add('shape');
-    Object.keys(attributes).forEach(name => {
-      element.setAttribute(name, attributes[name]);
-    });
+    setAttributes(element, attributes);
     [...rootElement.querySelectorAll('.shape')].forEach(element => {
       const opacity = parseFloat(element.getAttribute('opacity')) - shapeLayerOpaqueValue;
       element.setAttribute('opacity', opacity);

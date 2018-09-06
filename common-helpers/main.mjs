@@ -67,6 +67,10 @@ export function fixActiveStateForTouch(el) {
   return el.addEventListener('touchstart', (function() {}), false);
 }
 
+export function forEach(object, callback) {
+  Object.keys(object).forEach(key => callback(key, object[key]));
+}
+
 export function getComputedTransitionDurations(element) {
   return getComputedStyle(element).transitionDuration.split(',')
     .map(secondsString => parseFloat(secondsString) * 1000);
@@ -76,6 +80,10 @@ export function resolveCompletion(obj) {
   if (obj.resolve) { return obj.resolve.bind(obj); }
   if (typeof obj === 'function') { return obj; }
   throw 'unsupported input';
+}
+
+export function setAttributes(element, attributes) {
+  forEach(attributes, element.setAttribute.bind(element));
 }
 
 export function setupDisplayClasses(context) {
