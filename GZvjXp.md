@@ -103,7 +103,7 @@
   text-shadow:
     0 -1px 0 var(--shade-3),
     0 1px 0 var(--light-5);
-  transition: color .2s ease-in-out;
+  transition: color .2s ease-in-out, margin .1s ease-out;
 }
 .-panel-skin .-button-skin:not([disabled]) {
   cursor: pointer;
