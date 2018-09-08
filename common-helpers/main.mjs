@@ -49,6 +49,31 @@ export function animateChars({ completion, element, stepDuration, string }) {
   requestAnimationFrame(step);
 }
 
+export function createAudioClipPlayer(element, tick = 10) {
+  const initialState = () => ({ progressInterval: null, timeRange: null });
+  let state = initialState();
+  function play(timeRange) {
+    if (!element.paused) { return; }
+    element.currentTime = timeRange[0];
+    element.muted = false;
+    element.play();
+    Object.assign(state, {
+      progressInterval: setInterval(stopIfNeeded, tick),
+      timeRange,
+    });
+  }
+  function stopIfNeeded() {
+    if (element.currentTime < state.timeRange[1]) { return; }
+    clearInterval(state.progressInterval);
+    state = initialState();
+    element.pause();
+    element.muted = true;
+  }
+  element.pause();
+  element.muted = true;
+  return { element, play };
+}
+
 export function delay(duration, completion) {
   return setTimeout(resolveCompletion(completion), duration);
 }
