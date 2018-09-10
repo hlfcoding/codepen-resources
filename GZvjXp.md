@@ -47,6 +47,7 @@
 </div><!--/device-->
 
 </div><!--/container-->
+<audio preload src="//assets.pengxwang.com/files/codepen_GZvjXp.ogg"></audio>
 ```
 
 ```css
@@ -395,6 +396,7 @@ body>.container {
 ```js
 import {
   animateChars,
+  createAudioClipPlayer,
   createStateMachine,
   delay,
   delayed,
@@ -428,6 +430,15 @@ const settings = {
     sizeLimits: { min: 0.1, scale: 0.5 },
   },
   shapeLimit: 10,
+  soundBackupElements: 3,
+  soundTimeRanges: {
+    button: [2, 2.5], // Button-SoundBible.com-1420500901.mp3
+    error: [3, 3.9], // Computer Error Alert-SoundBible.com-783113881.mp3
+    panelClose: [0, 0.5], // Button Click Off-SoundBible.com-1730098776.mp3
+    panelOpen: [1, 1.5], // Click On-SoundBible.com-1697535117.mp3
+    power: [5, 5.9], // examples.phaser.io/assets/audio/SoundEffects/fx_mixdown.ogg
+    prompt: [4, 4.5], // examples.phaser.io/assets/audio/SoundEffects/fx_mixdown.ogg
+  },
 };
 
 function act(targetName, methodName, ...parameters) {
@@ -444,6 +455,7 @@ document.onreadystatechange = () => {
   rootElement.classList.add('--ready');
   api.buttons = initButtons(rootElement);
   api.slidePanel = initSlidePanel(rootElement);
+  api.sounds = initSounds(document.querySelector('audio'));
   delay(getComputedTransitionDurations(document.querySelector('.device > .body'))[1], () => {
     api.mainScreen = initMainScreen(rootElement);
   });
@@ -481,6 +493,7 @@ function createGameState({ states, canvas, cli, contextElement }) {
       canvas.erase();
       act('slidePanel', 'toggle', false);
       act('slidePanel', 'toggleDisabled', true);
+      act('sounds', 'play', 'error');
       contextElement.removeEventListener('click', drawListener);
       return cli.echo('too much, need rest...')
         .then(() => delayedPromise(500))
@@ -515,6 +528,7 @@ function createGreetState({ states, cli }) {
 
 function createOffState({ states, powerButton }) {
   const powerOnListener = delayed(300, event => {
+    act('sounds', 'play', 'power');
     powerButton.toggleVisible(false, () => {
       act('slidePanel', 'togglePowerLED', true);
       delay(600, states.next);
@@ -568,6 +582,7 @@ function createCLI(rootElement, contextElement) {
     delay(pauseDuration, () => {
       updateReading();
       state.lineElement.scrollIntoView();
+      act('sounds', 'play', 'prompt');
     });
     return new Promise((resolve, reject) => {
       state.pendingReading = { resolve, reject };
@@ -777,6 +792,13 @@ function createCanvas(rootElement) {
 }
 
 function initButtons(contextElement) {
+  function clickListener(event) {
+    if (event.currentTarget.getAttribute('disabled')) { return; }
+    act('sounds', 'play', 'button');
+  }
+  [...contextElement.querySelectorAll(`[type=button]`)].forEach(element => {
+    element.addEventListener('click', clickListener);
+  });
   function click(name) {
     let buttonElement = contextElement.querySelector(`[type=button][name=${name}]`);
     if (!buttonElement) { return; }
@@ -822,11 +844,14 @@ function initSlidePanel(contextElement) {
   const rootElement = contextElement.querySelector('[data-module=slide-panel]');
   let coverElement = rootElement.querySelector('.cover');
   let state = { disabled: false };
-  function toggle(visible) {
+  function toggle(visible, silent = false) {
     if (state.disabled) { return; }
     if (visible == null) { visible = coverElement.classList.contains('--closed'); }
     coverElement.classList.toggle('--open', visible);
     coverElement.classList.toggle('--closed', !visible);
+    if (!silent) {
+      act('sounds', 'play', 'panel' + (visible ? 'Open' : 'Close'));
+    }
   }
   function toggleDisabled(disabled) {
     state.disabled = disabled;
@@ -836,11 +861,24 @@ function initSlidePanel(contextElement) {
     if (on == null) { on = ledElement.classList.contains('--on'); }
     ledElement.classList.toggle('--on', on);
   }
-  toggle(false);
+  toggle(false, true);
   coverElement.addEventListener('click', event => {
     if (event.currentTarget !== coverElement) { return; }
     toggle();
   });
   return { toggle, toggleDisabled, togglePowerLED };
+}
+
+function initSounds(audioElement) {
+  const { soundBackupElements, soundTimeRanges } = settings;
+  const backupElements = [...Array(soundBackupElements)].map(() => audioElement.cloneNode());
+  backupElements.forEach(element => audioElement.parentElement.appendChild(element));
+  const players = [audioElement, ...backupElements].map(createAudioClipPlayer);
+  function play(track) {
+    const player = players.find(({ element }) => element.paused);
+    if (!player) { return console.warn(`no available player for track '${track}'`); }
+    player.play(soundTimeRanges[track]);
+  }
+  return { play };
 }
 ```
