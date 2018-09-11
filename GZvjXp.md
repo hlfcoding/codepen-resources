@@ -70,7 +70,7 @@
   --panel-darker: #3c3c3c;
   --panel-depth: 2px;
   --panel-drop-diffuse: 10px;
-  --panel-texture: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAD0lEQVQYV2NgYGAwZgABAAE8ADSqC3qCAAAAAElFTkSuQmCC';
+  --panel-texture: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFUlEQVQYV2NkYGCQZGBgeM7IAAGSAAqqARzZRIhzAAAAAElFTkSuQmCC');
   /* front to back */
   --panel-shadows:
     inset 0 0 var(--bezel) var(--shade-3), /* contour */
@@ -82,7 +82,7 @@
   background-color: var(--panel-base);
   background-image:
     linear-gradient(var(--light-5), transparent var(--display-height)),
-    url('var(--panel-texture)');
+    var(--panel-texture);
   border-radius: var(--corner);
 }
 
@@ -134,7 +134,7 @@
   border-top: 1px solid var(--shade-2);
 }
 .-panel-skin .-slide-panel .cover {
-  background: var(--panel-base) url('var(--panel-texture)') repeat;
+  background: var(--panel-base) var(--panel-texture) repeat;
   border-bottom: 1px solid var(--shade-2);
   border-top: 1px solid var(--light-5);
   cursor: pointer;
