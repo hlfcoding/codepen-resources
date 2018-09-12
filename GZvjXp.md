@@ -613,11 +613,15 @@ function createCLI(rootElement, contextElement) {
   }
   function onInputBlur(event) {
     if (!state.lineElement) { return; }
-    state.lineElement.querySelector('.cursor').classList.remove('-blink');
+    const cursor = state.lineElement.querySelector('.cursor');
+    if (!cursor) { return; }
+    cursor.classList.remove('-blink');
   }
   function onInputFocus(event) {
     if (!state.lineElement) { return; }
-    state.lineElement.querySelector('.cursor').classList.add('-blink');
+    const cursor = state.lineElement.querySelector('.cursor');
+    if (!cursor) { return; }
+    cursor.classList.add('-blink');
   }
   inputElement.addEventListener('blur', onInputBlur);
   inputElement.addEventListener('focus', onInputFocus);
