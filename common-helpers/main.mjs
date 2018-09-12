@@ -51,26 +51,31 @@ export function animateChars({ completion, element, stepDuration, string }) {
 
 export function createAudioClipPlayer(element, tick = 10) {
   const initialState = () => ({ progressInterval: null, timeRange: null });
-  let state = initialState();
+  let state;
   function play(timeRange) {
     if (!element.paused) { return; }
     element.currentTime = timeRange[0];
     element.muted = false;
-    element.play();
-    Object.assign(state, {
-      progressInterval: setInterval(stopIfNeeded, tick),
-      timeRange,
-    });
+    try {
+      element.play();
+      Object.assign(state, {
+        progressInterval: setInterval(() => {
+          if (element.currentTime < state.timeRange[1]) { return; }
+          clearInterval(state.progressInterval);
+          stop();
+        }, tick),
+        timeRange,
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
-  function stopIfNeeded() {
-    if (element.currentTime < state.timeRange[1]) { return; }
-    clearInterval(state.progressInterval);
+  function stop() {
     state = initialState();
     element.pause();
     element.muted = true;
   }
-  element.pause();
-  element.muted = true;
+  stop();
   return { element, play };
 }
 
