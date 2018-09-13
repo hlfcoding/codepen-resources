@@ -68,6 +68,7 @@ export function createAudioClipPlayer(element, tick = 10) {
       });
     } catch (error) {
       console.error(error);
+      stop();
     }
   }
   function stop() {
