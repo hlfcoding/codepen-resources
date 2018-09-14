@@ -51,7 +51,7 @@ export function animateChars({ completion, element, stepDuration, string }) {
 
 export function createAudioClipPlayer(element, tick = 10) {
   const initialState = () => ({ progressInterval: null, timeRange: null });
-  let state;
+  let state = initialState();
   function play(timeRange) {
     if (!element.paused) { return; }
     element.currentTime = timeRange[0];
