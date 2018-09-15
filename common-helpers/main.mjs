@@ -56,19 +56,15 @@ export function createAudioClipPlayer(element, tick = 10) {
     if (!element.paused) { return; }
     element.currentTime = timeRange[0];
     element.muted = false;
-    try {
-      element.play();
+    element.play().then(() => {
       Object.assign(state, {
         progressInterval: setInterval(() => {
-          if (element.currentTime < state.timeRange[1]) { return; }
+          if (element.currentTime < timeRange[1]) { return; }
           stop();
         }, tick),
         timeRange,
       });
-    } catch (error) {
-      console.error(error);
-      stop();
-    }
+    }, error => console.error(error));
   }
   function stop() {
     clearInterval(state.progressInterval);
