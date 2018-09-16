@@ -409,61 +409,69 @@ import {
 
 const { log10, max, min, random, round, sqrt } = Math;
 
-const settings = {
-  buttonShapesByName: {
-    A: 'triangle',
-    B: 'square',
-    C: 'circle',
-    D: 'semicircle',
-  },
-  demoButtonName: 'A',
-  powerButtonLayout: {
-    radius: { ring: 30, dot: 5 },
-    endRadiusRatio: { ring: 0.5, dot: 2 },
-  },
-  shapeLayerOpaqueValue: 0.1,
-  shapeLayout: {
-    baseAttributes: { 'stroke-width': 2 },
-    boundsPaddingRatio: { x: 0.1, y: 0.2 },
-    gridResolution: 10,
-    rectCorner: 6,
-    sizeLimits: { min: 0.1, scale: 0.5 },
-  },
-  shapeLimit: 10,
-  soundBackupElements: 3,
-  soundTimeRanges: {
-    button: [2, 2.5], // Button-SoundBible.com-1420500901.mp3
-    error: [3, 3.9], // Computer Error Alert-SoundBible.com-783113881.mp3
-    panelClose: [0, 0.5], // Button Click Off-SoundBible.com-1730098776.mp3
-    panelOpen: [1, 1.5], // Click On-SoundBible.com-1697535117.mp3
-    power: [5, 5.9], // examples.phaser.io/assets/audio/SoundEffects/fx_mixdown.ogg
-    prompt: [4, 4.5], // examples.phaser.io/assets/audio/SoundEffects/fx_mixdown.ogg
-  },
-};
-
-function act(targetName, methodName, ...parameters) {
-  const target = window.deviceOne[targetName];
-  if (!target) { return console.warn(`no '${targetName}' target`); }
-  if (!target[methodName]) { return console.warn(`no '${methodName}' method`); }
-  target[methodName](...parameters);
-}
-
 document.onreadystatechange = () => {
   if (document.readyState !== 'complete') { return; }
-  let api = {};
-  let rootElement = document.querySelector('.device');
-  rootElement.classList.add('--ready');
-  api.buttons = initButtons(rootElement);
-  api.slidePanel = initSlidePanel(rootElement);
-  api.sounds = initSounds(document.querySelector('audio'));
-  delay(getComputedTransitionDurations(document.querySelector('.device > .body'))[1], () => {
-    api.mainScreen = initMainScreen(rootElement);
-  });
-  window.deviceOne = api;
+  window.deviceOne = initApp();
 };
 
-function createGameState({ states, canvas, cli, contextElement }) {
-  const { buttonShapesByName, demoButtonName, shapeLimit } = settings;
+function initApp() {
+  let rootElement = document.querySelector('.device');
+  rootElement.classList.add('--ready');
+  const settings = {
+    buttonShapesByName: {
+      A: 'triangle',
+      B: 'square',
+      C: 'circle',
+      D: 'semicircle',
+    },
+    demoButtonName: 'A',
+    powerButtonLayout: {
+      radius: { ring: 30, dot: 5 },
+      endRadiusRatio: { ring: 0.5, dot: 2 },
+    },
+    shapeLayerOpaqueValue: 0.1,
+    shapeLayout: {
+      baseAttributes: { 'stroke-width': 2 },
+      boundsPaddingRatio: { x: 0.1, y: 0.2 },
+      gridResolution: 10,
+      rectCorner: 6,
+      sizeLimits: { min: 0.1, scale: 0.5 },
+    },
+    shapeLimit: 10,
+    soundBackupElements: 3,
+    soundTimeRanges: {
+      button: [2, 2.5], // Button-SoundBible.com-1420500901.mp3
+      error: [3, 3.9], // Computer Error Alert-SoundBible.com-783113881.mp3
+      panelClose: [0, 0.5], // Button Click Off-SoundBible.com-1730098776.mp3
+      panelOpen: [1, 1.5], // Click On-SoundBible.com-1697535117.mp3
+      power: [5, 5.9], // examples.phaser.io/assets/audio/SoundEffects/fx_mixdown.ogg
+      prompt: [4, 4.5], // examples.phaser.io/assets/audio/SoundEffects/fx_mixdown.ogg
+    },
+  };
+  const shared = {
+    act(targetName, methodName, ...parameters) {
+      const target = api[targetName];
+      if (!target) { return console.warn(`no '${targetName}' target`); }
+      if (!target[methodName]) { return console.warn(`no '${methodName}' method`); }
+      target[methodName](...parameters);
+    },
+    settings,
+  };
+  let api = Object.assign({}, shared, {
+    buttons: initButtons(rootElement, shared),
+    slidePanel: initSlidePanel(rootElement, shared),
+    sounds: initSounds(document.querySelector('audio'), shared),
+  });
+  delay(getComputedTransitionDurations(document.querySelector('.device > .body'))[1], () => {
+    api.mainScreen = initMainScreen(rootElement, shared);
+  });
+  return api
+}
+
+function createGameState(
+  { states, canvas, cli, contextElement },
+  { act, settings: { buttonShapesByName, demoButtonName, shapeLimit } }
+) {
   let drawn;
   function drawListener({ target: button }) {
     if (button.type !== 'button') { return; }
@@ -525,12 +533,13 @@ function createGreetState({ states, cli }) {
   };
 }
 
-function createOffState({ states, powerButton }) {
+function createOffState({ states, powerButton }, { act }) {
   const powerOnListener = delayed(300, event => {
     act('sounds', 'play', 'power');
-    powerButton.toggleVisible(false, () => {
+    powerButton.toggleVisible(false, async () => {
       act('slidePanel', 'togglePowerLED', true);
-      delay(600, states.next);
+      await delayedPromise(600);
+      states.next();
     });
   });
   return {
@@ -552,7 +561,7 @@ function createOffState({ states, powerButton }) {
 }
 
 // a stateful cli subview with a promise-based api
-function createCLI(rootElement, contextElement) {
+function createCLI(rootElement, contextElement, { act }) {
   const pauseDuration = 500;
   const inputElement = rootElement.querySelector('input[type=text]');
   const initialReadingState = () => ({
@@ -673,10 +682,10 @@ function createCLI(rootElement, contextElement) {
 }
 
 // simple subview
-function createPowerButton(rootElement) {
+function createPowerButton(rootElement, { settings: { powerButtonLayout: layout } }) {
+  const { radius, endRadiusRatio: ratio } = layout;
   let state = { animations: { dot: null, ring: null }, isOn: false };
   const center = { x: rootElement.clientWidth / 2, y: rootElement.clientHeight / 2 };
-  const { radius, endRadiusRatio: ratio } = settings.powerButtonLayout;
   // svg styling props often need to be attributes
   let buttonElement = rootElement.querySelector('.power-button');
   buttonElement.setAttribute('opacity', 0);
@@ -739,8 +748,7 @@ function createPowerButton(rootElement) {
 }
 
 // a basic subview factory
-function createCanvas(rootElement) {
-  const { shapeLayerOpaqueValue, shapeLayout } = settings;
+function createCanvas(rootElement, { settings: { shapeLayerOpaqueValue, shapeLayout } }) {
   function snap(number) {
     return number.toFixed(log10(shapeLayout.gridResolution)) * 1;
   }
@@ -794,7 +802,7 @@ function createCanvas(rootElement) {
   return { draw, erase };
 }
 
-function initButtons(contextElement) {
+function initButtons(contextElement, { act }) {
   function clickListener(event) {
     if (event.currentTarget.getAttribute('disabled')) { return; }
     act('sounds', 'play', 'button');
@@ -802,15 +810,14 @@ function initButtons(contextElement) {
   [...contextElement.querySelectorAll(`[type=button]`)].forEach(element => {
     element.addEventListener('click', clickListener);
   });
-  function click(name) {
+  async function click(name) {
     let buttonElement = contextElement.querySelector(`[type=button][name=${name}]`);
     if (!buttonElement) { return; }
     const click = new MouseEvent('click', {bubbles: true, cancelable: true});
     buttonElement.classList.add('--hover', '--active');
-    delay(300, () => {
-      buttonElement.dispatchEvent(click);
-      buttonElement.classList.remove('--hover', '--active');
-    });
+    await delayedPromise(300);
+    buttonElement.dispatchEvent(click);
+    buttonElement.classList.remove('--hover', '--active');
   }
   function toggleDisabled(disabled) {
     const buttons = contextElement.querySelectorAll(`[type=button]`);
@@ -825,25 +832,25 @@ function initButtons(contextElement) {
   return { click, toggleDisabled };
 }
 
-function initMainScreen(contextElement) {
+function initMainScreen(contextElement, shared) {
   const rootElement = contextElement.querySelector('.main-screen');
   const cliElement = rootElement.querySelector('[data-module=cli]');
   const canvasElement = rootElement.querySelector('[data-module=canvas]');
-  const cli = createCLI(cliElement, rootElement);
-  const powerButton = createPowerButton(canvasElement);
-  const canvas = createCanvas(canvasElement);
+  const cli = createCLI(cliElement, rootElement, shared);
+  const powerButton = createPowerButton(canvasElement, shared);
+  const canvas = createCanvas(canvasElement, shared);
   function toggleClass(className, on) {
     rootElement.classList.toggle(className, on);
   }
   let states = createStateMachine();
-  states.push(createOffState({ states, powerButton }));
-  states.push(createGreetState({ states, cli }));
-  states.push(createGameState({ states, canvas, cli, contextElement }));
+  states.push(createOffState({ states, powerButton }, shared));
+  states.push(createGreetState({ states, cli }, shared));
+  states.push(createGameState({ states, canvas, cli, contextElement }, shared));
   delay(0, () => states.to('off'));
   return { toggleClass };
 }
 
-function initSlidePanel(contextElement) {
+function initSlidePanel(contextElement, { act }) {
   const rootElement = contextElement.querySelector('[data-module=slide-panel]');
   let coverElement = rootElement.querySelector('.cover');
   let state = { disabled: false };
@@ -872,8 +879,7 @@ function initSlidePanel(contextElement) {
   return { toggle, toggleDisabled, togglePowerLED };
 }
 
-function initSounds(audioElement) {
-  const { soundBackupElements, soundTimeRanges } = settings;
+function initSounds(audioElement, { settings: { soundBackupElements, soundTimeRanges } }) {
   const backupElements = [...Array(soundBackupElements)].map(() => audioElement.cloneNode());
   backupElements.forEach(element => audioElement.parentElement.appendChild(element));
   const players = [audioElement, ...backupElements].map(createAudioClipPlayer);
