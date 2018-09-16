@@ -479,28 +479,26 @@ function createGameState({ states, canvas, cli, contextElement }) {
   }
   return {
     name: 'game',
-    enter() {
+    async enter() {
       drawn = 0;
       contextElement.addEventListener('click', drawListener);
       // draw first
-      delay(0, () => {
-        act('buttons', 'toggleDisabled', false);
-        act('slidePanel', 'toggle', true);
-      });
-      delay(1000, () => act('buttons', 'click', demoButtonName));
+      await delayedPromise(0);
+      act('buttons', 'toggleDisabled', false);
+      act('slidePanel', 'toggle', true);
+      await delayedPromise(1000);
+      act('buttons', 'click', demoButtonName);
     },
-    leave() {
+    async leave() {
       canvas.erase();
       act('slidePanel', 'toggle', false);
       act('slidePanel', 'toggleDisabled', true);
       act('sounds', 'play', 'error');
       contextElement.removeEventListener('click', drawListener);
-      return cli.echo('too much, need rest...')
-        .then(() => delayedPromise(500))
-        .then(() => {
-          cli.clear();
-          act('slidePanel', 'toggleDisabled', false);
-        });
+      await cli.echo('too much, need rest...');
+      await delayedPromise(500);
+      cli.clear();
+      act('slidePanel', 'toggleDisabled', false);
     },
   };
 }
@@ -508,17 +506,18 @@ function createGameState({ states, canvas, cli, contextElement }) {
 function createGreetState({ states, cli }) {
   return {
     name: 'greet',
-    enter() {
-      cli.echo('hello, your name?')
-      .then(() => cli.read())
-      .then(name => cli.echo(`play a game, ${name}?`))
-      .then(() => cli.read())
-      .then(response => cli.echo(
+    async enter() {
+      await cli.echo('hello, your name?');
+      const name = await cli.read();
+      await cli.echo(`play a game, ${name}?`);
+      const response = await cli.read();
+      await cli.echo(
         /^y/i.test(response) ? 'great...'
         : /^n/i.test(response) ? 'going to force you...'
         : 'i don\'t understand, going to force you...'
-      ))
-      .then(() => delay(1000, states.next));
+      );
+      await delayedPromise(1000);
+      states.next();
     },
     leave() {
       cli.clear();
