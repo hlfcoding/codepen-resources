@@ -10,8 +10,7 @@
 <link rel="stylesheet" href="//assets.pengxwang.com/codepen-resources/common-helpers/main-v2.css">
 ```
 
-```html
-<!-- using: -bar-layout -blink -centered -input-style-none -invisible -->
+```html<!-- using: -bar-layout -blink -centered -input-style-none -invisible -->
 <div class="container">
 
 <div class="device -centered -input-style-none">
@@ -44,10 +43,10 @@
       </nav>
     </div><!--/buttons-panel-->
   </div><!--/body-->
+  <audio preload src="//assets.pengxwang.com/files/codepen_GZvjXp.ogg"></audio>
 </div><!--/device-->
 
 </div><!--/container-->
-<audio preload src="//assets.pengxwang.com/files/codepen_GZvjXp.ogg"></audio>
 ```
 
 ```css
@@ -399,7 +398,6 @@ import {
   createAudioClipPlayer,
   createStateMachine,
   delay,
-  delayed,
   delayedPromise,
   forEach,
   getComputedTransitionDurations,
@@ -449,22 +447,22 @@ function initApp() {
     },
   };
   const shared = {
-    act(targetName, methodName, ...parameters) {
+    async act(targetName, methodName, ...parameters) {
       const target = api[targetName];
       if (!target) { return console.warn(`no '${targetName}' target`); }
       if (!target[methodName]) { return console.warn(`no '${methodName}' method`); }
-      target[methodName](...parameters);
+      const result = await target[methodName](...parameters);
+      return result
     },
     settings,
   };
   let api = Object.assign({}, shared, {
     buttons: initButtons(rootElement, shared),
     slidePanel: initSlidePanel(rootElement, shared),
-    sounds: initSounds(document.querySelector('audio'), shared),
+    sounds: initSounds(rootElement, shared),
   });
-  delay(getComputedTransitionDurations(document.querySelector('.device > .body'))[1], () => {
-    api.mainScreen = initMainScreen(rootElement, shared);
-  });
+  const initDuration = getComputedTransitionDurations(document.querySelector('.device > .body'))[1];
+  delay(initDuration, () => api.mainScreen = initMainScreen(rootElement, shared));
   return api
 }
 
@@ -493,18 +491,19 @@ function createGameState(
       // draw first
       await delayedPromise(0);
       act('buttons', 'toggleDisabled', false);
-      act('slidePanel', 'toggle', true);
-      await delayedPromise(1000);
+      await act('slidePanel', 'toggle', true);
+      await delayedPromise(600);
       act('buttons', 'click', demoButtonName);
     },
     async leave() {
       canvas.erase();
-      act('slidePanel', 'toggle', false);
-      act('slidePanel', 'toggleDisabled', true);
-      act('sounds', 'play', 'error');
       contextElement.removeEventListener('click', drawListener);
+      act('sounds', 'play', 'error');
+      await act('slidePanel', 'toggle', false);
+      act('slidePanel', 'toggleDisabled', true);
+      await delayedPromise(600);
       await cli.echo('too much, need rest...');
-      await delayedPromise(500);
+      await delayedPromise(1000);
       cli.clear();
       act('slidePanel', 'toggleDisabled', false);
     },
@@ -534,23 +533,23 @@ function createGreetState({ states, cli }) {
 }
 
 function createOffState({ states, powerButton }, { act }) {
-  const powerOnListener = delayed(300, event => {
+  async function powerOnListener(event) {
+    await delayedPromise(300); 
     act('sounds', 'play', 'power');
-    powerButton.toggleVisible(false, async () => {
-      act('slidePanel', 'togglePowerLED', true);
-      await delayedPromise(600);
-      states.next();
-    });
-  });
+    await powerButton.toggleVisible(false);
+    await act('slidePanel', 'togglePowerLED', true);
+    await delayedPromise(200);
+    states.next();
+  };
   return {
     name: 'off',
-    enter() {
+    async enter() {
       act('buttons', 'toggleDisabled', true);
       act('mainScreen', 'toggleClass', '--pointer-enabled', true);
       act('slidePanel', 'togglePowerLED', false);
       powerButton.toggleAttached(true);
-      powerButton.toggleVisible(true);
       powerButton.rootElement.addEventListener('power:on', powerOnListener);
+      await powerButton.toggleVisible(true);
     },
     leave() {
       act('mainScreen', 'toggleClass', '--pointer-enabled', false);
@@ -592,9 +591,7 @@ function createCLI(rootElement, contextElement, { act }) {
       state.lineElement.scrollIntoView();
       act('sounds', 'play', 'prompt');
     });
-    return new Promise((resolve, reject) => {
-      state.pendingReading = { resolve, reject };
-    });
+    return new Promise((resolve, reject) => state.pendingReading = { resolve, reject });
   }
   function endReading() {
     inputElement.value = '';
@@ -671,11 +668,7 @@ function createCLI(rootElement, contextElement, { act }) {
       endReading();
       // animate
       return new Promise((resolve, reject) => {
-        animateChars({
-          element: lineElement,
-          string: message,
-          completion: resolve,
-        });
+        animateChars({ element: lineElement, string: message, completion: resolve });
       });
     },
   };
@@ -733,7 +726,7 @@ function createPowerButton(rootElement, { settings: { powerButtonLayout: layout 
       state.isOn = false;
     }
   }
-  function toggleVisible(visible, completion) {
+  async function toggleVisible(visible) {
     let keyframes;
     if (visible) {
       keyframes = { opacity: [0, 1], transform: ['none', 'none'] };
@@ -742,7 +735,9 @@ function createPowerButton(rootElement, { settings: { powerButtonLayout: layout 
       keyframes = { transform: [0, offscreen].map(y => `translateY(${y}px)`) };
     }
     let animation = buttonElement.animate(keyframes, options);
-    animation.onfinish = completion;
+    return new Promise((resolve, reject) => {
+      Object.assign(animation, { oncancel: reject, onfinish: resolve });
+    });
   }
   return { rootElement, toggleAttached, toggleVisible };
 }
@@ -854,7 +849,8 @@ function initSlidePanel(contextElement, { act }) {
   const rootElement = contextElement.querySelector('[data-module=slide-panel]');
   let coverElement = rootElement.querySelector('.cover');
   let state = { disabled: false };
-  function toggle(visible, silent = false) {
+  const toggleDuration = getComputedTransitionDurations(coverElement)[0];
+  async function toggle(visible, silent = false) {
     if (state.disabled) { return; }
     if (visible == null) { visible = coverElement.classList.contains('--closed'); }
     coverElement.classList.toggle('--open', visible);
@@ -862,14 +858,17 @@ function initSlidePanel(contextElement, { act }) {
     if (!silent) {
       act('sounds', 'play', 'panel' + (visible ? 'Open' : 'Close'));
     }
+    await delayedPromise(toggleDuration);
   }
   function toggleDisabled(disabled) {
     state.disabled = disabled;
   }
   const ledElement = coverElement.querySelector('.power-led');
-  function togglePowerLED(on) {
+  const ledDuration = getComputedTransitionDurations(ledElement)[0];
+  async function togglePowerLED(on) {
     if (on == null) { on = ledElement.classList.contains('--on'); }
     ledElement.classList.toggle('--on', on);
+    await delayedPromise(ledDuration);
   }
   toggle(false, true);
   coverElement.addEventListener('click', event => {
@@ -879,7 +878,8 @@ function initSlidePanel(contextElement, { act }) {
   return { toggle, toggleDisabled, togglePowerLED };
 }
 
-function initSounds(audioElement, { settings: { soundBackupElements, soundTimeRanges } }) {
+function initSounds(contextElement, { settings: { soundBackupElements, soundTimeRanges } }) {
+  const audioElement = contextElement.querySelector('audio');
   const backupElements = [...Array(soundBackupElements)].map(() => audioElement.cloneNode());
   backupElements.forEach(element => audioElement.parentElement.appendChild(element));
   const players = [audioElement, ...backupElements].map(createAudioClipPlayer);
