@@ -10,7 +10,8 @@
 <link rel="stylesheet" href="//assets.pengxwang.com/codepen-resources/common-helpers/main-v2.css">
 ```
 
-```html<!-- using: -bar-layout -blink -centered -input-style-none -invisible -->
+```html
+<!-- using: -bar-layout -blink -centered -input-style-none -invisible -->
 <div class="container">
 
 <div class="device -centered -input-style-none">
