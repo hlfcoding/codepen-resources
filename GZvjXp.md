@@ -446,6 +446,7 @@ function initApp() {
       prompt: [4, 4.5], // examples.phaser.io/assets/audio/SoundEffects/fx_mixdown.ogg
     },
   };
+  let api = {};
   const shared = {
     async act(targetName, methodName, ...parameters) {
       const target = api[targetName];
@@ -456,7 +457,7 @@ function initApp() {
     },
     settings,
   };
-  let api = Object.assign({}, shared, {
+  Object.assign(api, shared, {
     buttons: initButtons(rootElement, shared),
     slidePanel: initSlidePanel(rootElement, shared),
     sounds: initSounds(rootElement, shared),
