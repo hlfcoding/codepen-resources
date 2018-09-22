@@ -852,9 +852,8 @@ function initSlidePanel(contextElement, { act }) {
   let coverElement = rootElement.querySelector('.cover');
   let state = { disabled: false };
   const toggleDuration = getComputedTransitionDurations(coverElement)[0];
-  async function toggle(visible, silent = false) {
+  async function toggle(visible = coverElement.classList.contains('--closed'), silent = false) {
     if (state.disabled) { return; }
-    if (visible == null) { visible = coverElement.classList.contains('--closed'); }
     coverElement.classList.toggle('--open', visible);
     coverElement.classList.toggle('--closed', !visible);
     if (!silent) {
@@ -867,8 +866,7 @@ function initSlidePanel(contextElement, { act }) {
   }
   const ledElement = coverElement.querySelector('.power-led');
   const ledDuration = getComputedTransitionDurations(ledElement)[0];
-  async function togglePowerLED(on) {
-    if (on == null) { on = ledElement.classList.contains('--on'); }
+  async function togglePowerLED(on = ledElement.classList.contains('--on')) {
     ledElement.classList.toggle('--on', on);
     await delayedPromise(ledDuration);
   }
