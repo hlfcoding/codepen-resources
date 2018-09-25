@@ -535,7 +535,7 @@ function createGreetState({ states, cli }) {
 }
 
 function createOffState({ states, powerButton }, { act }) {
-  async function powerOnListener(event) {
+  async function powerOnListener(_) {
     await delayedPromise(300); 
     act('sounds', 'play', 'power');
     await powerButton.toggleVisible(false);
@@ -618,13 +618,13 @@ function createCLI(rootElement, contextElement, { act }) {
       onInputFocus();
     }
   }
-  function onInputBlur(event) {
+  function onInputBlur(_) {
     if (!state.lineElement) { return; }
     const cursor = state.lineElement.querySelector('.cursor');
     if (!cursor) { return; }
     cursor.classList.remove('-blink');
   }
-  function onInputFocus(event) {
+  function onInputFocus(_) {
     if (!state.lineElement) { return; }
     const cursor = state.lineElement.querySelector('.cursor');
     if (!cursor) { return; }
@@ -701,14 +701,14 @@ function createPowerButton(rootElement, { settings: { powerButtonLayout: layout 
     state.isOn = true;
   };
   forEach(state.animations, (_, a) => a.pause());
-  function onEnter(event) {
+  function onEnter(_) {
     if (!isInteractive()) { return; }
     forEach(state.animations, (_, a) => {
       if (a.playState === 'paused') { return a.play(); }
       a.reverse();
     });
   }
-  function onLeave(event) {
+  function onLeave(_) {
     if (!isInteractive()) { return; }
     forEach(state.animations, (_, a) => a.reverse());
   }
@@ -800,12 +800,12 @@ function createCanvas(rootElement, { settings: { shapeLayerOpaqueValue, shapeLay
 }
 
 function initButtons(contextElement, { act }) {
-  function clickListener(event) {
+  function onClick(event) {
     if (event.currentTarget.getAttribute('disabled')) { return; }
     act('sounds', 'play', 'button');
   }
   [...contextElement.querySelectorAll(`[type=button]`)].forEach(element => {
-    element.addEventListener('click', clickListener);
+    element.addEventListener('click', onClick);
   });
   async function click(name) {
     let buttonElement = contextElement.querySelector(`[type=button][name=${name}]`);
