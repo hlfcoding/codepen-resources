@@ -208,6 +208,7 @@
 }
 
 .-display-skin {
+  --color: var(--display-base);
   background-color: #111;
   background-image: linear-gradient(var(--light-2), transparent);
   border-color: transparent;
@@ -228,11 +229,13 @@
 }
 
 .-display-skin>.body {
-  --color: var(--display-base);
   color: var(--color);
   font: 15px/1.7 'Menlo', 'Consolas', monospace;
   padding: var(--bezel);
-  text-shadow: 0 -1px 0 var(--shade-9);
+  text-shadow: 0 0 1px var(--color);
+}
+.-display-skin svg {
+  filter: drop-shadow(0 0 1px var(--color));
 }
 .-display-skin .power-button .dot {
   fill: var(--color);
