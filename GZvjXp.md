@@ -449,6 +449,12 @@ function initApp() {
       power: [5, 5.9], // examples.phaser.io/assets/audio/SoundEffects/fx_mixdown.ogg
       prompt: [4, 4.5], // examples.phaser.io/assets/audio/SoundEffects/fx_mixdown.ogg
     },
+    timing: {
+      cliInputDelay: 500,
+      gameLeaveDelay: 1000,
+      greetLeaveDelay: 1000,
+      powerAnimationDuration: 500,
+    },
   };
   let api = {};
   const shared = {
@@ -473,7 +479,7 @@ function initApp() {
 
 function createGameState(
   { states, canvas, cli, contextElement },
-  { act, settings: { buttonShapesByName, demoButtonName, shapeLimit } }
+  { act, settings: { buttonShapesByName, demoButtonName, shapeLimit, timing } }
 ) {
   let drawn;
   function drawListener({ target: button }) {
@@ -508,14 +514,14 @@ function createGameState(
       act('slidePanel', 'toggleDisabled', true);
       await delayedPromise(600);
       await cli.echo('too much, need rest...');
-      await delayedPromise(1000);
+      await delayedPromise(timing.gameLeaveDelay);
       cli.clear();
       act('slidePanel', 'toggleDisabled', false);
     },
   };
 }
 
-function createGreetState({ states, cli }) {
+function createGreetState({ states, cli }, { settings: { timing } }) {
   return {
     name: 'greet',
     async enter() {
@@ -528,7 +534,7 @@ function createGreetState({ states, cli }) {
         : /^n/i.test(response) ? 'going to force you...'
         : 'i don\'t understand, going to force you...'
       );
-      await delayedPromise(1000);
+      await delayedPromise(timing.greetLeaveDelay);
       states.next();
     },
     leave() {
@@ -565,8 +571,7 @@ function createOffState({ states, powerButton }, { act }) {
 }
 
 // a stateful cli subview with a promise-based api
-function createCLI(rootElement, contextElement, { act }) {
-  const pauseDuration = 500;
+function createCLI(rootElement, contextElement, { act, settings: { timing } }) {
   const inputElement = rootElement.querySelector('input[type=text]');
   const initialReadingState = () => ({
     input: '',
@@ -591,7 +596,7 @@ function createCLI(rootElement, contextElement, { act }) {
   let state = initialState();
   function beginReading() {
     state.lineElement = createLineElement();
-    delay(pauseDuration, () => {
+    delay(timing.cliInputDelay, () => {
       updateReading();
       state.lineElement.scrollIntoView();
       act('sounds', 'play', 'prompt');
@@ -612,7 +617,7 @@ function createCLI(rootElement, contextElement, { act }) {
         break;
       case 'submit':
         const { resolve } = state.pendingReading;
-        delay(pauseDuration, () => resolve(state.input));
+        delay(timing.cliInputDelay, () => resolve(state.input));
         break;
     }
     const cursor = (action === 'submit') ? '' : '<span class="cursor">&marker;</span>';
@@ -680,7 +685,7 @@ function createCLI(rootElement, contextElement, { act }) {
 }
 
 // simple subview
-function createPowerButton(rootElement, { settings: { powerButtonLayout: layout } }) {
+function createPowerButton(rootElement, { settings: { powerButtonLayout: layout, timing } }) {
   const { radius, endRadiusRatio: ratio } = layout;
   let state = { animations: { dot: null, ring: null }, isOn: false };
   const center = { x: rootElement.clientWidth / 2, y: rootElement.clientHeight / 2 };
@@ -692,7 +697,7 @@ function createPowerButton(rootElement, { settings: { powerButtonLayout: layout 
   let dotElement = buttonElement.querySelector('.dot');
   setAttributes(dotElement, { cx: center.x, cy: center.y, r: radius.dot });
   // animate
-  const options = { duration: 500, easing: 'ease-in-out', fill: 'both' };
+  const options = { duration: timing.powerAnimationDuration, easing: 'ease-in-out', fill: 'both' };
   Object.assign(state.animations, {
     ring: ringElement.animate({ r: [radius.ring, radius.ring * ratio.ring] }, options),
     dot: dotElement.animate({ r: [radius.dot, radius.dot * ratio.dot] }, options),
