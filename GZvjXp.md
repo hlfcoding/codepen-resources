@@ -11,6 +11,54 @@
 ```
 
 ```html
+<script id="settings" type="application/json">
+{
+  "buttonShapesByName": {
+    "A": "triangle",
+    "B": "square",
+    "C": "circle",
+    "D": "semicircle"
+  },
+  "demoButtonName": "A",
+  "powerButtonLayout": {
+    "radius": { "ring": 30, "dot": 5 },
+    "endRadiusRatio": { "ring": 0.5, "dot": 2 }
+  },
+  "shapeLayerOpaqueValue": 0.1,
+  "shapeLayout": {
+    "baseAttributes": { "stroke-width": 2 },
+    "boundsPaddingRatio": { "x": 0.1, "y": 0.2 },
+    "gridResolution": 10,
+    "rectCorner": 6,
+    "sizeLimits": { "min": 0.1, "scale": 0.5 }
+  },
+  "shapeLimit": 10,
+  "soundBackupElements": 3,
+  "soundTimeRanges": {
+    "button": [2, 2.5],
+    "error": [3, 3.9],
+    "panelClose": [0, 0.5],
+    "panelOpen": [1, 1.5],
+    "power": [5, 5.9],
+    "prompt": [4, 4.5]
+  },
+  "timing": {
+    "cliInputDelay": 500,
+    "gameLeaveDelay": 1000,
+    "greetLeaveDelay": 1000,
+    "powerAnimationDuration": 500
+  }
+}
+</script>
+<!--
+  button: Button-SoundBible.com-1420500901.mp3
+  error: Computer Error Alert-SoundBible.com-783113881.mp3
+  panelClose: Button Click Off-SoundBible.com-1730098776.mp3
+  panelOpen: Click On-SoundBible.com-1697535117.mp3
+  power: examples.phaser.io/assets/audio/SoundEffects/fx_mixdown.ogg
+  prompt: examples.phaser.io/assets/audio/SoundEffects/fx_mixdown.ogg
+-->
+
 <!-- using: -bar-layout -blink -centered -input-style-none -invisible -->
 <div class="container">
 
@@ -419,43 +467,7 @@ document.onreadystatechange = () => {
 function initApp() {
   let rootElement = document.querySelector('.device');
   rootElement.classList.add('--ready');
-  const settings = {
-    buttonShapesByName: {
-      A: 'triangle',
-      B: 'square',
-      C: 'circle',
-      D: 'semicircle',
-    },
-    demoButtonName: 'A',
-    powerButtonLayout: {
-      radius: { ring: 30, dot: 5 },
-      endRadiusRatio: { ring: 0.5, dot: 2 },
-    },
-    shapeLayerOpaqueValue: 0.1,
-    shapeLayout: {
-      baseAttributes: { 'stroke-width': 2 },
-      boundsPaddingRatio: { x: 0.1, y: 0.2 },
-      gridResolution: 10,
-      rectCorner: 6,
-      sizeLimits: { min: 0.1, scale: 0.5 },
-    },
-    shapeLimit: 10,
-    soundBackupElements: 3,
-    soundTimeRanges: {
-      button: [2, 2.5], // Button-SoundBible.com-1420500901.mp3
-      error: [3, 3.9], // Computer Error Alert-SoundBible.com-783113881.mp3
-      panelClose: [0, 0.5], // Button Click Off-SoundBible.com-1730098776.mp3
-      panelOpen: [1, 1.5], // Click On-SoundBible.com-1697535117.mp3
-      power: [5, 5.9], // examples.phaser.io/assets/audio/SoundEffects/fx_mixdown.ogg
-      prompt: [4, 4.5], // examples.phaser.io/assets/audio/SoundEffects/fx_mixdown.ogg
-    },
-    timing: {
-      cliInputDelay: 500,
-      gameLeaveDelay: 1000,
-      greetLeaveDelay: 1000,
-      powerAnimationDuration: 500,
-    },
-  };
+  const settings = JSON.parse(document.querySelector('script#settings').innerHTML);
   let api = {};
   const shared = {
     async act(targetName, methodName, ...parameters) {
