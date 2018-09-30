@@ -46,7 +46,11 @@
     "cliInputDelay": 500,
     "gameLeaveDelay": 1000,
     "greetLeaveDelay": 1000,
-    "powerAnimationDuration": 500
+    "offLeaveDelay": 200,
+    "powerAnimationDuration": 500,
+    "powerOnPause": 300,
+    "selfClickDelay": 300,
+    "slideEndDelay": 600
   }
 }
 </script>
@@ -515,7 +519,7 @@ function createGameState(
       await delayedPromise(0);
       act('buttons', 'toggleDisabled', false);
       await act('slidePanel', 'toggle', true);
-      await delayedPromise(600);
+      await delayedPromise(timing.slideEndDelay);
       act('buttons', 'click', demoButtonName);
     },
     async leave() {
@@ -524,7 +528,7 @@ function createGameState(
       act('sounds', 'play', 'error');
       await act('slidePanel', 'toggle', false);
       act('slidePanel', 'toggleDisabled', true);
-      await delayedPromise(600);
+      await delayedPromise(timing.slideEndDelay);
       await cli.echo('too much, need rest...');
       await delayedPromise(timing.gameLeaveDelay);
       cli.clear();
@@ -555,13 +559,13 @@ function createGreetState({ states, cli }, { settings: { timing } }) {
   };
 }
 
-function createOffState({ states, powerButton }, { act }) {
+function createOffState({ states, powerButton }, { act, settings: { timing } }) {
   async function powerOnListener(_) {
-    await delayedPromise(300); 
+    await delayedPromise(timing.powerOnPause); 
     act('sounds', 'play', 'power');
     await powerButton.toggleVisible(false);
     await act('slidePanel', 'togglePowerLED', true);
-    await delayedPromise(200);
+    await delayedPromise(timing.offLeaveDelay);
     states.next();
   };
   return {
@@ -819,7 +823,7 @@ function createCanvas(rootElement, { settings: { shapeLayerOpaqueValue, shapeLay
   return { draw, erase };
 }
 
-function initButtons(contextElement, { act }) {
+function initButtons(contextElement, { act, settings: { timing } }) {
   function onClick(event) {
     if (event.currentTarget.getAttribute('disabled')) { return; }
     act('sounds', 'play', 'button');
@@ -832,7 +836,7 @@ function initButtons(contextElement, { act }) {
     if (!buttonElement) { return; }
     const click = new MouseEvent('click', {bubbles: true, cancelable: true});
     buttonElement.classList.add('--hover', '--active');
-    await delayedPromise(300);
+    await delayedPromise(timing.selfClickDelay);
     buttonElement.dispatchEvent(click);
     buttonElement.classList.remove('--hover', '--active');
   }
