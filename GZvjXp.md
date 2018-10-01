@@ -69,7 +69,6 @@
 <div class="device -centered -input-style-none">
   <div class="body -panel-skin">
     <div class="main-screen -display-skin">
-      <div class="tint" role="presentation"></div>
       <div class="scanlines" role="presentation"></div>
       <div class="body">
         <div class="cli" data-module="cli">
@@ -82,6 +81,7 @@
           </g>
         </svg>
       </div>
+      <div class="tint" role="presentation"></div>
     </div><!--/main-screen-->
     <div class="buttons-panel -slide-panel" data-module="slide-panel">
       <div class="cover">
@@ -320,8 +320,10 @@
   opacity: .3;
   transition: opacity .3s ease-in-out;
 }
-.-display-skin.--hover>.tint,
-.-display-skin:hover>.tint {
+.-display-skin:not(.--active)>.tint {
+  cursor: pointer;
+}
+.-display-skin.--active:hover>.tint {
   opacity: 0;
 }
 
@@ -414,6 +416,7 @@ body>.container {
   /* fixed so it doesn't scroll
      only positions correctly as first child */
   position: fixed;
+  top: calc(var(--bezel) + var(--edges));
   width: calc(var(--display-width) - var(--edges));
 }
 @media (hover: none) {
@@ -857,17 +860,25 @@ function initMainScreen(contextElement, shared) {
   const rootElement = contextElement.querySelector('.main-screen');
   const cliElement = rootElement.querySelector('[data-module=cli]');
   const canvasElement = rootElement.querySelector('[data-module=canvas]');
+  const tintElement = rootElement.querySelector('.tint');
   const cli = createCLI(cliElement, rootElement, shared);
   const powerButton = createPowerButton(canvasElement, shared);
   const canvas = createCanvas(canvasElement, shared);
-  function toggleClass(className, on) {
-    rootElement.classList.toggle(className, on);
-  }
   let states = createStateMachine();
   states.push(createOffState({ states, powerButton }, shared));
   states.push(createGreetState({ states, cli }, shared));
   states.push(createGameState({ states, canvas, cli, contextElement }, shared));
   delay(0, () => states.to('off'));
+  function activateListener() {
+    const { parentElement } = tintElement;
+    parentElement.insertBefore(tintElement, parentElement.firstChild);
+    toggleClass('--active', true);
+    tintElement.removeEventListener('click', activateListener);
+  }
+  tintElement.addEventListener('click', activateListener);
+  function toggleClass(className, on) {
+    rootElement.classList.toggle(className, on);
+  }
   return { toggleClass };
 }
 
