@@ -37,14 +37,15 @@ export function createStateMachine() {
   return states;
 }
 
-export function animateChars({ completion, element, stepDuration, string }) {
+export function animateChars({ completion, element, getStepDuration, string }) {
   completion = resolveCompletion(completion);
-  stepDuration = stepDuration || 30;
+  getStepDuration = getStepDuration || ((_) => 30);
   let chars = string.split('');
   function step() {
     if (!chars.length) { return completion(); }
-    element.textContent += chars.shift();
-    delay(stepDuration, () => { requestAnimationFrame(step); });
+    const char = chars.shift();
+    element.textContent += char;
+    delay(getStepDuration(char), () => { requestAnimationFrame(step); });
   }
   requestAnimationFrame(step);
 }
