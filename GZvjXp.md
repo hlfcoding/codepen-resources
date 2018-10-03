@@ -697,7 +697,10 @@ function createCLI(rootElement, contextElement, { act, settings: { timing } }) {
       endReading();
       // animate
       return new Promise((resolve, reject) => {
-        animateChars({ element: lineElement, string: message, completion: resolve });
+        animateChars({
+          element: lineElement, string: message, completion: resolve,
+          getStepDuration(c) { return (c === ',') ? 300 : 30 },
+        });
       });
     },
   };
