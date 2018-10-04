@@ -541,6 +541,10 @@ function createGameState(
 }
 
 function createGreetState({ states, cli }, { settings: { timing } }) {
+  const patterns = {
+    no: /^n(a(h|y)?|ever|o(pe)?)$/i,
+    yes: /^ok(ay|ie)?|sure|y(a|e)(ah?|p|s|y)?$/i,
+  };
   return {
     name: 'greet',
     async enter() {
@@ -549,8 +553,8 @@ function createGreetState({ states, cli }, { settings: { timing } }) {
       await cli.echo(`play a game, ${name}?`);
       const response = await cli.read();
       await cli.echo(
-        /^y/i.test(response) ? 'great...'
-        : /^n/i.test(response) ? 'going to force you...'
+        patterns.yes.test(response) ? 'great...'
+        : patterns.no.test(response) ? 'going to force you...'
         : 'i don\'t understand, going to force you...'
       );
       await delayedPromise(timing.greetLeaveDelay);
