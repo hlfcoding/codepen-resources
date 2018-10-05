@@ -275,7 +275,7 @@
     0 0 var(--corner-inner) 1px var(--light-8); /* highlight */
 }
 .-display-skin>.scanlines {
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAD0lEQVQYV2NgYGAwZgABAAE8ADSqC3qCAAAAAElFTkSuQmCC');
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAADElEQVQYV2NggAJfAABXAE62dfEOAAAAAElFTkSuQmCC');
   border-radius: calc(var(--corner-inner) - 1px);
   margin: 1px;
 }
@@ -419,9 +419,11 @@ body>.container {
   top: calc(var(--bezel) + var(--edges));
   width: calc(var(--display-width) - var(--edges));
 }
-@media (hover: none) {
-  .device .main-screen>.scanlines { z-index: 9; }
-  .device .main-screen>.tint { z-index: 10; }
+.device .main-screen>.scanlines { z-index: 9; }
+.device .main-screen>.tint { z-index: 10; }
+.device .main-screen.--active>.scanlines,
+.device .main-screen.--active>.tint { pointer-events: none; }
+@media (hover: none) { /* TODO */
   .device .main-screen:hover>.body .canvas { z-index: 20; }
 }
 
