@@ -43,6 +43,11 @@
     "prompt": [4, 4.5]
   },
   "timing": {
+    "characterPauses": {
+      ",": 300,
+      ".": 100,
+      "default": 30
+    },
     "cliInputDelay": 500,
     "gameLeaveDelay": 1000,
     "greetLeaveDelay": 1000,
@@ -702,10 +707,11 @@ function createCLI(rootElement, contextElement, { act, settings: { timing } }) {
       lineElement.scrollIntoView();
       endReading();
       // animate
+      const { characterPauses: pauses } = timing;
       return new Promise((resolve, reject) => {
         animateChars({
           element: lineElement, string: message, completion: resolve,
-          getStepDuration(c) { return (c === ',') ? 300 : 30 },
+          getStepDuration(c) { return (pauses[c]) ? pauses[c] : pauses.default },
         });
       });
     },
