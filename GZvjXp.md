@@ -354,6 +354,7 @@ body>.container {
 }
 .device>.body {
   padding: var(--bezel) 0;
+  position: relative;
 }
 .device .buttons-panel {
   --button-gutter: 11px;
