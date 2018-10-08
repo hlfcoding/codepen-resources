@@ -526,7 +526,6 @@ function createGameState(
     async enter() {
       drawn = 0;
       contextElement.addEventListener('click', drawListener);
-      // draw first
       await delayedPromise(0);
       act('buttons', 'toggleDisabled', false);
       await act('slidePanel', 'toggle', true);
@@ -601,7 +600,6 @@ function createOffState({ states, powerButton }, { act, settings: { timing } }) 
   };
 }
 
-// a stateful cli subview with a promise-based api
 function createCLI(rootElement, contextElement, { act, settings: { timing } }) {
   const inputElement = rootElement.querySelector('input[type=text]');
   const initialReadingState = () => ({
@@ -707,7 +705,6 @@ function createCLI(rootElement, contextElement, { act, settings: { timing } }) {
       let lineElement = createLineElement();
       lineElement.scrollIntoView();
       endReading();
-      // animate
       const { characterPauses: pauses } = timing;
       return new Promise((resolve, reject) => {
         animateChars({
@@ -719,19 +716,16 @@ function createCLI(rootElement, contextElement, { act, settings: { timing } }) {
   };
 }
 
-// simple subview
 function createPowerButton(rootElement, { settings: { powerButtonLayout: layout, timing } }) {
   const { radius, endRadiusRatio: ratio } = layout;
   let state = { animations: { dot: null, ring: null }, isOn: false };
   const center = { x: rootElement.clientWidth / 2, y: rootElement.clientHeight / 2 };
-  // svg styling props often need to be attributes
   let buttonElement = rootElement.querySelector('.power-button');
   buttonElement.setAttribute('opacity', 0);
   let ringElement = buttonElement.querySelector('.ring');
   setAttributes(ringElement, { cx: center.x, cy: center.y, r: radius.ring, 'stroke-width': 2 });
   let dotElement = buttonElement.querySelector('.dot');
   setAttributes(dotElement, { cx: center.x, cy: center.y, r: radius.dot });
-  // animate
   const options = { duration: timing.powerAnimationDuration, easing: 'ease-in-out', fill: 'both' };
   Object.assign(state.animations, {
     ring: ringElement.animate({ r: [radius.ring, radius.ring * ratio.ring] }, options),
@@ -760,7 +754,6 @@ function createPowerButton(rootElement, { settings: { powerButtonLayout: layout,
   }
   buttonElement.addEventListener('mouseenter', onEnter);
   buttonElement.addEventListener('mouseleave', onLeave);
-  // api
   function toggleAttached(attached) {
     if (attached) {
       rootElement.appendChild(buttonElement);
@@ -787,7 +780,6 @@ function createPowerButton(rootElement, { settings: { powerButtonLayout: layout,
   return { rootElement, toggleAttached, toggleVisible };
 }
 
-// a basic subview factory
 function createCanvas(rootElement, { settings: { shapeLayerOpaqueValue, shapeLayout } }) {
   function snap(number) {
     return number.toFixed(log10(shapeLayout.gridResolution)) * 1;
