@@ -126,6 +126,7 @@
   --panel-dark: #6f6f6f;
   --panel-darker: #3c3c3c;
   --panel-depth: 2px;
+  --panel-depth-outer: 3px;
   --panel-drop-diffuse: 10px;
   --panel-texture: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFUlEQVQYV2NkYGCQZGBgeM7IAAGSAAqqARzZRIhzAAAAAElFTkSuQmCC');
   /* front to back */
@@ -134,13 +135,14 @@
     inset 0 0 2px var(--shade-3), /* inner edges */
     inset 0 0 1px 1px var(--shade-1),
     0 1px 0 var(--panel-darker), /* edge */
-    0 calc(var(--panel-depth) + 1px) 0 var(--panel-dark), /* edge */
-    0 calc(var(--panel-depth) + 2px) 0 var(--panel-darker); /* edge shadow */
+    0 var(--panel-depth-outer) 0 var(--panel-dark), /* edge */
+    0 calc(var(--panel-depth-outer) + 1px) 0 var(--panel-darker); /* edge shadow */
   background-color: var(--panel-base);
   background-image:
     linear-gradient(var(--light-5), transparent var(--display-height)),
     var(--panel-texture);
   border-radius: var(--corner);
+  margin-top: calc(-1 * (var(--panel-depth-outer) + 1px));
 }
 
 .-panel-skin .-button-skin {
