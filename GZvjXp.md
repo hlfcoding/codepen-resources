@@ -879,13 +879,13 @@ function initMainScreen(contextElement, shared) {
   states.push(createGreetState({ states, cli }, shared));
   states.push(createGameState({ states, canvas, cli, contextElement }, shared));
   delay(0, () => states.to('off'));
-  function activateListener() {
+  function activateListener(_) {
     const { parentElement } = tintElement;
     parentElement.insertBefore(tintElement, parentElement.firstChild);
     toggleClass('--active', true);
-    tintElement.removeEventListener('click', activateListener);
+    contextElement.removeEventListener('click', activateListener);
   }
-  tintElement.addEventListener('click', activateListener);
+  contextElement.addEventListener('click', activateListener);
   function toggleClass(className, on) {
     rootElement.classList.toggle(className, on);
   }
