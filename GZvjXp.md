@@ -42,6 +42,9 @@
     "power": [5, 5.9],
     "prompt": [4, 4.5]
   },
+  "soundVolumes": {
+    "default": 0.5
+  },
   "timing": {
     "characterPauses": {
       ",": 300,
@@ -923,8 +926,9 @@ function initSlidePanel(contextElement, { act }) {
   return { toggle, toggleDisabled, togglePowerLED };
 }
 
-function initSounds(contextElement, { settings: { soundBackupElements, soundTimeRanges } }) {
-  const audioElement = contextElement.querySelector('audio');
+function initSounds(contextElement, { settings: { soundBackupElements, soundTimeRanges, soundVolumes } }) {
+  let audioElement = contextElement.querySelector('audio');
+  audioElement.volume = soundVolumes.default;
   const backupElements = [...Array(soundBackupElements)].map(() => audioElement.cloneNode());
   backupElements.forEach(element => audioElement.parentElement.appendChild(element));
   const players = [audioElement, ...backupElements].map(createAudioClipPlayer);
