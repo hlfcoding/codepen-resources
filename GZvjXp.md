@@ -43,7 +43,11 @@
     "prompt": [4, 4.5]
   },
   "soundVolumes": {
-    "default": 0.5
+    "default": 0.5,
+    "button": 0.2,
+    "panelClose": 0.2,
+    "panelOpen": 0.3,
+    "prompt": 0.3
   },
   "timing": {
     "characterPauses": {
@@ -928,13 +932,13 @@ function initSlidePanel(contextElement, { act }) {
 
 function initSounds(contextElement, { settings: { soundBackupElements, soundTimeRanges, soundVolumes } }) {
   let audioElement = contextElement.querySelector('audio');
-  audioElement.volume = soundVolumes.default;
   const backupElements = [...Array(soundBackupElements)].map(() => audioElement.cloneNode());
   backupElements.forEach(element => audioElement.parentElement.appendChild(element));
   const players = [audioElement, ...backupElements].map(createAudioClipPlayer);
   function play(track) {
     const player = players.find(({ element }) => element.paused);
     if (!player) { return console.warn(`no available player for track '${track}'`); }
+    player.element.volume = soundVolumes[track] || soundVolumes.default;
     player.play(soundTimeRanges[track]);
   }
   return { play };
