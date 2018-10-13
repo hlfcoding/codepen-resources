@@ -363,7 +363,7 @@ body>.container {
 }
 .device>.body {
   padding: var(--bezel) 0;
-  position: relative;
+  position: relative; /* FIXME: Hack against mysterious gray patch that's somewhat effective. */
 }
 .device .buttons-panel {
   --button-gutter: 11px;
