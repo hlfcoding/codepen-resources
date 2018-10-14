@@ -78,17 +78,12 @@ export function createAudioClipPlayer(element, tick = 10) {
 }
 
 export function delay(duration, completion) {
-  return setTimeout(resolveCompletion(completion), duration);
-}
-
-export function delayed(duration, completion) {
-  return function() { delay(duration, completion); };
-}
-
-export function delayedPromise(duration, completion) {
-  return new Promise(function(resolve, reject) {
-    delay(duration, resolve);
-  });
+  if (completion == null) {
+    return new Promise(function(resolve, reject) {
+      setTimeout(duration, resolve);
+    });
+  }
+  return setTimeout(completion, duration);
 }
 
 export function fixActiveStateForTouch(element) {
