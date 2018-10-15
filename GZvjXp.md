@@ -130,11 +130,17 @@
 
 .-panel-skin {
   --panel-base: #bbb;
+  --panel-base-dark: #aaa;
+  --panel-base-darker: #a2a2a2;
   --panel-dark: #6f6f6f;
   --panel-darker: #3c3c3c;
   --panel-depth: 2px;
   --panel-depth-outer: 3px;
   --panel-drop-diffuse: 10px;
+  --panel-highlight: var(--light-5);
+  --panel-highlight-strong: var(--light-8);
+  --panel-highlight-weak: var(--light-3);
+  --panel-interior: #777;
   --panel-texture: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFUlEQVQYV2NkYGCQZGBgeM7IAAGSAAqqARzZRIhzAAAAAElFTkSuQmCC');
   /* front to back */
   --panel-shadows:
@@ -146,30 +152,42 @@
     0 calc(var(--panel-depth-outer) + 1px) 0 var(--panel-darker); /* edge shadow */
   background-color: var(--panel-base);
   background-image:
-    linear-gradient(var(--light-5), transparent var(--display-height)),
+    linear-gradient(var(--panel-highlight), transparent var(--display-height)),
     var(--panel-texture);
   border-radius: var(--corner);
   margin-top: calc(-1 * (var(--panel-depth-outer) + 1px));
 }
 
+.--dark .-panel-skin {
+  --panel-base: #444;
+  --panel-base-dark: #333;
+  --panel-base-darker: #222;
+  --panel-dark: #222;
+  --panel-darker: #111;
+  --panel-highlight: var(--light-2);
+  --panel-highlight-strong: var(--light-3);
+  --panel-highlight-weak: var(--light-1);
+  --panel-interior: #333;
+}
+
 .-panel-skin .-button-skin {
   background-color: var(--panel-base);
-  background-image: linear-gradient(var(--light-5), transparent);
+  background-image: linear-gradient(var(--panel-highlight), transparent);
   border: 0;
   border-radius: var(--corner-inner);
   /* front to back */
   box-shadow:
-    inset 0 0 0 1px var(--light-3), /* inner edge */
+    inset 0 0 0 1px var(--panel-highlight-weak), /* inner edge */
     inset 0 0 var(--corner) var(--shade-2), /* contour */
     0 var(--panel-depth) 0 var(--panel-dark), /* edge */
     0 calc(var(--panel-depth) + 1px) 0 var(--panel-darker), /* edge shadow */
     0 var(--panel-depth) 3px 1px var(--shade-5); /* diffuse */
-  color: #666;
+  color: var(--panel-dark);
   font-weight: bold;
   outline: none;
   text-shadow:
     0 -1px 0 var(--shade-3),
-    0 1px 0 var(--light-5);
+    0 1px 0 var(--panel-highlight);
   transition: color .2s ease-in-out, margin .1s ease-out;
 }
 .-panel-skin .-button-skin:not([disabled]) {
@@ -177,12 +195,12 @@
 }
 .-panel-skin .-button-skin:not([disabled]).--hover,
 .-panel-skin .-button-skin:not([disabled]):hover {
-  background-image: linear-gradient(var(--light-9), transparent);
+  background-image: linear-gradient(var(--panel-highlight-strong), transparent);
 }
 .-panel-skin .-button-skin:not([disabled]).--active,
 .-panel-skin .-button-skin:not([disabled]):active {
-  background-color: #a2a2a2;
-  background-image: linear-gradient(var(--light-5), transparent);
+  background-color: var(--panel-base-dark);
+  background-image: linear-gradient(var(--panel-highlight-weak), transparent);
   /* front to back */
   box-shadow:
     inset 0 0 1px 1px var(--shade-2), /* shadow */
@@ -196,13 +214,13 @@
 }
 
 .-panel-skin .-slide-panel {
-  border-bottom: 1px solid var(--light-5);
+  border-bottom: 1px solid var(--panel-highlight);
   border-top: 1px solid var(--shade-2);
 }
 .-panel-skin .-slide-panel .cover {
   background: var(--panel-base) var(--panel-texture) repeat;
   border-bottom: 1px solid var(--shade-2);
-  border-top: 1px solid var(--light-5);
+  border-top: 1px solid var(--panel-highlight);
   cursor: pointer;
   padding-top: 1px;
 }
@@ -235,27 +253,27 @@
     inset 0 0 var(--bezel) var(--shade-3), /* contour */
     inset 0 0 2px var(--shade-3), /* inner edges */
     inset 0 0 1px 1px var(--shade-1);
-  color: #aaa;
+  color: var(--panel-base-dark);
   font: bold 56px Helvetica, sans-serif;
   text-align: center;
   text-shadow:
     0 -1px 0 var(--shade-3),
-    0 1px 0 var(--light-5);
+    0 1px 0 var(--panel-highlight);
 }
 .-panel-skin .-slide-panel .cover .symbol::before {
   content: '\00b7';
 }
 .-panel-skin .-slide-panel .inside {
-  background-color: #777;
+  background-color: var(--panel-interior);
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAYAAABLLYUHAAAAGklEQVQIW2NkQAKMMPb///+N4RygoA8yhwEAYOgDgYLmjHMAAAAASUVORK5CYII=');
-  border-color: var(--shade-5) var(--shade-4) var(--light-8);
+  border-color: var(--shade-5) var(--shade-4) var(--panel-highlight-strong);
   border-style: solid;
   border-width: 2px 1px 1px;
   /* front to back */
   box-shadow:
     inset 0 1px var(--bezel) var(--shade-5), /* diffuse */
-    inset 0 var(--panel-depth) 0 #6a6a6a, /* inner edge */
-    inset 0 calc(var(--panel-depth) + 1px) 0 #515151; /* edge shadow */
+    inset 0 var(--panel-depth) 0 var(--shade-1), /* inner edge */
+    inset 0 calc(var(--panel-depth) + 1px) 0 var(--shade-1); /* edge shadow */
 }
 
 .-panel-skin .-slide-panel .cover {
@@ -285,8 +303,8 @@
   box-shadow:
     inset 0 0 15px var(--shade-5), /* shadow */
     inset 0 0 100px var(--shade-5), /* diffuse */
-    0 0 2px var(--light-8), /* edge */
-    0 0 var(--corner-inner) 1px var(--light-8); /* highlight */
+    0 0 2px var(--panel-highlight-strong), /* edge */
+    0 0 var(--corner-inner) 1px var(--panel-highlight-strong); /* highlight */
 }
 .-display-skin>.scanlines {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAADElEQVQYV2NggAJfAABXAE62dfEOAAAAAElFTkSuQmCC');
@@ -324,8 +342,8 @@
   --falloff-width: calc(var(--display-width) * .25);
   background-image: linear-gradient(
     145deg, /* diagonal gradient */
-    #fff calc(var(--device-width) / 2), /* midpoint before blur */
-    var(--light-5) calc(var(--device-width) / 2 + 4px), /* midpoint */
+    var(--top-light-strong) calc(var(--device-width) / 2), /* midpoint before blur */
+    var(--top-light) calc(var(--device-width) / 2 + 4px), /* midpoint */
     transparent var(--display-size));
   border-radius: calc(var(--corner-inner) - 1px);
   box-shadow:
@@ -342,13 +360,21 @@
 }
 
 body {
-  background: #eee url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAPElEQVQYV2OcNWuWDyMj4/P///9LpqWlbWGcOXOmJAMUpKenP2ecPXu28b9//54xMTFJpaamnmWEycJoAFZbFAVaNOxjAAAAAElFTkSuQmCC') repeat;
+  --top-light: var(--light-5);
+  --top-light-strong: #fff;
+  background-color: #eee;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAPElEQVQYV2OcNWuWDyMj4/P///9LpqWlbWGcOXOmJAMUpKenP2ecPXu28b9//54xMTFJpaamnmWEycJoAFZbFAVaNOxjAAAAAElFTkSuQmCC');
 }
 body>.container {
-  background: linear-gradient(to bottom, var(--light-5), transparent, var(--shade-2));
+  background: linear-gradient(to bottom, var(--top-light), transparent, var(--shade-2));
   height: 100%;
   position: absolute;
   width: 100%;
+}
+body.--dark {
+  --top-light: var(--light-1);
+  --top-light-strong: var(--light-4);
+  background-color: #111;
 }
 
 /* Layout */
