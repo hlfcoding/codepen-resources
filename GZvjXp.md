@@ -78,6 +78,8 @@
 <!-- using: -bar-layout -blink -centered -input-style-none -invisible -->
 <div class="container">
 
+<button class="light-switch" type="button">Light</button>
+
 <div class="device -centered -input-style-none">
   <div class="body -panel-skin">
     <div class="main-screen -display-skin">
@@ -371,6 +373,11 @@ body>.container {
   position: absolute;
   width: 100%;
 }
+.container>button.light-switch {
+  cursor: pointer;
+  opacity: 0;
+  width: 100%;
+}
 body.--dark {
   --top-light: var(--light-1);
   --top-light-strong: var(--light-4);
@@ -531,6 +538,7 @@ function initApp() {
   };
   Object.assign(api, shared, {
     buttons: initButtons(rootElement, shared),
+    light: initLight(document.body),
     slidePanel: initSlidePanel(rootElement, shared),
     sounds: initSounds(rootElement, shared),
   });
@@ -897,6 +905,15 @@ function initButtons(contextElement, { act, settings: { timing } }) {
     });
   }
   return { click, toggleDisabled };
+}
+
+function initLight(contextElement) {
+  let switchElement = contextElement.querySelector('.light-switch');
+  function toggle(on = contextElement.classList.contains('--dark')) {
+    contextElement.classList.toggle('--dark', !on);
+  }
+  switchElement.addEventListener('click', (_) => toggle());
+  return { toggle };
 }
 
 function initMainScreen(contextElement, shared) {
