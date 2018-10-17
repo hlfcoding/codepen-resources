@@ -143,15 +143,16 @@
   --panel-highlight-strong: var(--light-8);
   --panel-highlight-weak: var(--light-3);
   --panel-interior: #777;
+  --panel-shadow: var(--shade-2);
   --panel-texture: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFUlEQVQYV2NkYGCQZGBgeM7IAAGSAAqqARzZRIhzAAAAAElFTkSuQmCC');
   /* front to back */
   --panel-shadows:
     inset 0 0 var(--bezel) var(--shade-3), /* contour */
     inset 0 0 2px var(--shade-3), /* inner edges */
     inset 0 0 1px 1px var(--shade-1),
-    0 1px 0 var(--panel-darker), /* edge */
-    0 var(--panel-depth-outer) 0 var(--panel-dark), /* edge */
-    0 calc(var(--panel-depth-outer) + 1px) 0 var(--panel-darker); /* edge shadow */
+    0 1px 0 var(--shade-4), /* edge */
+    0 var(--panel-depth-outer) 0 var(--light-2), /* edge */
+    0 calc(var(--panel-depth-outer) + 1px) 0 var(--shade-4); /* edge shadow */
   background-color: var(--panel-base);
   background-image:
     linear-gradient(var(--panel-highlight), transparent var(--display-height)),
@@ -170,6 +171,7 @@
   --panel-highlight-strong: var(--light-3);
   --panel-highlight-weak: var(--light-1);
   --panel-interior: #333;
+  --panel-shadow: var(--shade-4);
 }
 
 .-panel-skin .-button-skin {
@@ -217,11 +219,11 @@
 
 .-panel-skin .-slide-panel {
   border-bottom: 1px solid var(--panel-highlight);
-  border-top: 1px solid var(--shade-2);
+  border-top: 1px solid var(--panel-shadow);
 }
 .-panel-skin .-slide-panel .cover {
   background: var(--panel-base) var(--panel-texture) repeat;
-  border-bottom: 1px solid var(--shade-2);
+  border-bottom: 1px solid var(--panel-shadow);
   border-top: 1px solid var(--panel-highlight);
   cursor: pointer;
   padding-top: 1px;
