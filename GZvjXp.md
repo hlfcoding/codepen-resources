@@ -620,7 +620,7 @@ function createGreetState({ states, cli }, { settings: { timing } }) {
 
 function createOffState({ states, powerButton }, { act, settings: { timing } }) {
   async function powerOnListener(_) {
-    await delayedPromise(timing.powerOnPause); 
+    await delayedPromise(timing.powerOnPause);
     act('sounds', 'play', 'power');
     await powerButton.toggleVisible(false);
     await act('slidePanel', 'togglePowerLED', true);
