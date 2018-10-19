@@ -509,7 +509,6 @@ import {
   createAudioClipPlayer,
   createStateMachine,
   delay,
-  delayedPromise,
   forEach,
   getComputedTransitionDurations,
   setAttributes,
@@ -571,10 +570,10 @@ function createGameState(
     async enter() {
       drawn = 0;
       contextElement.addEventListener('click', drawListener);
-      await delayedPromise(0);
+      await delay(0);
       act('buttons', 'toggleDisabled', false);
       await act('slidePanel', 'toggle', true);
-      await delayedPromise(timing.slideEndDelay);
+      await delay(timing.slideEndDelay);
       act('buttons', 'click', demoButtonName);
     },
     async leave() {
@@ -583,9 +582,9 @@ function createGameState(
       act('sounds', 'play', 'error');
       await act('slidePanel', 'toggle', false);
       act('slidePanel', 'toggleDisabled', true);
-      await delayedPromise(timing.slideEndDelay);
+      await delay(timing.slideEndDelay);
       await cli.echo('too much, need rest...');
-      await delayedPromise(timing.gameLeaveDelay);
+      await delay(timing.gameLeaveDelay);
       cli.clear();
       act('slidePanel', 'toggleDisabled', false);
     },
@@ -609,7 +608,7 @@ function createGreetState({ states, cli }, { settings: { timing } }) {
         : patterns.no.test(response) ? 'going to force you...'
         : 'i don\'t understand, going to force you...'
       );
-      await delayedPromise(timing.greetLeaveDelay);
+      await delay(timing.greetLeaveDelay);
       states.next();
     },
     leave() {
@@ -620,11 +619,11 @@ function createGreetState({ states, cli }, { settings: { timing } }) {
 
 function createOffState({ states, powerButton }, { act, settings: { timing } }) {
   async function powerOnListener(_) {
-    await delayedPromise(timing.powerOnPause);
+    await delay(timing.powerOnPause);
     act('sounds', 'play', 'power');
     await powerButton.toggleVisible(false);
     await act('slidePanel', 'togglePowerLED', true);
-    await delayedPromise(timing.offLeaveDelay);
+    await delay(timing.offLeaveDelay);
     states.next();
   };
   return {
@@ -892,7 +891,7 @@ function initButtons(contextElement, { act, settings: { timing } }) {
     if (!buttonElement) { return; }
     const click = new MouseEvent('click', {bubbles: true, cancelable: true});
     buttonElement.classList.add('--hover', '--active');
-    await delayedPromise(timing.selfClickDelay);
+    await delay(timing.selfClickDelay);
     buttonElement.dispatchEvent(click);
     buttonElement.classList.remove('--hover', '--active');
   }
@@ -956,7 +955,7 @@ function initSlidePanel(contextElement, { act }) {
     if (!silent) {
       act('sounds', 'play', 'panel' + (visible ? 'Open' : 'Close'));
     }
-    await delayedPromise(toggleDuration);
+    await delay(toggleDuration);
   }
   function toggleDisabled(disabled) {
     state.disabled = disabled;
@@ -965,7 +964,7 @@ function initSlidePanel(contextElement, { act }) {
   const ledDuration = getComputedTransitionDurations(ledElement)[0];
   async function togglePowerLED(on = ledElement.classList.contains('--on')) {
     ledElement.classList.toggle('--on', on);
-    await delayedPromise(ledDuration);
+    await delay(ledDuration);
   }
   toggle(false, true);
   coverElement.addEventListener('click', event => {

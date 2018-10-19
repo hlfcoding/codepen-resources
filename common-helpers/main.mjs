@@ -80,7 +80,7 @@ export function createAudioClipPlayer(element, tick = 10) {
 export function delay(duration, completion) {
   if (completion == null) {
     return new Promise(function(resolve, reject) {
-      setTimeout(duration, resolve);
+      setTimeout(resolve, duration);
     });
   }
   return setTimeout(completion, duration);
