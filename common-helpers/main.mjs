@@ -21,7 +21,7 @@ export function createStateMachine() {
       }
       states._activeState = (
         (typeof nameOrState === 'string') ?
-        states.find((s) => s.name === nameOrState) : nameOrState
+        states.find(s => s.name === nameOrState) : nameOrState
       );
       getActiveState().enter(); // invoke callback
     },
@@ -39,7 +39,7 @@ export function createStateMachine() {
 
 export function animateChars({ completion, element, getStepDuration, string }) {
   completion = resolveCompletion(completion);
-  getStepDuration = getStepDuration || ((_) => 30);
+  getStepDuration = getStepDuration || (_ => 30);
   let chars = string.split('');
   function step() {
     if (!chars.length) { return completion(); }
@@ -163,7 +163,7 @@ export function setupKeyboardHandling({ element, keyHandlers }) {
 export function showOnReady(completion) {
   document.onreadystatechange = function() {
     if (document.readyState !== 'complete') { return; }
-    [...document.querySelectorAll('.show-on-ready')].forEach((el) => {
+    [...document.querySelectorAll('.show-on-ready')].forEach(el => {
       el.setAttribute('data-ready', '');
     });
     if (completion) { completion(); }
