@@ -30,7 +30,7 @@ export function createStateMachine() {
       if (i === -1) {
         throw 'bad index';
       }
-      i = (states.length - 1 <= i) ? 0 : (i + 1);
+      i = (i >= states.length - 1) ? 0 : (i + 1);
       setActiveState(states[i]);
     },
   });
