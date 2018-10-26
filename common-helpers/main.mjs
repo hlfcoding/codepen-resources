@@ -37,17 +37,18 @@ export function createStateMachine() {
   return states;
 }
 
-export function animateChars({ completion, element, getStepDuration, string }) {
-  completion = resolveCompletion(completion);
+export function animateChars({ element, getStepDuration, string }) {
   getStepDuration = getStepDuration || (_ => 30);
   let chars = string.split('');
-  function step() {
-    if (!chars.length) { return completion(); }
-    const char = chars.shift();
-    element.textContent += char;
-    delay(getStepDuration(char), () => { requestAnimationFrame(step); });
+  return new Promise((resolve, reject) => {
+    function step() {
+      if (!chars.length) { return resolve(); }
+      const char = chars.shift();
+      element.textContent += char;
+      delay(getStepDuration(char), () => { requestAnimationFrame(step); });
+    }
+    requestAnimationFrame(step);
   }
-  requestAnimationFrame(step);
 }
 
 export function createAudioClipPlayer(element, tick = 10) {
@@ -97,12 +98,6 @@ export function forEach(object, callback) {
 export function getComputedTransitionDurations(element) {
   return getComputedStyle(element).transitionDuration.split(',')
     .map(secondsString => parseFloat(secondsString) * 1000);
-}
-
-export function resolveCompletion(object) {
-  if (object.resolve) { return object.resolve.bind(object); }
-  if (typeof object === 'function') { return object; }
-  throw 'unsupported input';
 }
 
 export function setAttributes(element, attributes) {
