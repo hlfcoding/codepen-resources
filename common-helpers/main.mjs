@@ -43,12 +43,12 @@ export function animateChars({ element, getStepDuration, string }) {
   return new Promise((resolve, reject) => {
     function step() {
       if (!chars.length) { return resolve(); }
-      const char = chars.shift();
-      element.textContent += char;
-      delay(getStepDuration(char), () => { requestAnimationFrame(step); });
+      const c = chars.shift();
+      element.textContent += c;
+      delay(getStepDuration(c), () => { requestAnimationFrame(step); });
     }
     requestAnimationFrame(step);
-  }
+  });
 }
 
 export function createAudioClipPlayer(element, tick = 10) {

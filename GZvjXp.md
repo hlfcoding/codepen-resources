@@ -745,16 +745,14 @@ function createCLI(rootElement, contextElement, { act, settings: { timing } }) {
       }
       return beginReading();
     },
-    echo(message) {
+    async echo(message) {
       let lineElement = createLineElement();
       lineElement.scrollIntoView();
       endReading();
       const { characterPauses: pauses } = timing;
-      return new Promise((resolve, reject) => {
-        animateChars({
-          element: lineElement, string: message, completion: resolve,
-          getStepDuration(c) { return (pauses[c]) ? pauses[c] : pauses.default },
-        });
+      await animateChars({
+        element: lineElement, string: message,
+        getStepDuration(c) { return (c in pauses) ? pauses[c] : pauses.default },
       });
     },
   };
