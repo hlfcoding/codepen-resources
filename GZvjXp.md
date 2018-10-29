@@ -530,8 +530,8 @@ function initApp() {
   const shared = {
     async act(targetName, methodName, ...parameters) {
       const target = api[targetName];
-      if (!target) { return console.warn(`no '${targetName}' target`); }
-      if (!target[methodName]) { return console.warn(`no '${methodName}' method`); }
+      if (!console.assert(target, targetName)) { return; }
+      if (!console.assert(target[methodName], methodName)) { return; }
       const result = await target[methodName](...parameters);
       return result
     },
@@ -979,7 +979,7 @@ function initSounds(contextElement, { settings: { soundBackupElements, soundTime
   const players = [audioElement, ...backupElements].map(createAudioClipPlayer);
   function play(track) {
     const player = players.find(({ element }) => element.paused);
-    if (!player) { return console.warn(`no available player for track '${track}'`); }
+    if (!console.assert(player, track)) { return; }
     player.element.volume = soundVolumes[track] || soundVolumes.default;
     player.play(soundTimeRanges[track]);
   }
