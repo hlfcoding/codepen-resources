@@ -51,6 +51,11 @@ export function animateChars({ element, getStepDuration, string }) {
   });
 }
 
+export function assert(expression, ...objects) {
+  console.assert(expression, ...objects);
+  return expression;
+}
+
 export function createAudioClipPlayer(element, tick = 10) {
   const initialState = () => ({ progressInterval: null, timeRange: null });
   let state = initialState();

@@ -506,6 +506,7 @@ body.--dark {
 ```js
 import {
   animateChars,
+  assert,
   createAudioClipPlayer,
   createStateMachine,
   delay,
@@ -530,8 +531,8 @@ function initApp() {
   const shared = {
     async act(targetName, methodName, ...parameters) {
       const target = api[targetName];
-      if (!console.assert(target, targetName)) { return; }
-      if (!console.assert(target[methodName], methodName)) { return; }
+      if (!assert(target, targetName)) { return; }
+      if (!assert(target[methodName], methodName)) { return; }
       const result = await target[methodName](...parameters);
       return result
     },
@@ -979,7 +980,7 @@ function initSounds(contextElement, { settings: { soundBackupElements, soundTime
   const players = [audioElement, ...backupElements].map(createAudioClipPlayer);
   function play(track) {
     const player = players.find(({ element }) => element.paused);
-    if (!console.assert(player, track)) { return; }
+    if (!assert(player, track)) { return; }
     player.element.volume = soundVolumes[track] || soundVolumes.default;
     player.play(soundTimeRanges[track]);
   }
