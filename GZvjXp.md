@@ -625,7 +625,7 @@ function createOffState({ states, powerButton }, { act, settings: { timing } }) 
     await act('slidePanel', 'togglePowerLED', true);
     await delay(timing.offLeaveDelay);
     states.next();
-  };
+  }
   return {
     name: 'off',
     async enter() {
