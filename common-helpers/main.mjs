@@ -1,37 +1,24 @@
 export function createStateMachine() {
+  let activeState;
   let states = [];
-  function getActiveState() { return states._activeState; }
-  function setActiveState(next) {
-    function completion() {
-      states._activeState = null;
-      return states.to(next);
-    }
-    let promise = getActiveState().leave(); // invoke callback
-    if (promise) {
-      promise.then(completion);
-    } else {
-      completion();
-    }
-  }
   Object.assign(states, {
     _activeState: null,
-    to(nameOrState) {
-      if (getActiveState()) {
-        return setActiveState(nameOrState);
+    async to(state) {
+      if (typeof state === 'string') {
+        state = states.find(s => s.name === state);
       }
-      states._activeState = (
-        (typeof nameOrState === 'string') ?
-        states.find(s => s.name === nameOrState) : nameOrState
-      );
-      getActiveState().enter(); // invoke callback
+      console.assert(state);
+      if (activeState) {
+        await activeState.leave();
+      }
+      activeState = state;
+      await activeState.enter();
     },
-    next() {
-      let i = states.indexOf(getActiveState());
-      if (i === -1) {
-        throw 'bad index';
-      }
-      i = (i >= states.length - 1) ? 0 : (i + 1);
-      setActiveState(states[i]);
+    async next() {
+      let i = states.indexOf(activeState);
+      console.assert(i !== -1);
+      i = (i + 1) % states.length;
+      await states.to(states[i]);
     },
   });
   return states;
