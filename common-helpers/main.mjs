@@ -46,19 +46,21 @@ export function assert(expression, ...objects) {
 export function createAudioClipPlayer(element, tick = 10) {
   const initialState = () => ({ progressInterval: null, timeRange: null });
   let state = initialState();
-  function play(timeRange) {
+  async function play(timeRange) {
     if (!element.paused) { return; }
     element.currentTime = timeRange[0];
     element.muted = false;
-    element.play().then(() => {
+    try {
+      await element.play();
       Object.assign(state, {
         progressInterval: setInterval(() => {
-          if (element.currentTime < timeRange[1]) { return; }
-          stop();
+          if (element.currentTime >= timeRange[1]) { stop(); }
         }, tick),
         timeRange,
       });
-    }, error => console.error(error));
+    } catch(error) {
+      console.error(error);
+    }
   }
   function stop() {
     clearInterval(state.progressInterval);
