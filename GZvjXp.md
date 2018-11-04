@@ -952,7 +952,7 @@ function initSlidePanel(contextElement, { act }) {
     coverElement.classList.toggle('--open', visible);
     coverElement.classList.toggle('--closed', !visible);
     if (!silent) {
-      act('sounds', 'play', 'panel' + (visible ? 'Open' : 'Close'));
+      act('sounds', 'play', `panel${visible ? 'Open' : 'Close'}`);
     }
     await delay(toggleDuration);
   }
