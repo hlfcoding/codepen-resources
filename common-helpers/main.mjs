@@ -98,10 +98,10 @@ export function setAttributes(element, attributes) {
   forEach(attributes, element.setAttribute.bind(element));
 }
 
-export function setupDisplayClasses(context) {
-  let target = context.querySelector('[data-display-target]');
+export function setupDisplayClasses(contextElement) {
+  let target = contextElement.querySelector('[data-display-target]');
   console.assert(target);
-  let radios = context.querySelectorAll('[name=display]');
+  let radios = contextElement.querySelectorAll('[name=display]');
   console.assert(radios.length);
   let classNames = [...radios].map(r => r.getAttribute('value'));
   console.assert(classNames.length);
