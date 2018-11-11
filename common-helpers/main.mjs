@@ -24,15 +24,15 @@ export function createStateMachine() {
   return states;
 }
 
-export function animateChars({ element, getStepDuration, string }) {
+export function animateCharacters({ element, getStepDuration, string }) {
   getStepDuration = getStepDuration || (_ => 30);
-  let chars = string.split('');
+  let queue = string.split('');
   return new Promise((resolve, reject) => {
     function step() {
-      if (!chars.length) { return resolve(); }
-      const c = chars.shift();
-      element.textContent += c;
-      delay(getStepDuration(c), () => { requestAnimationFrame(step); });
+      if (!queue.length) { return resolve(); }
+      const character = queue.shift();
+      element.textContent += character;
+      delay(getStepDuration(character), () => { requestAnimationFrame(step); });
     }
     requestAnimationFrame(step);
   });
