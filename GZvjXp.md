@@ -505,7 +505,7 @@ body.--dark {
 
 ```js
 import {
-  animateChars,
+  animateCharacters,
   assert,
   createAudioClipPlayer,
   createStateMachine,
@@ -751,7 +751,7 @@ function createCLI(rootElement, contextElement, { act, settings: { timing } }) {
       lineElement.scrollIntoView();
       endReading();
       const { characterPauses: pauses } = timing;
-      await animateChars({
+      await animateCharacters({
         element: lineElement, string: message,
         getStepDuration(c) { return (c in pauses) ? pauses[c] : pauses.default },
       });
