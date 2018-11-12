@@ -121,7 +121,7 @@ export function setupKeyboardHandling({ element, keyHandlers }) {
     throw 'unsupported input';
   }
   const keyCodes = {
-    backspace: 8, delete: 46, enter: 13,
+    backspace: 8, 'delete': 46, enter: 13,
   };
   let oldValue = '';
   function keydownListener({ keyCode }) {
