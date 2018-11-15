@@ -554,16 +554,16 @@ function createGameState(
   { act, settings: { buttonShapesByName, demoButtonName, shapeLimit, timing } }
 ) {
   let drawn;
-  function drawListener({ target: button }) {
-    if (button.type !== 'button') { return; }
-    if (!(button.name in buttonShapesByName)) { return; }
+  function drawListener({ target: element }) {
+    if (element.type !== 'button') { return; }
+    if (!(element.name in buttonShapesByName)) { return; }
     if (drawn >= shapeLimit) { return states.next(); }
     drawn += 1;
     canvas.draw({
       sizeRatio: random(),
       xRatio: random(),
       yRatio: random(),
-      shape: buttonShapesByName[button.name],
+      shape: buttonShapesByName[element.name],
     });
   }
   return {
@@ -879,7 +879,8 @@ function createCanvas(rootElement, { settings: { shapeLayerOpaqueValue, shapeLay
 
 function initButtons(contextElement, { act, settings: { timing } }) {
   function onClick(event) {
-    if (event.currentTarget.getAttribute('disabled')) { return; }
+    const buttonElement = event.currentTarget;
+    if (buttonElement.getAttribute('disabled')) { return; }
     act('sounds', 'play', 'button');
   }
   [...contextElement.querySelectorAll(`[type=button]`)].forEach(element => {
@@ -896,11 +897,11 @@ function initButtons(contextElement, { act, settings: { timing } }) {
   }
   function toggleDisabled(disabled) {
     const buttons = contextElement.querySelectorAll(`[type=button]`);
-    [...buttons].forEach(b => {
+    [...buttons].forEach(element => {
       if (disabled) {
-        b.setAttribute('disabled', 'disabled');
+        element.setAttribute('disabled', 'disabled');
       } else {
-        b.removeAttribute('disabled');
+        element.removeAttribute('disabled');
       }
     });
   }
