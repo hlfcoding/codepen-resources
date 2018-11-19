@@ -99,18 +99,18 @@ export function setAttributes(element, attributes) {
 }
 
 export function setupDisplayClasses(contextElement) {
-  let target = contextElement.querySelector('[data-display-target]');
-  console.assert(target);
-  let radios = contextElement.querySelectorAll('[name=display]');
-  console.assert(radios.length);
-  let classNames = [...radios].map(r => r.getAttribute('value'));
+  let targetElement = contextElement.querySelector('[data-display-target]');
+  console.assert(targetElement);
+  let radioElements = contextElement.querySelectorAll('[name=display]');
+  console.assert(radioElements.length);
+  let classNames = [...radioElements].map(el => el.getAttribute('value'));
   console.assert(classNames.length);
-  radios.forEach(radio => {
-    radio.addEventListener('change', event => {
-      target.classList.remove(...classNames);
+  radioElements.forEach(element => {
+    element.addEventListener('change', event => {
+      targetElement.classList.remove(...classNames);
       let className = event.target.value;
       console.assert(classNames.indexOf(className) !== -1);
-      target.classList.add(className);
+      targetElement.classList.add(className);
     });
   });
 }

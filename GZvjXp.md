@@ -526,7 +526,8 @@ document.onreadystatechange = () => {
 function initApp() {
   let rootElement = document.querySelector('.device');
   rootElement.classList.add('--ready');
-  const settings = JSON.parse(document.querySelector('script#settings').innerHTML);
+  const settingsElement = document.querySelector('script#settings');
+  const settings = JSON.parse(settingsElement.innerHTML);
   let api = {};
   const shared = {
     async act(targetName, methodName, ...parameters) {
