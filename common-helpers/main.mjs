@@ -32,9 +32,9 @@ export function animateCharacters({ element, getStepDuration, string }) {
       if (!queue.length) { return resolve(); }
       const character = queue.shift();
       element.textContent += character;
-      delay(getStepDuration(character), () => { requestAnimationFrame(step); });
+      delay(getStepDuration(character), () => { window.requestAnimationFrame(step); });
     }
-    requestAnimationFrame(step);
+    window.requestAnimationFrame(step);
   });
 }
 
@@ -90,7 +90,7 @@ export function forEach(object, callback) {
 }
 
 export function getComputedTransitionDurations(element) {
-  return getComputedStyle(element).transitionDuration.split(',')
+  return window.getComputedStyle(element).transitionDuration.split(',')
     .map(secondsString => parseFloat(secondsString) * 1000);
 }
 
@@ -108,7 +108,7 @@ export function setupDisplayClasses(contextElement) {
   radioElements.forEach(element => {
     element.addEventListener('change', event => {
       targetElement.classList.remove(...classNames);
-      let className = event.target.value;
+      const className = event.target.value;
       console.assert(classNames.indexOf(className) !== -1);
       targetElement.classList.add(className);
     });
