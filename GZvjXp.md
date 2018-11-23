@@ -483,16 +483,27 @@ body.--dark {
   --intro-duration: .6s;
   --panel-drop: 0 calc(var(--panel-depth) + 1px) var(--panel-drop-diffuse) var(--shade-8);
   --panel-drop-afloat: 0 calc(var(--panel-depth) + 10px) calc(var(--panel-drop-diffuse) + 10px) 2px var(--shade-4);
+  --panel-drop-hover: 0 calc(var(--panel-depth) + 5px) calc(var(--panel-drop-diffuse) + 5px) 2px var(--shade-6);
+  --panel-ease-afloat: cubic-bezier(0, .9, .3, 1);
   box-shadow: var(--panel-shadows), var(--panel-drop-afloat);
   transform: translateY(-30%) scale(1.1);
   transition:
     box-shadow .2s ease-out .2s,
-    transform var(--intro-duration) cubic-bezier(0, .9, .3, 1);
+    transform var(--intro-duration) var(--panel-ease-afloat);
   will-change: box-shadow, transform;
 }
-.device.--ready>.body {
+.device.--landed>.body {
   box-shadow: var(--panel-shadows), var(--panel-drop);
   transform: translateY(0) scale(1);
+}
+.device.--ready>.body {
+  transition:
+    box-shadow .3s ease-out,
+    transform .3s var(--panel-ease-afloat);
+}
+.device.--ready.--has-focused-main-screen>.body {
+  box-shadow: var(--panel-shadows), var(--panel-drop-hover);
+  transform: translateY(-2%) scale(1);
 }
 .device .buttons-panel {
   opacity: 0;
@@ -525,7 +536,7 @@ document.onreadystatechange = () => {
 
 function initApp() {
   let rootElement = document.querySelector('.device');
-  rootElement.classList.add('--ready');
+  rootElement.classList.add('--landed');
   const settingsElement = document.querySelector('script#settings');
   const settings = JSON.parse(settingsElement.innerHTML);
   let api = {};
@@ -546,7 +557,10 @@ function initApp() {
     sounds: initSounds(rootElement, shared),
   });
   const initDuration = getComputedTransitionDurations(document.querySelector('.device > .body'))[1];
-  delay(initDuration, () => api.mainScreen = initMainScreen(rootElement, shared));
+  delay(initDuration, () => {
+    api.mainScreen = initMainScreen(rootElement, shared);
+    rootElement.classList.add('--ready');
+  });
   return api
 }
 
@@ -702,12 +716,14 @@ function createCLI(rootElement, contextElement, { act, settings: { timing } }) {
     }
   }
   function onInputBlur(_) {
+    act('mainScreen', 'toggleClass', '--focused', false);
     if (!state.lineElement) { return; }
     const cursor = state.lineElement.querySelector('.cursor');
     if (!cursor) { return; }
     cursor.classList.remove('-blink');
   }
   function onInputFocus(_) {
+    act('mainScreen', 'toggleClass', '--focused', true);
     if (!state.lineElement) { return; }
     const cursor = state.lineElement.querySelector('.cursor');
     if (!cursor) { return; }
@@ -940,6 +956,7 @@ function initMainScreen(contextElement, shared) {
   contextElement.addEventListener('click', activateListener);
   function toggleClass(className, on) {
     rootElement.classList.toggle(className, on);
+    contextElement.classList.toggle(`--has-${className.replace(/^[-]+/, '')}-main-screen`, on);
   }
   return { toggleClass };
 }
