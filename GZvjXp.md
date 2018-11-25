@@ -716,14 +716,14 @@ function createCLI(rootElement, contextElement, { act, settings: { timing } }) {
     }
   }
   function onInputBlur(_) {
-    act('mainScreen', 'toggleClass', '--focused', false);
+    rootElement.dispatchEvent(new CustomEvent('cli:blur'));
     if (!state.lineElement) { return; }
     const cursor = state.lineElement.querySelector('.cursor');
     if (!cursor) { return; }
     cursor.classList.remove('-blink');
   }
   function onInputFocus(_) {
-    act('mainScreen', 'toggleClass', '--focused', true);
+    rootElement.dispatchEvent(new CustomEvent('cli:focus'));
     if (!state.lineElement) { return; }
     const cursor = state.lineElement.querySelector('.cursor');
     if (!cursor) { return; }
@@ -958,6 +958,8 @@ function initMainScreen(contextElement, shared) {
     rootElement.classList.toggle(className, on);
     contextElement.classList.toggle(`--has-${className.replace(/^[-]+/, '')}-main-screen`, on);
   }
+  cliElement.addEventListener('cli:blur', event => toggleClass('--focused', false));
+  cliElement.addEventListener('cli:focus', event => toggleClass('--focused', true));
   return { toggleClass };
 }
 
