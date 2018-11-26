@@ -930,7 +930,7 @@ function initLight(contextElement) {
   function toggle(on = contextElement.classList.contains('--dark')) {
     contextElement.classList.toggle('--dark', !on);
   }
-  switchElement.addEventListener('click', (_) => toggle());
+  switchElement.addEventListener('click', event => toggle());
   return { toggle };
 }
 
