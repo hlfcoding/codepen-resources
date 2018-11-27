@@ -31,46 +31,46 @@ circle:hover {
 const count = 6; // Per side.
 const minR = 6;
 
-let svg = document.querySelector('svg');
-let main = svg.querySelector('circle');
+let svgElement = document.querySelector('svg');
+let mainElement = svgElement.querySelector('circle');
 
-let height = svg.getAttribute('height');
-let width = svg.getAttribute('width');
+let height = svgElement.getAttribute('height');
+let width = svgElement.getAttribute('width');
 console.assert(height === width);
 
-main.setAttribute('cx', width / 2);
-main.setAttribute('cy', height / 2);
-main.setAttribute('r', width / 2);
+mainElement.setAttribute('cx', width / 2);
+mainElement.setAttribute('cy', height / 2);
+mainElement.setAttribute('r', width / 2);
 
 let animations = [];
 let fragment = document.createDocumentFragment();
 let offset = (width / 2 - minR) / count;
 function createSub(step, dir) {
-  let sub = main.cloneNode(true);
-  function cx(shift = 0) { return Math.round(main.getAttribute('cx') - offset * (step + shift) * dir); }
-  function r(shift = 0) { return Math.round(main.getAttribute('r') - offset * (step + shift)); }
-  sub.setAttribute('cx', cx());
-  sub.setAttribute('r', r());
-  if (typeof sub.animate === 'function') {
+  let subElement = mainElement.cloneNode(true);
+  function cx(shift = 0) { return Math.round(mainElement.getAttribute('cx') - offset * (step + shift) * dir); }
+  function r(shift = 0) { return Math.round(mainElement.getAttribute('r') - offset * (step + shift)); }
+  subElement.setAttribute('cx', cx());
+  subElement.setAttribute('r', r());
+  if (typeof subElement.animate === 'function') {
     let keys = [{ cx: cx(), r: r() }, { cx: cx(-1), r: r(-1) }];
     if (step === 1) {
-      keys[0].fillOpacity = parseFloat(getComputedStyle(main).fillOpacity);
+      keys[0].fillOpacity = parseFloat(window.getComputedStyle(mainElement).fillOpacity);
       keys[1].fillOpacity = 0;
     }
-    let a = sub.animate(keys, { duration: 3000, id: `${step}:${dir}`, iterations: Infinity });
-    sub.setAttribute('data-animation-id', a.id);
-    animations.push(a);
+    let animation = subElement.animate(keys, { duration: 3000, id: `${step}:${dir}`, iterations: Infinity });
+    subElement.setAttribute('data-animation-id', animation.id);
+    animations.push(animation);
   }
-  return sub;
+  return subElement;
 }
 let steps = [...Array(count)].map((_, i) => i + 1);
 let pairs = steps.map(s => [createSub(s, -1), createSub(s, 1)]);
-pairs.forEach(p => p.forEach(sub => fragment.appendChild(sub)));
-svg.insertBefore(fragment, main);
-main.addEventListener('click', _ => {
-  animations.forEach(a => {
-    if (a.playState === 'paused') { a.play(); }
-    else { a.pause(); }
+pairs.forEach(p => p.forEach(subElement => fragment.appendChild(subElement)));
+svgElement.insertBefore(fragment, mainElement);
+mainElement.addEventListener('click', _ => {
+  animations.forEach(animation => {
+    if (animation.playState === 'paused') { animation.play(); }
+    else { animation.pause(); }
   });
 });
 ```
