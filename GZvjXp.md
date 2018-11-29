@@ -201,8 +201,10 @@
 .-panel-skin .-button-skin:not([disabled]):hover {
   background-image: linear-gradient(var(--panel-highlight-strong), transparent);
 }
+.-panel-skin .-button-skin[disabled],
 .-panel-skin .-button-skin:not([disabled]).--active,
 .-panel-skin .-button-skin:not([disabled]):active {
+  --depress-ratio: 1;
   background-color: var(--panel-base-dark);
   background-image: linear-gradient(var(--panel-highlight-weak), transparent);
   /* front to back */
@@ -210,8 +212,14 @@
     inset 0 0 1px 1px var(--shade-2), /* shadow */
     inset 0 2px 3px 1px var(--shade-2), /* shadow */
     inset 0 0 var(--corner) var(--shade-2), /* contour */
-    0 calc(var(--panel-depth) * -1) 0 var(--shade-4), /* socket edge */
+    0 calc(var(--panel-depth) * -1 * var(--depress-ratio)) 0 var(--shade-4), /* socket edge */
     0 0 0 1px var(--shade-1); /* socket edge */
+}
+.-panel-skin .-button-skin[disabled] {
+  --depress-ratio: 0.5;
+}
+.-panel-skin .-button-skin:not([disabled]).--active,
+.-panel-skin .-button-skin:not([disabled]):active {
   color: var(--display-dark);
   margin-bottom: calc(var(--panel-depth) * -1);
   margin-top: calc(var(--panel-depth) - 1px);
