@@ -90,6 +90,8 @@ text {
 ```
 
 ```js
+/* global d3 */
+
 const height = 330;
 
 let chart = d3.select('.bar-chart').append('g').attr('class', 'chart-body');
