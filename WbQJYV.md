@@ -221,9 +221,9 @@ function render(data, initial = false) {
   createAxes(scales, selections);
 }
 
-let select = document.querySelector('[name=dataset]');
-const data = option => JSON.parse(option.getAttribute('data-json'));
-select.addEventListener('change', () => render(data(select.querySelector('option:checked'))));
-render(data(select.firstElementChild), true);
+let selectElement = document.querySelector('[name=dataset]');
+const data = optionElement => JSON.parse(optionElement.getAttribute('data-json'));
+selectElement.addEventListener('change', () => render(data(selectElement.querySelector('option:checked'))));
+render(data(selectElement.firstElementChild), true);
 setTimeout(() => document.querySelector('figure').classList.add('--ready'), 500);
 ```
