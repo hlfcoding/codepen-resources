@@ -726,16 +726,16 @@ function createCLI(rootElement, contextElement, { act, settings: { timing } }) {
   function onInputBlur(_) {
     rootElement.dispatchEvent(new CustomEvent('cli:blur'));
     if (!state.lineElement) { return; }
-    const cursor = state.lineElement.querySelector('.cursor');
-    if (!cursor) { return; }
-    cursor.classList.remove('-blink');
+    const cursorElement = state.lineElement.querySelector('.cursor');
+    if (!cursorElement) { return; }
+    cursorElement.classList.remove('-blink');
   }
   function onInputFocus(_) {
     rootElement.dispatchEvent(new CustomEvent('cli:focus'));
     if (!state.lineElement) { return; }
-    const cursor = state.lineElement.querySelector('.cursor');
-    if (!cursor) { return; }
-    cursor.classList.add('-blink');
+    const cursorElement = state.lineElement.querySelector('.cursor');
+    if (!cursorElement) { return; }
+    cursorElement.classList.add('-blink');
   }
   inputElement.addEventListener('blur', onInputBlur);
   inputElement.addEventListener('focus', onInputFocus);
