@@ -537,10 +537,8 @@ import {
 
 const { log10, max, min, random, round, sqrt } = Math;
 
-document.onreadystatechange = () => {
-  if (document.readyState !== 'complete') { return; }
-  window.deviceOne = initApp();
-};
+if (document.readyState !== 'loading') { window.deviceOne = initApp(); }
+else { document.addEventListener('DOMContentLoaded', event => window.deviceOne = initApp()); }
 
 function initApp() {
   let rootElement = document.querySelector('.device');
@@ -1004,7 +1002,7 @@ function initSlidePanel(contextElement, { act }) {
 
 function initSounds(contextElement, { settings: { soundBackupElements, soundTimeRanges, soundVolumes } }) {
   let audioElement = contextElement.querySelector('audio');
-  const backupElements = [...Array(soundBackupElements)].map(() => audioElement.cloneNode());
+  const backupElements = [...Array(soundBackupElements)].map(_ => audioElement.cloneNode());
   backupElements.forEach(element => audioElement.parentElement.appendChild(element));
   const players = [audioElement, ...backupElements].map(createAudioClipPlayer);
   function play(track) {
