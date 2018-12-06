@@ -1,3 +1,28 @@
+export function createLongPressSupport(element, { duration }) {
+  let state = { listener: null, timeout: null };
+  const listeners = {
+    mousedown(event) {
+      state.timeout = setTimeout(() => {
+        state.listener(event);
+      }, duration);
+    },
+    mouseup(event) {
+      clearTimeout(state.timeout);
+    },
+  };
+  return {
+    addEventListener(listener) {
+      console.assert(!state.listener && listener);
+      state.listener = listener;
+      forEach(listeners, element.addEventListener.bind(element));
+    },
+    removeEventListener() {
+      console.assert(state.listener);
+      forEach(listeners, element.removeEventListener.bind(element));
+    },
+  }
+}
+
 export function createStateMachine() {
   let activeState;
   let states = [];
