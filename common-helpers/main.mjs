@@ -69,8 +69,8 @@ export function assert(expression, ...objects) {
 }
 
 export function createAudioClipPlayer(element, tick = 10) {
-  const initialState = () => ({ progressInterval: null, timeRange: null });
-  let state = initialState();
+  const initialState = Object.freeze({ progressInterval: null, timeRange: null });
+  let state = Object.assign({}, initialState);
   async function play(timeRange) {
     if (!element.paused) { return; }
     element.currentTime = timeRange[0];
@@ -89,7 +89,7 @@ export function createAudioClipPlayer(element, tick = 10) {
   }
   function stop() {
     clearInterval(state.progressInterval);
-    state = initialState();
+    state = Object.assign({}, initialState);
     element.pause();
     element.muted = true;
   }
