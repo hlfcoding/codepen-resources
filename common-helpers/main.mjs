@@ -1,4 +1,4 @@
-export function createLongPressSupport(element, { duration }) {
+export function createLongPressSupport(element, { duration = 1000 }) {
   let state = { listener: null, timeout: null };
   const listeners = {
     mousedown(event) {
@@ -49,8 +49,7 @@ export function createStateMachine() {
   return states;
 }
 
-export function animateCharacters({ element, getStepDuration, string }) {
-  getStepDuration = getStepDuration || (_ => 30);
+export function animateCharacters({ element, getStepDuration = (_ => 30), string }) {
   let queue = string.split('');
   return new Promise((resolve, reject) => {
     function step() {
