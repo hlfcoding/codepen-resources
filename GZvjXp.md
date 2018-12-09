@@ -966,7 +966,7 @@ function initMainScreen(contextElement, shared) {
   }
   cliElement.addEventListener('cli:blur', event => toggleClass('--focused', false));
   cliElement.addEventListener('cli:focus', event => toggleClass('--focused', true));
-  return { toggleClass };
+  return { canvas, toggleClass };
 }
 
 function initSlidePanel(contextElement, { act }) {
