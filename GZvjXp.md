@@ -850,15 +850,19 @@ function createCanvas(rootElement, { settings: { shapeLayerOpaqueValue, shapeLay
   function snap(number) {
     return number.toFixed(log10(shapeLayout.gridResolution)) * 1;
   }
-  function draw({ sizeRatio, xRatio, yRatio, shape }) {
+  function layout({ h, w, sizeRatio, xRatio, yRatio, shapeLayout }) {
     const { boundsPaddingRatio: padding, sizeLimits } = shapeLayout;
     sizeRatio = max(sizeLimits.min, snap(sizeRatio) * sizeLimits.scale);
     xRatio = min(1 - padding.x, max(padding.x, snap(xRatio)));
     yRatio = min(1 - padding.y, max(padding.y, snap(yRatio)));
-    const { clientHeight: h, clientWidth: w } = rootElement;
     const size = round(w * sizeRatio), r = size / 2;
     const x = round((w - size) * xRatio), mx = x + size, cx = x + r;
     const y = round((h - size) * yRatio), my = y + size, cy = y + r;
+    return { size, r, x, mx, cx, y, my, cy };
+  }
+  function draw({ sizeRatio, xRatio, yRatio, shape }) {
+    const { clientHeight: h, clientWidth: w } = rootElement;
+    const { size, r, x, mx, cx, y, my, cy } = layout({ h, w, sizeRatio, xRatio, yRatio, shapeLayout })
     let name, attributes = Object.assign({ opacity: 1 }, shapeLayout.baseAttributes);
     switch (shape) {
       case 'circle':
@@ -897,7 +901,7 @@ function createCanvas(rootElement, { settings: { shapeLayerOpaqueValue, shapeLay
       element.parentElement.removeChild(element);
     });
   }
-  return { draw, erase };
+  return { draw, erase, layout };
 }
 
 function initButtons(contextElement, { act, settings: { timing } }) {
