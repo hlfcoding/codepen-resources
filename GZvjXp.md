@@ -1018,3 +1018,18 @@ function initSounds(contextElement, { settings: { soundBackupElements, soundTime
   return { play };
 }
 ```
+
+```js
+(() => {
+  const { layout } = window.deviceOne.mainScreen.canvas;
+  const result = layout({
+    h: 200, w: 300, sizeRatio: 0.1, xRatio: 0, yRatio: 0,
+    shapeLayout: { boundsPaddingRatio: { x: 0, y: 0 }, sizeLimits: { min: 0, scale: 1 } },
+  });
+  console.log(result);
+  const { size, r, x, mx, cx, y, my, cy } = result;
+  console.assert(size === 30 && mx === size && my === size);
+  console.assert(r === 15 && cx === r && cy === r);
+  console.assert(x === 0 && y === 0);
+})();
+```
