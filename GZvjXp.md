@@ -847,17 +847,20 @@ function createPowerButton(rootElement, { settings: { powerButtonLayout: layout,
 }
 
 function createCanvas(rootElement, { settings: { shapeLayerOpaqueValue, shapeLayout } }) {
-  function snap(number) {
-    return number.toFixed(log10(shapeLayout.gridResolution)) * 1;
+  function snap(number, { gridResolution }) {
+    return number.toFixed(log10(gridResolution)) * 1;
   }
   function layout({ h, w, sizeRatio, xRatio, yRatio, shapeLayout }) {
     const { boundsPaddingRatio: padding, sizeLimits } = shapeLayout;
-    sizeRatio = max(sizeLimits.min, snap(sizeRatio) * sizeLimits.scale);
-    xRatio = min(1 - padding.x, max(padding.x, snap(xRatio)));
-    yRatio = min(1 - padding.y, max(padding.y, snap(yRatio)));
+    sizeRatio = max(sizeLimits.min, snap(sizeRatio, shapeLayout) * sizeLimits.scale);
+    xRatio = snap(xRatio, shapeLayout);
+    yRatio = snap(yRatio, shapeLayout);
     const size = round(w * sizeRatio), r = size / 2;
-    const x = round((w - size) * xRatio), mx = x + size, cx = x + r;
-    const y = round((h - size) * yRatio), my = y + size, cy = y + r;
+    const xBound = w - size, yBound = h - size;
+    const x = round(min(xBound - w * padding.x, max(w * padding.x, xBound * xRatio)));
+    const y = round(min(yBound - h * padding.y, max(h * padding.y, yBound * yRatio)));
+    const mx = x + size, my = y + size;
+    const cx = x + r, cy = y + r;
     return { size, r, x, mx, cx, y, my, cy };
   }
   function draw({ sizeRatio, xRatio, yRatio, shape }) {
@@ -1024,7 +1027,7 @@ function initSounds(contextElement, { settings: { soundBackupElements, soundTime
   const { layout } = window.deviceOne.mainScreen.canvas;
   const result = layout({
     h: 200, w: 300, sizeRatio: 0.1, xRatio: 0, yRatio: 0,
-    shapeLayout: { boundsPaddingRatio: { x: 0, y: 0 }, sizeLimits: { min: 0, scale: 1 } },
+    shapeLayout: { boundsPaddingRatio: { x: 0, y: 0 }, gridResolution: 100, sizeLimits: { min: 0, scale: 1 } },
   });
   console.log(result);
   const { size, r, x, mx, cx, y, my, cy } = result;
