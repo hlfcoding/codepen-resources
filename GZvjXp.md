@@ -1023,40 +1023,39 @@ function initSounds(contextElement, { settings: { soundBackupElements, soundTime
 ```
 
 ```js
-(() => {
-  const { layout } = window.deviceOne.mainScreen.canvas;
+(({ mainScreen: { canvas: { layout }}}, { log, assert }) => {
   const result = layout({
     h: 200, w: 300, sizeRatio: 0.1, xRatio: 0, yRatio: 0,
     shapeLayout: { boundsPaddingRatio: { x: 0, y: 0 }, gridResolution: 100, sizeLimits: { min: 0, scale: 1 } },
   });
-  console.log(result);
+  log(result);
   const { size, r, x, mx, cx, y, my, cy } = result;
-  console.assert(size === 30 && mx === size && my === size);
-  console.assert(r === 15 && cx === r && cy === r);
-  console.assert(x === 0 && y === 0);
-})();
-(() => {
-  const { layout } = window.deviceOne.mainScreen.canvas;
+  assert(size === 30 && mx === size && my === size, 'size-related values');
+  assert(r === 15 && cx === r && cy === r, 'radius-related values');
+  assert(x === 0 && y === 0, 'position values');
+})(window.deviceOne, console);
+
+(({ mainScreen: { canvas: { layout }}}, { log, assert }) => {
   const result = layout({
     h: 200, w: 300, sizeRatio: 0.1, xRatio: 0, yRatio: 0,
     shapeLayout: { boundsPaddingRatio: { x: 0.1, y: 0.1 }, gridResolution: 100, sizeLimits: { min: 0, scale: 1 } },
   });
-  console.log(result);
+  log(result);
   const { size, r, x, mx, cx, y, my, cy } = result;
-  console.assert(size === 30 && mx === 60 && my === 50);
-  console.assert(r === 15 && cx === 45 && cy === 35);
-  console.assert(x === 30 && y === 20);
-})();
-(() => {
-  const { layout } = window.deviceOne.mainScreen.canvas;
+  assert(size === 30 && mx === 60 && my === 50, 'size-related values');
+  assert(r === 15 && cx === 45 && cy === 35, 'radius-related values');
+  assert(x === 30 && y === 20, 'position values');
+})(window.deviceOne, console);
+
+(({ mainScreen: { canvas: { layout }}}, { log, assert }) => {
   const result = layout({
     h: 200, w: 300, sizeRatio: 0.1, xRatio: 0.5, yRatio: 0.5,
     shapeLayout: { boundsPaddingRatio: { x: 0.1, y: 0.1 }, gridResolution: 100, sizeLimits: { min: 0, scale: 1 } },
   });
-  console.log(result);
+  log(result);
   const { size, r, x, mx, cx, y, my, cy } = result;
-  console.assert(size === 30 && mx === 165 && my === 115);
-  console.assert(r === 15 && cx === 150 && cy === 100);
-  console.assert(x === 135 && y === 85);
-})();
+  assert(size === 30 && mx === 165 && my === 115, 'size-related values');
+  assert(r === 15 && cx === 150 && cy === 100, 'radius-related values');
+  assert(x === 135 && y === 85, 'position values');
+})(window.deviceOne, console);
 ```
