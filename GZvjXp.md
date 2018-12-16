@@ -1025,8 +1025,20 @@ function initSounds(contextElement, { settings: { soundBackupElements, soundTime
 ```js
 (({ mainScreen: { canvas: { layout }}}, { log, assert }) => {
   const result = layout({
+    h: 200, w: 300, sizeRatio: 0.11, xRatio: 0, yRatio: 0,
+    shapeLayout: { boundsPaddingRatio: { x: 0, y: 0 }, gridResolution: 10, sizeLimits: { min: 0, scale: 0.5 } },
+  });
+  log(result);
+  const { size, r, x, mx, cx, y, my, cy } = result;
+  assert(size === 15 && mx === size && my === size, 'size-related values');
+  assert(r === 7.5 && cx === r && cy === r, 'radius-related values');
+  assert(x === 0 && y === 0, 'position values');
+})(window.deviceOne, console);
+
+(({ mainScreen: { canvas: { layout }}}, { log, assert }) => {
+  const result = layout({
     h: 200, w: 300, sizeRatio: 0.1, xRatio: 0, yRatio: 0,
-    shapeLayout: { boundsPaddingRatio: { x: 0, y: 0 }, gridResolution: 100, sizeLimits: { min: 0, scale: 1 } },
+    shapeLayout: { boundsPaddingRatio: { x: 0, y: 0 }, gridResolution: 10, sizeLimits: { min: 0.1, scale: 0.5 } },
   });
   log(result);
   const { size, r, x, mx, cx, y, my, cy } = result;
@@ -1038,7 +1050,7 @@ function initSounds(contextElement, { settings: { soundBackupElements, soundTime
 (({ mainScreen: { canvas: { layout }}}, { log, assert }) => {
   const result = layout({
     h: 200, w: 300, sizeRatio: 0.1, xRatio: 0, yRatio: 0,
-    shapeLayout: { boundsPaddingRatio: { x: 0.1, y: 0.1 }, gridResolution: 100, sizeLimits: { min: 0, scale: 1 } },
+    shapeLayout: { boundsPaddingRatio: { x: 0.1, y: 0.1 }, gridResolution: 10, sizeLimits: { min: 0, scale: 1 } },
   });
   log(result);
   const { size, r, x, mx, cx, y, my, cy } = result;
@@ -1050,7 +1062,7 @@ function initSounds(contextElement, { settings: { soundBackupElements, soundTime
 (({ mainScreen: { canvas: { layout }}}, { log, assert }) => {
   const result = layout({
     h: 200, w: 300, sizeRatio: 0.1, xRatio: 0.5, yRatio: 0.5,
-    shapeLayout: { boundsPaddingRatio: { x: 0.1, y: 0.1 }, gridResolution: 100, sizeLimits: { min: 0, scale: 1 } },
+    shapeLayout: { boundsPaddingRatio: { x: 0.1, y: 0.1 }, gridResolution: 10, sizeLimits: { min: 0, scale: 1 } },
   });
   log(result);
   const { size, r, x, mx, cx, y, my, cy } = result;
@@ -1062,7 +1074,7 @@ function initSounds(contextElement, { settings: { soundBackupElements, soundTime
 (({ mainScreen: { canvas: { layout }}}, { log, assert }) => {
   const result = layout({
     h: 200, w: 300, sizeRatio: 0.1, xRatio: 1, yRatio: 1,
-    shapeLayout: { boundsPaddingRatio: { x: 0.1, y: 0.1 }, gridResolution: 100, sizeLimits: { min: 0, scale: 1 } },
+    shapeLayout: { boundsPaddingRatio: { x: 0.1, y: 0.1 }, gridResolution: 10, sizeLimits: { min: 0, scale: 1 } },
   });
   log(result);
   const { size, r, x, mx, cx, y, my, cy } = result;
