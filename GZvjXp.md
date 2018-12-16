@@ -1058,4 +1058,16 @@ function initSounds(contextElement, { settings: { soundBackupElements, soundTime
   assert(r === 15 && cx === 150 && cy === 100, 'radius-related values');
   assert(x === 135 && y === 85, 'position values');
 })(window.deviceOne, console);
+
+(({ mainScreen: { canvas: { layout }}}, { log, assert }) => {
+  const result = layout({
+    h: 200, w: 300, sizeRatio: 0.1, xRatio: 1, yRatio: 1,
+    shapeLayout: { boundsPaddingRatio: { x: 0.1, y: 0.1 }, gridResolution: 100, sizeLimits: { min: 0, scale: 1 } },
+  });
+  log(result);
+  const { size, r, x, mx, cx, y, my, cy } = result;
+  assert(size === 30 && mx === 270 && my === 180, 'size-related values');
+  assert(r === 15 && cx === 255 && cy === 165, 'radius-related values');
+  assert(x === 240 && y === 150, 'position values');
+})(window.deviceOne, console);
 ```
