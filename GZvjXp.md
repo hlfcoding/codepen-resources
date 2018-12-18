@@ -4,11 +4,19 @@
 >
 > A contrived device with command line, basic drawing, physical buttons, and lots of shadows.
 
+Head
+----
+Omits script import; JS imports module directly.
+
 ```html
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
 <link rel="apple-touch-icon" href="//assets.pengxwang.com/codepen-resources/app-icons/device-1.png">
 <link rel="stylesheet" href="//assets.pengxwang.com/codepen-resources/common-helpers/main-v2.css">
 ```
+
+Body
+----
+Includes configuration for animations, behaviors.
 
 ```html
 <script id="settings" type="application/json">
@@ -115,6 +123,10 @@
 
 </div><!--/container-->
 ```
+
+Styles
+------
+Includes animations.
 
 ```css
 .device {
@@ -521,6 +533,10 @@ body.--dark {
   opacity: 1;
 }
 ```
+
+Behaviors
+---------
+May include styles if needed.
 
 ```js
 import {
@@ -1021,6 +1037,10 @@ function initSounds(contextElement, { settings: { soundBackupElements, soundTime
   return { play };
 }
 ```
+
+Tests
+-----
+Unit tests for the above JS. Can be run by pasting into the console (at the level of the pen `iframe`), individually or together.
 
 ```js
 (({ mainScreen: { canvas: { layout }}}, { log, assert }) => {
