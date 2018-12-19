@@ -18,7 +18,7 @@ Body
 ----
 Includes configuration for animations, behaviors.
 
-```html
+```json
 <script id="settings" type="application/json">
 {
   "buttonShapesByName": {
@@ -74,6 +74,9 @@ Includes configuration for animations, behaviors.
   }
 }
 </script>
+```
+
+```html
 <!--
   button: Button-SoundBible.com-1420500901.mp3
   error: Computer Error Alert-SoundBible.com-783113881.mp3
