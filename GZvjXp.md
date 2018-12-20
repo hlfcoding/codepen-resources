@@ -789,7 +789,7 @@ function createCLI(rootElement, contextElement, { act, settings: { timing } }) {
       return beginReading();
     },
     async echo(message) {
-      let lineElement = createLineElement();
+      const lineElement = createLineElement();
       lineElement.scrollIntoView();
       endReading();
       const { characterPauses: pauses } = timing;
