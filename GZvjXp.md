@@ -857,9 +857,8 @@ function createPowerButton(rootElement, { settings: { powerButtonLayout: layout,
       const offscreen = rootElement.clientHeight / 2 + radius.ring * 2;
       keyframes = { transform: [0, offscreen].map(y => `translateY(${y}px)`) };
     }
-    let animation = buttonElement.animate(keyframes, options);
     return new Promise((resolve, reject) => {
-      Object.assign(animation, { oncancel: reject, onfinish: resolve });
+      Object.assign(buttonElement.animate(keyframes, options), { oncancel: reject, onfinish: resolve });
     });
   }
   return { rootElement, toggleAttached, toggleVisible };
