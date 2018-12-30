@@ -4,33 +4,35 @@
 >
 > Not a real screen from any of those shots. Just an initial playground for new elements. Screens coming later. は新準備!
 
-```pug
-//- .board.static
-.board
-  .piece
-    .label
-      | Psychographic Display
-  .piece
-    .label.danger
-      | Approaching Limits
-    .separator
-    .label.danger.short
-      | Danger
-  .piece
-    #internal.label
-      .sub-label.characters 内部
-      .sub-label Internal
-  .piece.via-rotate
-    each i in Array(3)
-      .hex-row
-        each i in Array(9)
-          .hex
-//- alternate implementation
-    //- .hex-grid
-    //-   each i in Array(3)
-    //-     .row
-    //-       each i in Array(3)
-    //-         span &#x2B22;
+```html
+<!-- <div class="board static"> -->
+<div class="board">
+  <div class="piece">
+    <div class="label">Psychographic Display</div>
+  </div>
+  <div class="piece">
+    <div class="label danger">Approaching Limits</div>
+    <div class="separator"></div>
+    <div class="label danger short">Danger</div>
+  </div>
+  <div class="piece">
+    <div id="internal" class="label">
+      <div class="sub-label characters">内部</div>
+      <div class="sub-label">Internal</div>
+    </div>
+  </div>
+  <div class="piece via-rotate">
+    <div class="hex-row"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div>
+    <div class="hex-row"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div>
+    <div class="hex-row"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div>
+  </div>
+  <!-- alternate implementation -->
+  <!-- <div class="hex-grid">
+    <div class="row"><span>&#x2B22;</span><span>&#x2B22;</span><span>&#x2B22;</span></div>
+    <div class="row"><span>&#x2B22;</span><span>&#x2B22;</span><span>&#x2B22;</span></div>
+    <div class="row"><span>&#x2B22;</span><span>&#x2B22;</span><span>&#x2B22;</span></div>
+  </div> -->
+</div>
 ```
 
 ```scss
