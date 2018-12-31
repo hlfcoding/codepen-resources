@@ -4,6 +4,17 @@
 >
 > Not a real screen from any of those shots. Just an initial playground for new elements. Screens coming later. は新準備!
 
+Head
+----
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+<link rel="stylesheet" href="//assets.pengxwang.com/codepen-resources/common-helpers/main-v2.css">
+```
+
+Body
+----
+
 ```html
 <!-- <div class="board static"> -->
 <div class="board">
