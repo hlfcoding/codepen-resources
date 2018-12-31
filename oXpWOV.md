@@ -16,8 +16,9 @@ Body
 ----
 
 ```html
+<!-- using: -clearfix -->
 <!-- <div class="board static"> -->
-<div class="board">
+<div class="board -clearfix">
   <div class="piece">
     <div class="label">Psychographic Display</div>
   </div>
@@ -33,9 +34,9 @@ Body
     </div>
   </div>
   <div class="piece via-rotate">
-    <div class="hex-row"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div>
-    <div class="hex-row"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div>
-    <div class="hex-row"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div>
+    <div class="hex-row -clearfix"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div>
+    <div class="hex-row -clearfix"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div>
+    <div class="hex-row -clearfix"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div>
   </div>
   <!-- alternate implementation -->
   <!-- <div class="hex-grid">
@@ -49,7 +50,6 @@ Body
 ```scss
 // //codepen.io/hlfcoding/pen/QbmaBV
 
-// using %clearfix
 // using blink
 // using shade
 
@@ -132,7 +132,6 @@ body {
 }
 
 .board {
-  @extend %clearfix;
   padding: { top: 1rem; left: 1rem; }
   .piece {
     float: left;
@@ -309,8 +308,6 @@ body {
 }
 
 .hex-row {
-  @extend %clearfix;
-
   > .hex { @include tandem-blink; }
   &:nth-child(even) > .hex { @include tandem-blink-even; }
 }
