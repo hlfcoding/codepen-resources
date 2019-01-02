@@ -56,7 +56,6 @@ Body
 // `font-stretch` isn't well supported, so instead of using a condensed font variant, load a condensed font.
 @import url(//fonts.googleapis.com/css?family=Roboto+Condensed:400,600,700);
 
-$bg-color: #000;
 $text-color: #fa0;
 $glow-color: #f60;
 $danger-fill-color: #f23;
@@ -128,15 +127,18 @@ html {
 }
 
 body {
-  background: $bg-color;
+  background: #000;
 }
 
 .board {
-  padding: { top: 1rem; left: 1rem; }
-  .piece {
-    float: left;
-    margin: { bottom: 1rem; right: 1rem; }
-  }
+  padding-left: 1rem;
+  padding-top: 1rem;
+}
+
+.piece {
+  float: left;
+  margin-bottom: 1rem;
+  margin-right: 1rem;
 }
 
 // attributes
