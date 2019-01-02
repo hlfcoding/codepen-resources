@@ -16,16 +16,16 @@ Body
 ----
 
 ```html
-<!-- using: -clearfix -->
-<!-- <div class="board static"> -->
+<!-- using: -blink -clearfix -->
+<!-- <div class="board static -clearfix -static"> -->
 <div class="board -clearfix">
   <div class="piece">
     <div class="label">Psychographic Display</div>
   </div>
   <div class="piece">
-    <div class="label danger">Approaching Limits</div>
+    <div class="label danger -blink">Approaching Limits</div>
     <div class="separator"></div>
-    <div class="label danger short">Danger</div>
+    <div class="label danger short -blink">Danger</div>
   </div>
   <div class="piece">
     <div id="internal" class="label">
@@ -163,12 +163,6 @@ body {
     position: absolute;
     right: 2px; top: 2px; bottom: 2px;
   }
-}
-
-// modifiers
-
-.danger {
-  @include blink;
 }
 
 // components
