@@ -20,15 +20,15 @@ Body
 <!-- <div class="board static -clearfix -static"> -->
 <div class="board -clearfix">
   <div class="piece">
-    <div class="label">Psychographic Display</div>
+    <div class="label -bordered">Psychographic Display</div>
   </div>
   <div class="piece">
-    <div class="label danger -blink">Approaching Limits</div>
+    <div class="label -blink -bordered --danger">Approaching Limits</div>
     <div class="separator"></div>
-    <div class="label danger short -blink">Danger</div>
+    <div class="label -blink -bordered --danger short">Danger</div>
   </div>
   <div class="piece">
-    <div id="internal" class="label">
+    <div id="internal" class="label -bordered">
       <div class="sub-label characters">内部</div>
       <div class="sub-label">Internal</div>
     </div>
@@ -51,7 +51,6 @@ Body
 // //codepen.io/hlfcoding/pen/QbmaBV
 
 // using blink
-// using shade
 
 // `font-stretch` isn't well supported, so instead of using a condensed font variant, load a condensed font.
 @import url(//fonts.googleapis.com/css?family=Roboto+Condensed:400,600,700);
@@ -63,15 +62,6 @@ $danger-text-color: #f30;
 $danger-glow-color: #f00;
 
 $gutter-size: 8px;
-
-@function border-glow($color: $glow-color) {
-  $color: transparentize($color, .3);
-  $shadows: (
-    inset 0 0 0 1px $color,
-    0 0 0 1px $color
-  );
-  @return $shadows;
-}
 
 @function text-glow($color: $glow-color) {
   $color: transparentize($color, .5);
@@ -119,7 +109,7 @@ $gutter-size: 8px;
     transparent (2 * $size), // fade from background
     $glow-color (2 * $size - $glow-size) // glow boundary
   );
-  box-shadow: inset 0 0 1px ($glow-size / 2) shade(.3);
+  box-shadow: inset 0 0 1px ($glow-size / 2) var(--shade-3);
 }
 
 html {
@@ -131,6 +121,9 @@ body {
 }
 
 .board {
+  --glow-rgb: 255, 102, 0;
+  --danger-glow-rgb: 255, 0, 0;
+  --gutter-size: #{$gutter-size};
   padding-left: 1rem;
   padding-top: 1rem;
 }
@@ -143,16 +136,17 @@ body {
 
 // attributes
 
-%bordered {
-  border: {
-    radius: $gutter-size;
-    style: solid;
-    width: 3px;
-  }
-  box-shadow: border-glow();
-  &.danger {
-    box-shadow: border-glow($color: $danger-glow-color);
-  }
+.-bordered {
+  --border-glow-color: rgba(var(--glow-rgb, .7));
+  border-radius: var(--gutter-size);
+  border-style: solid;
+  border-width: 3px;
+  box-shadow:
+    inset 0 0 0 1px var(--border-glow-color),
+    0 0 0 1px var(--border-glow-color);
+}
+.-bordered.--danger {
+  --border-glow-color: rgba(var(--danger-glow-rgb, .7));
 }
 
 %has-stripes {
@@ -170,7 +164,6 @@ body {
 // components
 
 .label {
-  @extend %bordered;
   display: inline-block;
   font: {
     family: 'Roboto Condensed';
@@ -194,7 +187,7 @@ body {
   // skin
   color: $text-color;
   text-shadow: text-glow();
-  &.danger {
+  &.--danger {
     color: $danger-text-color;
     text-shadow: text-glow($color: $danger-glow-color);
   }
