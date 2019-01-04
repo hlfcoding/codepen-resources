@@ -31,6 +31,7 @@ Body
     <div id="internal" class="label -bordered">
       <div class="sub-label characters">内部</div>
       <div class="sub-label">Internal</div>
+      <div class="decal -blink -striped"></div>
     </div>
   </div>
   <div class="piece via-rotate">
@@ -57,7 +58,6 @@ Body
 
 $text-color: #fa0;
 $glow-color: #f60;
-$danger-fill-color: #f23;
 $danger-text-color: #f30;
 $danger-glow-color: #f00;
 
@@ -95,23 +95,6 @@ $gutter-size: 8px;
   &:nth-child(3n) { animation-delay: .1s; }
 }
 
-@mixin stripes($size: 15px, $direction: -45deg, $glow-size: 3px,
-               $color: $danger-fill-color, $glow-color: $danger-glow-color)
-{
-  $glow-color: transparentize($glow-color, .8);
-  background-image: repeating-linear-gradient(
-    $direction,
-    $glow-color (- $glow-size), // glow boundary
-    $color 0, // fade into foreground
-    $color ($size - $glow-size / 2), // fade from foreground
-    $glow-color ($size + $glow-size / 2), // glow boundary
-    transparent ($size + $glow-size / 2), // fade to background
-    transparent (2 * $size), // fade from background
-    $glow-color (2 * $size - $glow-size) // glow boundary
-  );
-  box-shadow: inset 0 0 1px ($glow-size / 2) var(--shade-3);
-}
-
 html {
   cursor: none;
 }
@@ -122,6 +105,7 @@ body {
 
 .board {
   --glow-rgb: 255, 102, 0;
+  --danger-fill-color: #f23;
   --danger-glow-rgb: 255, 0, 0;
   --gutter-size: #{$gutter-size};
   padding-left: 1rem;
@@ -149,16 +133,29 @@ body {
   --border-glow-color: rgba(var(--danger-glow-rgb, .7));
 }
 
-%has-stripes {
-  position: relative;
-  &::after {
-    @include blink;
-    @include stripes;
-    border-radius: 2px;
-    content: '';
-    position: absolute;
-    right: 2px; top: 2px; bottom: 2px;
-  }
+.-striped {
+  --stripe-color: var(--danger-fill-color);
+  --stripe-size: 15px;
+  --glow-color: rgba(var(--danger-glow-rgb, .8));
+  --glow-size: 3px;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    /* glow boundary */
+    var(--glow-color) calc(-1 * var(--glow-size)),
+    /* fade into foreground */
+    var(--stripe-color) 0,
+    /* fade from foreground */
+    var(--stripe-color) calc(var(--stripe-size) - var(--glow-size) / 2),
+    /* glow boundary */
+    var(--glow-color) calc(var(--stripe-size) + var(--glow-size) / 2),
+    /* fade to background */
+    transparent calc(var(--stripe-size) + var(--glow-size) / 2),
+    /* fade from background */
+    transparent calc(2 * var(--stripe-size)),
+    /* glow boundary */
+    var(--glow-color) calc(2 * var(--stripe-size) - var(--glow-size))
+  );
+  box-shadow: inset 0 0 1px calc(var(--glow-size) / 2) var(--shade-3);
 }
 
 // components
@@ -201,13 +198,16 @@ body {
   }
 
   &#internal {
+    $stripes-width: 50px;
+    padding-right: $stripes-width + $gutter-size;
+    position: relative;
     .characters.sub-label {
       font-size: 64px;
     }
-    @extend %has-stripes;
-    $stripes-width: 50px;
-    padding-right: $stripes-width + $gutter-size;
-    &::after {
+    .decal {
+      border-radius: 2px;
+      position: absolute;
+      right: 2px; top: 2px; bottom: 2px;
       width: $stripes-width;
     }
   }
