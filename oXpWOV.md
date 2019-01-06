@@ -174,7 +174,7 @@ body {
     transform: uppercase;
   }
   user-select: none;
-  white-space: no-wrap;
+  white-space: nowrap;
   &.short {
     font-size: 40px;
   }
