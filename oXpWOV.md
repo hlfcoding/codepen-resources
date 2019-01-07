@@ -25,7 +25,7 @@ Body
   <div class="piece">
     <div class="label -blink -bordered --danger">Approaching Limits</div>
     <div class="separator"></div>
-    <div class="label -blink -bordered --danger short">Danger</div>
+    <div class="label -blink -bordered -short --danger">Danger</div>
   </div>
   <div class="piece">
     <div id="internal" class="label -bordered">
@@ -56,23 +56,11 @@ Body
 // `font-stretch` isn't well supported, so instead of using a condensed font variant, load a condensed font.
 @import url(//fonts.googleapis.com/css?family=Roboto+Condensed:400,600,700);
 
-$text-color: #fa0;
 $glow-color: #f60;
 $danger-text-color: #f30;
 $danger-glow-color: #f00;
 
 $gutter-size: 8px;
-
-@function text-glow($color: $glow-color) {
-  $color: transparentize($color, .5);
-  $shadows: (
-    -1px 1px 0 $color,
-    1px -1px 0 $color,
-    -1px -1px 0 $color,
-    1px 1px 0 $color
-  );
-  @return $shadows;
-}
 
 @function text-bloom-glow($radius, $color: $glow-color) {
   $color: transparentize($color, .5);
@@ -105,8 +93,10 @@ body {
 
 .board {
   --glow-rgb: 255, 102, 0;
+  --text-color: #fa0;
   --danger-fill-color: #f23;
   --danger-glow-rgb: 255, 0, 0;
+  --danger-text-color: #f30;
   --gutter-size: #{$gutter-size};
   padding-left: 1rem;
   padding-top: 1rem;
@@ -118,10 +108,10 @@ body {
   margin-right: 1rem;
 }
 
-// attributes
+/* attributes */
 
 .-bordered {
-  --border-glow-color: rgba(var(--glow-rgb, .7));
+  --border-glow-color: rgba(var(--glow-rgb), .7);
   border-radius: var(--gutter-size);
   border-style: solid;
   border-width: 3px;
@@ -130,13 +120,13 @@ body {
     0 0 0 1px var(--border-glow-color);
 }
 .-bordered.--danger {
-  --border-glow-color: rgba(var(--danger-glow-rgb, .7));
+  --border-glow-color: rgba(var(--danger-glow-rgb), .7);
 }
 
 .-striped {
   --stripe-color: var(--danger-fill-color);
   --stripe-size: 15px;
-  --glow-color: rgba(var(--danger-glow-rgb, .8));
+  --glow-color: rgba(var(--danger-glow-rgb), .8);
   --glow-size: 3px;
   background-image: repeating-linear-gradient(
     -45deg,
@@ -158,36 +148,37 @@ body {
   box-shadow: inset 0 0 1px calc(var(--glow-size) / 2) var(--shade-3);
 }
 
-// components
+/* components */
 
 .label {
   display: inline-block;
-  font: {
-    family: 'Roboto Condensed';
-    size: 32px;
-    weight: 400;
-  }
+  font: 400 32px 'Roboto Condensed';
   letter-spacing: -1px;
   line-height: 1;
-  padding: 1px ($gutter-size - 3px);
-  text: {
-    transform: uppercase;
-  }
+  padding: 1px calc(var(--gutter-size) - 3px);
+  text-transform: uppercase;
   user-select: none;
   white-space: nowrap;
-  &.short {
-    font-size: 40px;
-  }
-  & + .separator {
-    height: $gutter-size;
-  }
-  // skin
-  color: $text-color;
-  text-shadow: text-glow();
-  &.--danger {
-    color: $danger-text-color;
-    text-shadow: text-glow($color: $danger-glow-color);
-  }
+  /* skin */
+  --text-glow-color: rgba(var(--glow-rgb), .5);
+  color: var(--text-color);
+  text-shadow:
+    -1px 1px 0 var(--text-glow-color),
+    1px -1px 0 var(--text-glow-color),
+    -1px -1px 0 var(--text-glow-color),
+    1px 1px 0 var(--text-glow-color);
+}
+.label.-short {
+  font-size: 40px;
+}
+.label.--danger {
+  --text-glow-color: rgba(var(--danger-glow-rgb), .5);
+  color: var(--danger-text-color);
+}
+.label + .separator {
+  height: var(--gutter-size);
+}
+.label {
   // children
   .sub-label {
     text-align: center;
