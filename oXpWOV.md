@@ -29,8 +29,8 @@ Body
   </div>
   <div class="piece">
     <div id="internal" class="label -bordered">
-      <div class="sub-label characters">内部</div>
-      <div class="sub-label">Internal</div>
+      <div class="text characters">内部</div>
+      <div class="text">Internal</div>
       <div class="decal -blink -striped"></div>
     </div>
   </div>
@@ -180,7 +180,7 @@ body {
 }
 .label {
   // children
-  .sub-label {
+  .text {
     text-align: center;
     &.characters {
       font-weight: 600;
@@ -192,7 +192,7 @@ body {
     $stripes-width: 50px;
     padding-right: $stripes-width + $gutter-size;
     position: relative;
-    .characters.sub-label {
+    .text.characters {
       font-size: 64px;
     }
     .decal {
