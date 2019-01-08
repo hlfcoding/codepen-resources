@@ -29,7 +29,7 @@ Body
   </div>
   <div class="piece">
     <div id="internal" class="label -bordered">
-      <div class="text characters">内部</div>
+      <div class="text -characters">内部</div>
       <div class="text">Internal</div>
       <div class="decal -blink -striped"></div>
     </div>
@@ -178,32 +178,27 @@ body {
 .label + .separator {
   height: var(--gutter-size);
 }
-.label {
-  // children
-  .text {
-    text-align: center;
-    &.characters {
-      font-weight: 600;
-      margin: { top: 6px; }
-    }
-  }
-
-  &#internal {
-    $stripes-width: 50px;
-    padding-right: $stripes-width + $gutter-size;
-    position: relative;
-    .text.characters {
-      font-size: 64px;
-    }
-    .decal {
-      border-radius: 2px;
-      position: absolute;
-      right: 2px; top: 2px; bottom: 2px;
-      width: $stripes-width;
-    }
-  }
+.label .text {
+  text-align: center;
 }
-
+.label .text.-characters {
+  font-weight: 600;
+  margin-top: 6px;
+}
+.label#internal {
+  --stripes-width: 50px;
+  padding-right: calc(var(--stripes-width) + var(--gutter-size));
+  position: relative;
+}
+.label#internal .text.-characters {
+  font-size: 64px;
+}
+.label#internal .decal {
+  border-radius: 2px;
+  position: absolute;
+  right: 2px; top: 2px; bottom: 2px;
+  width: var(--stripes-width);
+}
 
 // alternate implementation
 /*
