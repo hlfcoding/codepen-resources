@@ -178,26 +178,28 @@ body {
 .label + .separator {
   height: var(--gutter-size);
 }
-.label .text {
-  text-align: center;
-}
 .label .text.-characters {
   font-weight: 600;
-  margin-top: 6px;
 }
 .label#internal {
-  --stripes-width: 50px;
-  padding-right: calc(var(--stripes-width) + var(--gutter-size));
-  position: relative;
+  --decal-width: 50px;
+  --label-corner-size: 3px;
+  --label-gutter-size: 5px;
+  display: grid;
+  column-gap: var(--label-gutter-size);
+  grid-template-columns: auto var(--decal-width);
+  padding: var(--label-corner-size);
+}
+.label#internal .text {
+  text-align: right;
 }
 .label#internal .text.-characters {
   font-size: 64px;
+  padding-top: var(--label-gutter-size);
 }
 .label#internal .decal {
-  border-radius: 2px;
-  position: absolute;
-  right: 2px; top: 2px; bottom: 2px;
-  width: var(--stripes-width);
+  border-radius: calc(var(--label-corner-size) - 1px);
+  grid-area: 1 / 2 / span 2 / 2;
 }
 
 // alternate implementation
