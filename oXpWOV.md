@@ -232,34 +232,45 @@ body {
 */
 
 .hex {
+  --edge-size: 20px;
+  --diagonal-size: calc(var(--edge-size) * 2);
+  --diagonal-s-size: calc(var(--edge-size) * 1.75); /* diagonal */
+  --gutter-ratio: .85;
+  --gutter-size: calc(var(--edge-size) * .35);
+  --gutter-d-size: calc(var(--edge-size) / 2);
+  float: left;
+  height: var(--diagonal-s-size);
+  margin-bottom: var(--gutter-size);
+  margin-left: calc(var(--gutter-ratio) * var(--edge-size) / 2);
+  margin-right: calc(var(--gutter-ratio) * var(--edge-size) / 2);
+  position: relative;
+  width: var(--edge-size);
+  /* skin */
+  --fill-color: var(--danger-text-color);
+  --glow-color: rgba(var(--danger-glow-rgb), .5);
+  background: var(--fill-color);
+  box-shadow:
+    0 0 var(--gutter-d-size) var(--glow-color),
+    0 0 calc(var(--gutter-d-size) / 2) var(--glow-color);
+}
+
+.hex::before, .hex::after { content: ''; display: block; position: absolute; }
+
+.hex:nth-child(odd) {
+  top: calc((var(--diagonal-s-size) + var(--gutter-size)) / 2);
+}
+
+.hex {
   $fill: $danger-text-color;
-  $ratio: 1.732;
+  $ratio: 1.75;
   $edge: 20px;
-  $gutter-ratio: .866;
+  $gutter-ratio: .85;
 
   $diagonal: $edge * 2;
   $diagonal-s: round($edge * $ratio); // diagonal
-  $gutter: round($edge / 3);
+  $gutter: round($edge * .35);
   $gutter-d: round($edge / 2);
   $glow: text-bloom-glow($radius: $gutter-d, $color: $danger-glow-color);
-
-  background: $fill;
-  box-shadow: $glow;
-  float: left;
-  height: $diagonal-s;
-  margin: {
-    bottom: round($gutter);
-    left: round($gutter-ratio * $edge / 2);
-    right: round($gutter-ratio * $edge / 2);
-  }
-  position: relative;
-  width: $edge;
-
-  &::before, &::after { content: ''; display: block; position: absolute; }
-
-  &:nth-child(odd) {
-    top: ($diagonal-s + $gutter) / 2;
-  }
 
   .via-border & {
     $tip-width: $edge / 2;
