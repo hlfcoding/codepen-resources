@@ -47,9 +47,6 @@ Body
 
 // using blink
 
-// `font-stretch` isn't well supported, so instead of using a condensed font variant, load a condensed font.
-@import url(//fonts.googleapis.com/css?family=Roboto+Condensed:400,600,700);
-
 @mixin tandem-blink {
   @include blink($duration: 3s);
   animation-delay: .1s;
@@ -61,6 +58,16 @@ Body
   &:nth-child(2n) { animation-delay: .2s; }
   &:nth-child(3n) { animation-delay: .1s; }
 }
+
+.hex-row {
+  > .hex { @include tandem-blink; }
+  &:nth-child(even) > .hex { @include tandem-blink-even; }
+}
+```
+
+```css
+/* `font-stretch` isn't well supported, so instead of using a condensed font variant, load a condensed font. */
+@import url(//fonts.googleapis.com/css?family=Roboto+Condensed:400,600,700);
 
 html {
   cursor: none;
@@ -228,9 +235,4 @@ body {
 }
 .-rotate-method .hex::before { transform: rotate(60deg); }
 .-rotate-method .hex::after { transform: rotate(-60deg); }
-
-.hex-row {
-  > .hex { @include tandem-blink; }
-  &:nth-child(even) > .hex { @include tandem-blink-even; }
-}
 ```
