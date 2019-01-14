@@ -16,8 +16,7 @@ Body
 ----
 
 ```html
-<!-- using: -blink -clearfix -->
-<!-- <div class="board static -clearfix -static"> -->
+<!-- using: -blink -clearfix -static -->
 <div class="board -clearfix">
   <div class="piece">
     <div class="label -bordered">Psychographic Display</div>
@@ -59,7 +58,7 @@ Body
   &:nth-child(3n) { animation-delay: .1s; }
 }
 
-.hex-row {
+.board:not(.-static) .hex-row {
   > .hex { @include tandem-blink; }
   &:nth-child(even) > .hex { @include tandem-blink-even; }
 }
@@ -235,4 +234,16 @@ body {
 }
 .-rotate-method .hex::before { transform: rotate(60deg); }
 .-rotate-method .hex::after { transform: rotate(-60deg); }
+```
+
+```js
+if (document.readyState !== 'loading') { addExtensions(); }
+else { document.addEventListener('DOMContentLoaded', event => addExtensions()); }
+
+function addExtensions() {
+  const board = document.querySelector('.board');
+  board.addEventListener('click', event => {
+    board.classList.toggle('-static');
+  });
+}
 ```
