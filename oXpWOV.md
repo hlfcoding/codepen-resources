@@ -34,34 +34,11 @@ Body
     </div>
   </div>
   <div class="piece -rotate-method">
-    <div class="hex-row -clearfix"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div>
-    <div class="hex-row -clearfix"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div>
-    <div class="hex-row -clearfix"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div>
+    <div class="hex-row -clearfix"><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div></div>
+    <div class="hex-row -clearfix"><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div></div>
+    <div class="hex-row -clearfix"><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div><div class="hex -blink"></div></div>
   </div>
 </div>
-```
-
-```scss
-// //codepen.io/hlfcoding/pen/QbmaBV
-
-// using blink
-
-@mixin tandem-blink {
-  @include blink($duration: 3s);
-  animation-delay: .1s;
-  &:nth-child(2n) { animation-delay: .2s; }
-  &:nth-child(3n) { animation-delay: .3s; }
-}
-@mixin tandem-blink-even {
-  animation-delay: .3s;
-  &:nth-child(2n) { animation-delay: .2s; }
-  &:nth-child(3n) { animation-delay: .1s; }
-}
-
-.board:not(.-static) .hex-row {
-  > .hex { @include tandem-blink; }
-  &:nth-child(even) > .hex { @include tandem-blink-even; }
-}
 ```
 
 ```css
@@ -208,11 +185,19 @@ body {
   box-shadow:
     0 0 var(--gutter-d-size) var(--glow-color),
     0 0 calc(var(--gutter-d-size) / 2) var(--glow-color);
+  /* animation */
+  --blink-duration: 3s;
+  animation-delay: .1s;
 }
 .hex::before, .hex::after { content: ''; display: block; position: absolute; }
 .hex:nth-child(odd) {
   top: calc((var(--diagonal-s-size) + var(--gutter-size)) / 2);
 }
+.hex:nth-child(2n) { animation-delay: .2s; }
+.hex:nth-child(3n) { animation-delay: .3s; }
+.hex-row:nth-child(even) > .hex { animation-delay: .3s; }
+.hex-row:nth-child(even) > .hex:nth-child(2n) { animation-delay: .2s; }
+.hex-row:nth-child(even) > .hex:nth-child(3n) { animation-delay: .1s; }
 
 .-border-method .hex {
   --tip-height: var(--diagonal-s-size);
