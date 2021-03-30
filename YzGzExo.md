@@ -79,6 +79,8 @@ ctx = pad.getContext('2d')
 
 drawCube({
   size: 20, x: pad.width / 2, y: pad.height / 2,
+  fill: { left: '#29d', right: '#17a', top: '#4be' },
+  stroke: { outline: '#048', side: '#4be', top: '#adf' },
 })
 
 // ---
