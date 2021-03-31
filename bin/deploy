@@ -9,3 +9,6 @@ aws s3 sync . "$s3_bucket" --acl public-read --delete \
 
 aws s3 sync . "$s3_bucket" --acl public-read --content-type "application/javascript" --delete \
   --exclude "*" --include "*.mjs"
+
+# NOTE: Assumes correct CORS settings to allow https://cdpn.io
+# NOTE: Expect delay unless manually invalidating CloudFront dist, CloudFlare proxy
