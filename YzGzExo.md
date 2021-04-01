@@ -28,9 +28,14 @@ canvas {
 
 ```js
 /*
+ https://en.wikipedia.org/wiki/Isometric_projection#/media/File:3D_shapes_in_isometric_projection.svg
  v: vertex
  */
-let ctx
+
+// const stage = document.getElementById('pad')
+const stage = document.getElementById('screen')
+
+const ctx = stage.getContext('2d')
 
 const drawLine = (aV, { stroke }) => {
   ctx.strokeStyle = stroke
@@ -50,17 +55,30 @@ const drawPlane = (aV, { fill }) => {
   ctx.fill()
 }
 
+let nextCube = {
+  x: stage.width / 2,
+  y: stage.height,
+}
+const cubeBlue = {
+  fill: { left: '#29d', right: '#17a', top: '#4be' },
+  stroke: { outline: '#048', side: '#4be', top: '#adf' },
+}
+const cubeRed = {
+  fill: { left: '#e66', right: '#d55', top: '#f99' },
+  stroke: { outline: '#933', side: '#f99', top: '#fcc' },
+}
+const cubeSize = 20
 const drawCube = ({
-  size, x, y,
-  fill = { left: '#e66', right: '#d55', top: '#f99' },
-  stroke = { outline: '#933', side: '#f99', top: '#fcc' },
-}) => {
-  const v0 = { x: x + 0.5, y: y + 0.5 }
+  size = cubeSize, fX = () => (nextCube.x), fY = () => (nextCube.y),
+  fill = cubeBlue.fill,
+  stroke = cubeBlue.stroke,
+} = {}) => {
+  const v0 = { x: fX() + 0.5, y: fY() + 0.5 }
   const aV = [30, 90, 150, 210, 270, 330]
     .map(deg => deg * Math.PI/180)
     .map(rad => ({
-      x: Math.round(Math.cos(rad) * size) + x + 0.5,
-      y: -Math.sin(rad) * size + y + 0.5,
+      x: Math.round(Math.cos(rad) * size) + fX() + 0.5,
+      y: -Math.sin(rad) * size + fY() + 0.5,
     }))
   // console.log(aV)
   drawPlane([v0].concat(aV.slice(0, 3)), { fill: fill.top })
@@ -78,9 +96,6 @@ const pad = document.getElementById('pad')
 ctx = pad.getContext('2d')
 
 drawCube({
-  size: 20, x: pad.width / 2, y: pad.height / 2,
-  fill: { left: '#29d', right: '#17a', top: '#4be' },
-  stroke: { outline: '#048', side: '#4be', top: '#adf' },
 })
 
 // ---
