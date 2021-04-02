@@ -9,7 +9,7 @@
 
 ```html
 <canvas id="pad" width="100" height="100" class="-card-skin -centered"></canvas>
-<canvas id="screen" width="300" height="300"></canvas>
+<canvas id="screen" width="600" height="200" class="-card-skin -centered"></canvas>
 ```
 
 ```css
@@ -20,8 +20,12 @@ body {
 canvas {
   image-rendering: pixelated;
 }
+canvas.-card-skin {
+  padding: 0;
+}
 
-#screen {
+#pad {
+/* #screen { */
   display: none;
 }
 ```
@@ -90,15 +94,101 @@ const drawCube = ({
   drawLine(aV, { stroke: stroke.outline })
 }
 
+const drawHaze = ({ w = stage.width, h = stage.height } = {}) => {
+  ctx.fillStyle = 'rgba(40,40,40,0.01)'
+  ctx.fillRect(0, 0, w, h)
+}
+
+const moveOne = (dir) => {
+  console.log(dir)
+  const rad = Math.PI / 6 // 30 deg
+  const offset = {
+    x: Math.round(cubeSize * Math.cos(rad)) + 1,
+    y: Math.round(cubeSize * Math.sin(rad)) + 1,
+  }
+  switch (dir) {
+    case 'left':
+      nextCube.x -= offset.x
+      nextCube.y += offset.y
+      break
+    case 'right':
+      nextCube.x += offset.x
+      nextCube.y += offset.y
+      break
+    case 'up':
+      nextCube.y -= cubeSize + 1
+      break
+  }
+}
+
+let prevMove = {}
+const moveNext = () => {
+  const rollDie = (sides) => (
+    Math.ceil(Math.random() * sides)
+  )
+  const addInertia = (dir) => {
+    prevMove.dir = dir
+    prevMove.inertia = rollDie(3)
+  }
+  const prevCube = nextCube
+  let dir, noDir
+  if (prevCube.y >= stage.height) {
+    dir = 'up'
+    addInertia(dir)
+  } else if (prevCube.y <= 0) {
+    noDir = 'up'
+  } else if (prevCube.x >= stage.width) {
+    dir = 'left'
+    addInertia(dir)
+  } else if (prevCube.x <= 0) {
+    dir = 'right'
+    addInertia(dir)
+  } else if (prevMove?.inertia && prevMove.inertia--) {
+    dir = prevMove.dir
+  }
+  if (!dir) {
+    let roll
+    if (prevMove.dir) {
+      noDir = prevMove.dir
+    }
+    switch (noDir) {
+      case 'left':
+        roll = rollDie(2) + 1
+        break
+      case 'right':
+        roll = rollDie(3)
+        if (roll === 2) { roll = 1 }
+        break
+      case 'up':
+        roll = rollDie(2)
+        break
+      default:
+        roll = rollDie(3)
+        break
+    }
+    switch (roll) {
+      case 1:
+        dir = 'left'
+        drawHaze()
+        break
+      case 2:
+        dir = 'right'
+        drawHaze()
+        break
+      case 3:
+        dir = 'up'
+        break
+    }
+    addInertia(dir)
+  }
+  moveOne(dir)
+}
+
 // ---
 
-const pad = document.getElementById('pad')
-ctx = pad.getContext('2d')
-
-drawCube({
-})
-
-// ---
-
-const screen = document.getElementById('screen')
+let moves = 500
+while (moves--) {
+  moveNext()
+  drawCube()
+}
 ```
