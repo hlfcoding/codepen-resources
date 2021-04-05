@@ -21,6 +21,7 @@ canvas {
   image-rendering: pixelated;
 }
 canvas.-card-skin {
+  /* border-radius: 0; */
   padding: 0;
 }
 
@@ -122,64 +123,54 @@ const moveOne = (dir) => {
 }
 
 let prevMove = {}
-const moveNext = () => {
+const moveNext = ({ inertia = 3 } = {}) => {
   const rollDie = (sides) => (
     Math.ceil(Math.random() * sides)
   )
-  const addInertia = (dir) => {
-    prevMove.dir = dir
-    prevMove.inertia = rollDie(3)
-  }
-  const prevCube = nextCube
   let dir, noDir
+  const prevCube = nextCube
   if (prevCube.y >= stage.height) {
     dir = 'up'
-    addInertia(dir)
   } else if (prevCube.y <= 0) {
     noDir = 'up'
   } else if (prevCube.x >= stage.width) {
     dir = 'left'
-    addInertia(dir)
   } else if (prevCube.x <= 0) {
     dir = 'right'
-    addInertia(dir)
   } else if (prevMove?.inertia && prevMove.inertia--) {
     dir = prevMove.dir
   }
-  if (!dir) {
+  if (dir === undefined) { // Change direction.
     let roll
     if (prevMove.dir) {
       noDir = prevMove.dir
     }
     switch (noDir) {
       case 'left':
-        roll = rollDie(2) + 1
-        break
+        roll = rollDie(2) + 1; break
       case 'right':
         roll = rollDie(3)
         if (roll === 2) { roll = 1 }
         break
       case 'up':
-        roll = rollDie(2)
-        break
+        roll = rollDie(2); break
       default:
-        roll = rollDie(3)
-        break
+        roll = rollDie(3); break
     }
     switch (roll) {
       case 1:
         dir = 'left'
-        drawHaze()
-        break
+        drawHaze(); break
       case 2:
         dir = 'right'
-        drawHaze()
-        break
+        drawHaze(); break
       case 3:
-        dir = 'up'
-        break
+        dir = 'up'; break
     }
-    addInertia(dir)
+  }
+  if (dir != prevMove.dir) { // Add inertia.
+    prevMove.dir = dir
+    prevMove.inertia = rollDie(inertia)
   }
   moveOne(dir)
 }
@@ -187,8 +178,9 @@ const moveNext = () => {
 // ---
 
 let moves = 500
+const inertia = moves / 100
 while (moves--) {
-  moveNext()
+  moveNext({ inertia })
   drawCube()
 }
 ```
