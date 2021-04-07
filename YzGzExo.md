@@ -104,8 +104,8 @@ const moveOne = (dir) => {
   console.log(dir)
   const rad = Math.PI / 6 // 30 deg
   const offset = {
-    x: Math.round(cubeSize * Math.cos(rad)) + 1,
-    y: Math.round(cubeSize * Math.sin(rad)) + 1,
+    x: (cubeSize + 1) * Math.cos(rad),
+    y: (cubeSize + 1) * Math.sin(rad),
   }
   switch (dir) {
     case 'left':
